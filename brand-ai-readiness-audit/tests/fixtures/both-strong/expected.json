@@ -1,0 +1,15 @@
+{
+  "description": "A deep (3-level: /docs/getting-started/connect.html), well-built site: consistent brand everywhere, explicit breadcrumbs on every depth>=2 doc page, working continuation links, unique titles/descriptions, contact info, offering stated, clean robots.",
+  "expected_findings": [],
+  "expected_non_findings": [
+    "E-ORIENT-01",
+    "E-ORIENT-03",
+    "E-CONTINUE-01",
+    "E-CONTINUE-02",
+    "E-CONTINUE-03",
+    "D-ENTITY-01",
+    "D-EXTRACT-02",
+    "D-CRAWL-01"
+  ],
+  "notes": "Directly tests whether depth/complexity alone inflates findings on an otherwise well-built site -- a key false-positive-at-scale concern distinct from clean-static's shallow baseline."
+}

@@ -1,0 +1,13 @@
+{
+  "description": "A genuinely single-page site with no internal links at all.",
+  "expected_findings": [],
+  "expected_coverage": [
+    "INSUFFICIENT_PAGES"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-04",
+    "D-TRUST-03",
+    "E-CONTINUE-03"
+  ],
+  "notes": "Verifies the minimum-corpus rule (below 3 crawled pages, cross-page consistency checks disable and the coverage block says so) rather than fabricating a conflict/consistency finding from a single data point, and that a page with zero outgoing links doesn't crash single-page-only checks."
+}

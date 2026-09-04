@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Audit report",
+  "type": "object",
+  "required": ["site", "audited_at", "summary", "findings"],
+  "properties": {
+    "site": { "type": "string" },
+    "audited_at": { "type": "string", "format": "date-time" },
+    "summary": {
+      "type": "object",
+      "required": ["total_findings", "critical", "high", "medium", "low"],
+      "properties": {
+        "total_findings": { "type": "integer", "minimum": 0 },
+        "critical": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": { "type": "array", "items": { "$ref": "#/$defs/finding" } },
+
+    "scope": { "type": "object", "description": "archetype, pages crawled, rendered, template clusters" },
+    "coverage": { "type": "array", "description": "checks that could not run, with reason codes" },
+    "proactive_opportunities": { "type": "array" },
+    "demoted": { "type": "array" },
+    "run": { "type": "object", "description": "capabilities, budget consumed, skill versions" }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": ["id", "title", "severity", "evidence", "suggested_action"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^F-[0-9]{3,}$" },
+        "title": { "type": "string" },
+        "severity": { "enum": ["critical", "high", "medium", "low"] },
+        "evidence": { "type": "string" },
+        "suggested_action": {
+          "type": "object",
+          "required": ["summary", "priority"],
+          "properties": {
+            "summary": { "type": "string" },
+            "priority": { "enum": ["critical", "high", "medium", "low"] },
+            "how_to_fix": { "type": "string" },
+            "validation": { "type": "string" }
+          }
+        },
+
+        "check_id": { "type": "string" },
+        "category": { "type": "string" },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "mechanism": { "type": "string" },
+        "impact": { "type": "string" },
+        "observed_signal": { "type": "string" },
+        "source_urls": { "type": "array", "items": { "type": "string" } },
+        "observation_ids": { "type": "array", "items": { "type": "string" } },
+        "affected": { "type": "object" },
+        "related_findings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

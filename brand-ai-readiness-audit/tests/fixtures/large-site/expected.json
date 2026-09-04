@@ -1,0 +1,13 @@
+{
+  "description": "45 templated /product/N.html pages, all sharing a byte-identical title and meta description (a realistic templating mistake), linked from one catalog.html hub which also carries several ?sort= facet-parameter links. Default crawl budget is 30 pages; BFS order (home, about, catalog, then the ?sort= facet links, then products 1..N) means the crawl exhausts its budget partway through the product list.",
+  "expected_findings": [
+    "D-EXTRACT-02"
+  ],
+  "expected_coverage": [
+    "BUDGET_EXHAUSTED"
+  ],
+  "structurally_untestable": {
+    "D-CRAWL-14": "Requires store['capabilities']['crawl']['budget_exhausted'] == true, but lib/site_observer/collect.py never writes a 'crawl' key into store['capabilities'] at all (only 'renderer' and 'corroboration' are ever set) -- confirmed by grep across the whole repo, this flag is set only in detect_crawl.py's own unit tests, never by real collection. D-CRAWL-14 cannot fire in any real audit regardless of how much of the crawl budget facet URLs consume."
+  },
+  "notes": "This fixture was built to verify PROJECT_CONTEXT.md's Defect-D promise (one aggregated finding per template cluster, not per URL) using the single most common real-world templated-URL shape: a numeric ID immediately followed by a file extension in the same path segment (/product/1.html, /product/2.html, ...). Two independent bugs were found and FIXED: (1) skills/audit-orchestrator/scripts/run_audit.py::_invoke_detectors() never called detect_render()/detect_extract() at all -- now wired in. (2) skills/crawl-render-audit/scripts/_util.py::cluster_key() (the function group_by_cluster() actually falls back to, since collect.py never populates store['template_clusters'] in the declared-list shape group_by_cluster() looks for first) collapsed a path segment to '*' only via a regex requiring the ENTIRE segment to be purely numeric, so '1.html' never matched and every /product/N.html page got its own distinct cluster of size one -- now strips a trailing extension before testing the numeric/hex/slug patterns and reattaches it after, so /product/1.html and /product/2.html correctly cluster as /product/*.html. (lib/site_observer/crawl.py::template_shape() had the identical bug and received the identical fix, though it turned out not to be the one actually load-bearing for this check.) Re-verified end to end: run_audit() now returns two D-EXTRACT-02 findings -- one aggregating all 23 sampled /product/N.html pages under the single title 'Product | Northwind Supply' (the deliberately-injected defect this fixture targets), and one for the pre-existing ?sort= facet-query collision on catalog.html -- rather than zero."
+}

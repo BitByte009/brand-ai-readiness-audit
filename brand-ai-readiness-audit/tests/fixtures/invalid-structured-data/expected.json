@@ -1,0 +1,11 @@
+{
+  "description": "product-a.html has syntactically broken JSON-LD (trailing comma + missing colon). product-b.html has valid JSON but a Product node missing the required offers.price/priceCurrency. Verified by calling detect_extract.check_d_extract_04() directly on this fixture's real collected store: it correctly returns both findings (the JSONDecodeError branch and the required-property branch).",
+  "expected_findings": [
+    "D-EXTRACT-04"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-TRUST-06"
+  ],
+  "notes": "This fixture was the corpus's primary evidence for the detect_extract wiring gap: it isolates D-EXTRACT-04 from every probe/render dependency (pure static JSON-LD parsing, no PROBE, no D-RENDER interaction) and confirmed via direct function call that the check logic itself was correct, so the zero-findings result from the real run_audit() could only be explained by the orchestrator never invoking detect_extract() at all. FIXED: skills/audit-orchestrator/scripts/run_audit.py::_invoke_detectors() now imports and calls detect_render.detect_render(store) and detect_extract.detect_extract(store) alongside the other two detector modules. Re-verified end to end: run_audit() now returns both D-EXTRACT-04 findings (the JSONDecodeError branch on product-a.html and the required-property branch on product-b.html), matching the direct-call result exactly."
+}

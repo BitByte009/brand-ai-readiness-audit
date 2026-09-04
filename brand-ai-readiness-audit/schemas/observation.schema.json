@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Observation store",
+  "type": "object",
+  "required": ["store_version", "collected_at", "target", "observations"],
+  "properties": {
+    "store_version": { "type": "string" },
+    "collected_at": { "type": "string", "format": "date-time" },
+    "target": { "type": "object", "description": "requested host, audited host, redirect chain" },
+    "capabilities": { "type": "object", "description": "renderer, search availability" },
+    "archetype": { "type": "string" },
+    "template_clusters": { "type": "array" },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "source_url", "value"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^OBS-[A-Z]+-[a-f0-9]+$" },
+          "type": { "type": "string" },
+          "source_url": { "type": "string" },
+          "value": {},
+          "derivation": {
+            "type": "object",
+            "description": "present only for the two named LLM instruments (probe, classify): prompt id, model, temperature, input text hash"
+          }
+        }
+      }
+    }
+  }
+}

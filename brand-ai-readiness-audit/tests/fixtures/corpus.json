@@ -1,0 +1,23 @@
+{
+  "note": "Fixture content is Day 6. This manifest fixes the coverage matrix now so checks are not written to fit the fixtures.",
+  "fixtures": [
+    { "id": "clean-static",              "targets": ["baseline: expect near-zero findings"] },
+    { "id": "js-render-gap",             "targets": ["D-RENDER-01", "D-RENDER-02"] },
+    { "id": "facts-render-only",         "targets": ["D-RENDER-02", "D-EXTRACT-06"] },
+    { "id": "image-locked-facts",        "targets": ["D-EXTRACT-01"] },
+    { "id": "no-structured-data-ok",     "targets": ["NON-FINDING: clear prose, no schema"] },
+    { "id": "invalid-structured-data",   "targets": ["D-EXTRACT-04"] },
+    { "id": "ambiguous-entity",          "targets": ["D-ENTITY-02", "D-ENTITY-03"] },
+    { "id": "stale-content",             "targets": ["D-TRUST-01", "D-TRUST-02"] },
+    { "id": "conflicting-content",       "targets": ["D-TRUST-03", "D-ENTITY-04"] },
+    { "id": "strong-disc-weak-engage",   "targets": ["E-ORIENT-01", "E-ANSWER-04"] },
+    { "id": "weak-disc-strong-engage",   "targets": ["D-CRAWL-*", "NON-FINDING: E-*"] },
+    { "id": "both-strong",               "targets": ["NON-FINDING: all"] },
+    { "id": "both-weak",                 "targets": ["broad"] },
+    { "id": "deep-page-no-orientation",  "targets": ["E-ORIENT-01", "E-ORIENT-03"] },
+    { "id": "irrelevant-absence",        "targets": ["NON-FINDING: no sitemap on a 4-page interlinked site"] },
+    { "id": "non-commercial-archetype",  "targets": ["NON-FINDING: D-ENTITY-06 on a docs site"] },
+    { "id": "robots-5xx",                "targets": ["D-CRAWL-15"] },
+    { "id": "single-page-site",          "targets": ["minimum-corpus rule, cross-page checks disabled"] }
+  ]
+}

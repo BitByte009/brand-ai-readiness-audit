@@ -1,0 +1,20 @@
+{
+  "description": "Strong static site: consistent brand H1/title everywhere, stated type/offering, contact info, clean robots/canonical, no schema defects, working continuation links.",
+  "expected_findings": [],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-ENTITY-05",
+    "D-ENTITY-06",
+    "D-TRUST-01",
+    "D-TRUST-02",
+    "D-TRUST-06",
+    "D-EXTRACT-02",
+    "D-CRAWL-01",
+    "D-CRAWL-03",
+    "D-CRAWL-07",
+    "E-CONTINUE-01",
+    "E-CONTINUE-02"
+  ],
+  "notes": "Baseline. Any finding here is presumed a false positive unless evidence shows otherwise."
+}

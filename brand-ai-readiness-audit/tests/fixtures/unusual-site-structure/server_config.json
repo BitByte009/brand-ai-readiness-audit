@@ -1,0 +1,28 @@
+{
+  "overrides": {
+    "/old-page.html": {
+      "status": 302,
+      "headers": {
+        "Location": "/new-page.html"
+      }
+    },
+    "/a.html": {
+      "status": 302,
+      "headers": {
+        "Location": "/b.html"
+      }
+    },
+    "/b.html": {
+      "status": 302,
+      "headers": {
+        "Location": "/c.html"
+      }
+    },
+    "/c.html": {
+      "status": 302,
+      "headers": {
+        "Location": "/d.html"
+      }
+    }
+  }
+}

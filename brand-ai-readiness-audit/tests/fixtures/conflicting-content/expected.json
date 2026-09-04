@@ -1,0 +1,12 @@
+{
+  "description": "history.html claims 'Founded in 2008'; careers.html claims 'Since our founding in 2015' -- same entity_fact key (founded_year), different values (D-TRUST-03). Two Organization JSON-LD nodes carry the same org name (not distinguishing branch labels) but genuinely different addresses (D-ENTITY-04).",
+  "expected_findings": [
+    "D-TRUST-03",
+    "D-ENTITY-04"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-TRUST-06"
+  ],
+  "notes": "Contrasts directly with fp-trap-composite's distinct-branch-name multi-location pattern, which must NOT fire D-ENTITY-04."
+}

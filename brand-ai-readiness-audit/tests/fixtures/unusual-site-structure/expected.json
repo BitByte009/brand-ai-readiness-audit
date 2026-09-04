@@ -1,0 +1,15 @@
+{
+  "description": "Numeric-ID article URLs (/article/101.html etc, should cluster as /article/# per template_shape). /old-page.html -> /new-page.html is a single-hop redirect (must NOT fire D-CRAWL-05). /a.html -> /b.html -> /c.html -> /d.html is a 3-hop chain (must fire D-CRAWL-05). /en/pricing.html and /fr/pricing.html are locale variants with no hreflang tag anywhere (D-CRAWL-11). /gone.html returns HTTP 200 with a short soft-404 phrase (D-CRAWL-04).",
+  "expected_findings": [
+    "D-CRAWL-05",
+    "D-CRAWL-11",
+    "D-CRAWL-04",
+    "E-CONTINUE-02"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-06",
+    "D-TRUST-06"
+  ],
+  "notes": "The 1-hop /old-page.html redirect is the FP-adjacent guardrail check within this fixture: D-CRAWL-05 needs >=3 hops or a loop, so a normal single redirect must stay silent. scope.template_clusters in the report should show /article/# as one cluster of 3, not 3 separate shapes -- inspected directly, not asserted as a 'finding'."
+}

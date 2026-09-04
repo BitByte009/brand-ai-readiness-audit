@@ -1,0 +1,15 @@
+{
+  "description": "JS-heavy site: index/platform pages render almost all body text client-side via a DOMContentLoaded script; raw HTML is a near-empty shell. This is textbook D-RENDER-01 (raw-vs-rendered text ratio <0.30).",
+  "expected_findings": [
+    "D-RENDER-01"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-TRUST-06"
+  ],
+  "structurally_untestable": {
+    "D-RENDER-02": "Requires a PROBE observation. lib/site_observer/probe.py::detect_capability() is hardcoded to always return {'available': False, 'reason': 'MODEL_UNAVAILABLE'} -- not environment-detected, unconditional -- so PROBE observations never exist through the real pipeline regardless of fixture content. This check is dead code in every real run, independent of the (now-fixed) orchestrator wiring gap."
+  },
+  "notes": "Playwright is installed and rendering succeeds (verified: RENDER observations are present and correct). This fixture was originally the corpus's primary evidence for the detect_render/detect_extract orchestrator wiring gap (skills/audit-orchestrator/scripts/run_audit.py::_invoke_detectors() never called detect_render()/detect_extract()). FIXED: both are now wired in. Re-verified end to end: run_audit() now returns D-RENDER-01 findings for both index.html and platform.html, matching the direct detect_render.check_d_render_01() call exactly. D-RENDER-02 remains genuinely unreachable, but now for its own, independent reason (the PROBE capability), not the wiring gap."
+}

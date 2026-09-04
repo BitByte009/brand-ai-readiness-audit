@@ -1,0 +1,13 @@
+{
+  "description": "No JSON-LD anywhere on the site. Identity (name/type/offering) is stated clearly in prose instead. Structured data is absent, not wrong -- absence alone must never be a finding.",
+  "expected_findings": [],
+  "expected_non_findings": [
+    "D-EXTRACT-03",
+    "D-EXTRACT-04",
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-ENTITY-05",
+    "D-ENTITY-06"
+  ],
+  "notes": "D-ENTITY-05 (no identity anchor) is a compound check that only fires alongside D-ENTITY-01 or -02; since name/type are clearly stated in prose, neither fires, so -05 correctly stays silent even though there genuinely is no sameAs/url anchor. D-EXTRACT-03/04 are moot here regardless of content: detect_extract() is never invoked by the real pipeline at all (see EXTRACT_RENDER_WIRING_GAP in invalid-structured-data's expected.json) -- this fixture's 'clean' D-EXTRACT result and invalid-structured-data's 'clean' (i.e. silent) result would look identical to this harness even if this fixture's absence-guardrail logic were broken, since the check can't run either way. That specific ambiguity is why invalid-structured-data verifies detect_extract's logic directly as well as end-to-end."
+}

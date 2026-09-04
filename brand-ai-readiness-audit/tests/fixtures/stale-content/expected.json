@@ -1,0 +1,14 @@
+{
+  "description": "pricing.html: 'currently' with no date signal anywhere on the page (D-TRUST-01). events.html: a forward-framed event dated March 3, 2024 (already past at any real audit time) with no page-level date at/before it, PLUS a bare (c) 2022 footer with no other date signal on that page (D-TRUST-02a and D-TRUST-02c both on the same page).",
+  "expected_findings": [
+    "D-TRUST-01",
+    "D-TRUST-02"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-ENTITY-05",
+    "D-TRUST-06"
+  ],
+  "notes": "D-TRUST-02's two sub-triggers (a and c) may report as one finding or two depending on how detect_trust.py aggregates per-page vs per-subtrigger -- recorded as observed."
+}

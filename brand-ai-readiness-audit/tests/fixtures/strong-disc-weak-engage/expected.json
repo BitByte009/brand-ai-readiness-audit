@@ -1,0 +1,21 @@
+{
+  "description": "Homepage/about/contact (depth 0-1) are brand-clear and well-formed (clean D-CRAWL/D-ENTITY/D-TRUST). The catalog hierarchy (depth 1-3) is discoverable and well-linked (strong 'discoverability') but its category and product pages (depth>=2) state no brand anywhere in title/h1/body-first-800/img-alt, and the site has no breadcrumb anywhere despite a sitewide max depth of 3 (weak 'engagement' -- orientation specifically).",
+  "expected_findings": [
+    "E-ORIENT-03"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-ENTITY-04",
+    "D-CRAWL-01",
+    "D-TRUST-06",
+    "E-CONTINUE-01",
+    "E-CONTINUE-02",
+    "E-CONTINUE-03"
+  ],
+  "confirmed_false_negative": {
+    "check": "E-ORIENT-01 (no brand identification on arrival)",
+    "why": "This fixture was built to trigger E-ORIENT-01 (deep pages state no brand anywhere) and does not. Root cause confirmed by direct inspection: entity-semantic-audit's _aliases_field() (build_entity_profile.py) dumps EVERY name candidate that isn't the dominant brand name -- i.e. every other page's own title/h1 text sitewide, with no relevance filtering -- into entity_profile.fields.aliases. detect_engagement.py::_brand_tokens() then feeds those aliases back into E-ORIENT-01's own brand-token search. Since a page's own title is always harvested as a name candidate, and any non-dominant candidate becomes a searchable 'alias', a deep page's own distinctive title always self-matches as one of its own 'brand aliases' -- title_hit is trivially True on nearly every page with a real, non-empty <title> that isn't itself the brand name. In practice this makes E-ORIENT-01 unable to fire on any realistically-titled deep page across the whole corpus; it can only fire on a page with no title and no h1 at all, which is a degenerate case distinct from what the check is meant to catch."
+  },
+  "notes": "Brand identity for D-ENTITY-01 purposes is carried via JSON-LD (which E-ORIENT-01 never reads) plus the home/about/contact pages -- isolating 'a machine can identify this entity' (clean) from 'a cold human visitor lands on a deep page and cannot tell whose site it is' (the actual defect under test)."
+}

@@ -1,0 +1,14 @@
+{
+  "name": "brand-ai-readiness-audit",
+  "version": "0.1.0",
+  "description": "Audits a public website for AI-discoverability and on-site-engagement failures and emits a single evidence-backed, prioritized report.",
+  "license": "MIT",
+  "skills": [
+    { "id": "audit-orchestrator",     "path": "skills/audit-orchestrator",     "entrypoint": true },
+    { "id": "crawl-render-audit",     "path": "skills/crawl-render-audit" },
+    { "id": "entity-semantic-audit",  "path": "skills/entity-semantic-audit" },
+    { "id": "trust-freshness-audit",  "path": "skills/trust-freshness-audit" },
+    { "id": "engagement-audit",       "path": "skills/engagement-audit" },
+    { "id": "evidence-prioritization","path": "skills/evidence-prioritization" }
+  ]
+}

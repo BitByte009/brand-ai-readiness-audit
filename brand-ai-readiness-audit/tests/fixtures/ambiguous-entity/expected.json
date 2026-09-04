@@ -1,0 +1,16 @@
+{
+  "description": "Exactly 2 of 4 pages call the brand 'BrightPath Analytics', the other 2 call it 'Vertex Data Group' (title AND h1 both vary together, no schema anchor either way, no majority >=70%). No page states an offering-verb sentence, and no JSON-LD anywhere.",
+  "expected_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-05",
+    "D-ENTITY-06"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-02"
+  ],
+  "notes_on_own_authoring": "D-ENTITY-02 (type never stated) does NOT fire here, and correctly so: the homepage/platform copy says 'a modern data platform', and 'platform' is one of entity-semantic-audit's TYPE_KEYWORDS. This is a useful negative result in its own right -- it shows D-ENTITY-01 (identity) and D-ENTITY-02 (type) are genuinely orthogonal: a site can plausibly state its category ('a platform') while still leaving a reader unable to tell WHICH of two names is the real one.",
+  "structurally_untestable": {
+    "D-ENTITY-03": "Requires a CORROBORATION/CLAIM_CORROBORATION observation with performed=true from an outbound-search instrument that is never wired into this environment (OQ-3, still open). Dead code in every real run; only exercisable by hand-injecting the observation into the store JSON, bypassing the HTTP pipeline entirely. What fires instead on a genuinely ambiguous site: D-ENTITY-01/05/06, never -03."
+  },
+  "notes": "D-ENTITY-05 is a compound check (fires only alongside 01 or 02 AND no identity anchor) -- expected to co-occur here, not to duplicate 01/02."
+}

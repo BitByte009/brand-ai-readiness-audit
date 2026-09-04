@@ -1,0 +1,10 @@
+{
+  "description": "robots.txt itself returns HTTP 500. The crawl must stop before fetching anything, per lib/site_observer/collect.py's _robots_degradation.",
+  "expected_findings": [
+    "D-CRAWL-15"
+  ],
+  "expected_coverage": [
+    "ROBOTS_DISALLOWED"
+  ],
+  "notes": "D-CRAWL-15 is one of exactly four checks allowlisted for 'critical' severity (severity-matrix.md) and must survive the confidence-driven-demotion / distribution-guard pipeline untouched. scope.pages_crawled should be 0 and scope.disallowed should be true; the report must still be schema-valid (Defect G / degraded-mode.md)."
+}

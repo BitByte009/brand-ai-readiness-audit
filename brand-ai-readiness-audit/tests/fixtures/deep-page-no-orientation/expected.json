@@ -1,0 +1,19 @@
+{
+  "description": "rate-limits.html (depth 3) has no nav, no brand name anywhere (title/h1/body/img-alt), no breadcrumb, and a same-page fragment link to #see-also that has no matching id anywhere on the page. The rest of the site (depth 0-2) is well-connected, brand-clear, and offers a working continuation link back to the guides hub.",
+  "expected_findings": [
+    "E-ORIENT-03",
+    "E-ORIENT-04"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-04",
+    "D-TRUST-06",
+    "E-CONTINUE-02",
+    "E-CONTINUE-03"
+  ],
+  "confirmed_false_negative": {
+    "check": "E-ORIENT-01 (no brand identification on arrival)",
+    "why": "Same confirmed root cause as strong-disc-weak-engage: rate-limits.html's own title ('Rate Limit Configuration') is harvested as a name candidate sitewide, lands in entity_profile.fields.aliases (every non-dominant candidate, unfiltered), and detect_engagement.py::_brand_tokens() feeds it back into this exact page's own brand-token search -- the page's title trivially self-matches as its own 'alias', so E-ORIENT-01 never fires despite the page genuinely stating no brand anywhere."
+  },
+  "notes": "Isolates the orientation mechanism on a single page rather than strong-disc-weak-engage's broader multi-page pattern; also includes E-ORIENT-04 (broken internal fragment), not exercised elsewhere in the corpus."
+}

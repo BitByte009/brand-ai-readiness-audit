@@ -1,0 +1,14 @@
+{
+  "description": "robots.txt disallows /catalog/, which the homepage still links to (a real, linked-but-blocked path). The 3 reachable pages (home/about/contact, all depth<=1) are brand-clear, well-connected and terminal-appropriate.",
+  "expected_findings": [
+    "D-CRAWL-01"
+  ],
+  "expected_non_findings": [
+    "E-ORIENT-01",
+    "E-ORIENT-03",
+    "E-CONTINUE-01",
+    "E-CONTINUE-02",
+    "D-ENTITY-01"
+  ],
+  "notes": "catalog/index.html's placeholder content is never actually served correctly (robots disallows the fetch entirely, so the crawler must never request it) -- its content is irrelevant to the test."
+}
