@@ -63,6 +63,11 @@ Every consistency finding quotes both conflicting strings with both source URLs.
 A collision may only be asserted if it was actually observed, never inferred from a
 name "sounding generic."
 
+> **Capability note.** D-ENTITY-03 (unresolved name collision) needs an outbound
+> corroboration search, which is not wired into this environment. It is reported as an
+> `UNAVAILABLE_INSTRUMENT` coverage entry rather than evaluated; silence from it is not a
+> pass. The other D-ENTITY checks run from the ordinary collection pass.
+
 ## Outputs
 
 Unscored findings built with the common finding contract ([../../lib/common/findings.py](../../lib/common/findings.py)

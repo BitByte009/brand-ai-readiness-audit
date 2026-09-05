@@ -282,3 +282,81 @@ def test_raw_vs_rendered_pipeline_flags_render_only_content():
     comparison = compare_raw_vs_rendered(raw_html, rendered_html)
 
     assert comparison["evidence"]["rendered_only_nodes"] == ["p"]
+
+
+# ---------------------------------------------------------------------------
+# Cross-script generalization: decoding and tokenization
+# ---------------------------------------------------------------------------
+#
+# Every text-based check reads whatever these two produce. When they assume
+# ASCII, the assumption does not fail loudly on an unseen non-Latin site -- it
+# quietly corrupts or empties the input and the checks draw conclusions from
+# the wreckage. The scripts below are deliberately structurally different from
+# each other: accented Latin, a non-Latin alphabet, and a script with no word
+# spaces at all.
+
+GREEK = "Ρουλεμάν ακριβείας για μηχανουργεία"
+JAPANESE = "機械工場向けの精密ベアリング"
+FRENCH = "Roulements de précision pour ateliers"
+
+
+@pytest.mark.parametrize("declaration,body_prefix", [
+    ("text/html; charset=utf-8", b""),                       # transport declares it
+    ("text/html", b'<meta charset="utf-8">'),                # only the document declares it
+    ("text/html", b'<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'),
+    ("text/html", b"\xef\xbb\xbf"),                          # only a byte-order mark
+    ("text/html", b""),                                      # nothing declares it at all
+], ids=["http-header", "meta-charset", "meta-http-equiv", "bom", "undeclared-utf8"])
+def test_html_is_decoded_the_way_a_browser_decodes_it(declaration, body_prefix):
+    # requests defaults text/* with no charset to ISO-8859-1, which turns every
+    # non-ASCII page into mojibake. HTML5, and every browser, does not.
+    body = body_prefix + f"<html><body><h1>{GREEK}</h1></body></html>".encode("utf-8")
+    encoding = http_client.html_encoding({"Content-Type": declaration}, body)
+    assert GREEK in body.decode(encoding)
+
+
+def test_an_explicit_transport_charset_still_wins_over_the_document():
+    body = b'<meta charset="utf-8">' + "caf\xe9".encode("latin-1")
+    assert http_client.html_encoding({"Content-Type": "text/html; charset=iso-8859-1"}, body) == "iso-8859-1"
+
+
+def test_genuinely_latin1_bytes_are_not_forced_to_utf8():
+    assert http_client.html_encoding({"Content-Type": "text/html"}, b"caf\xe9") == "iso-8859-1"
+
+
+@pytest.mark.parametrize("text", [GREEK, JAPANESE, FRENCH], ids=["greek", "japanese", "french"])
+def test_identical_text_is_recognized_as_identical_in_any_script(text):
+    from lib.common.extract import containment_ratio, significant_words
+    # The ASCII-only tokenizer this replaced returned an empty set for Greek and
+    # Japanese, so a page whose title exactly described its body scored 0.0 and
+    # read as a mismatch.
+    assert significant_words(text)
+    assert containment_ratio(text, text) == 1.0
+
+
+def test_accented_words_are_not_split_at_the_accent():
+    from lib.common.extract import significant_words
+    # "précision" came back as "cision" under [a-z0-9]+, silently corrupting
+    # every overlap comparison on French, Spanish, German or Portuguese pages.
+    assert "précision" in significant_words(FRENCH)
+    assert "cision" not in significant_words(FRENCH)
+
+
+def test_ascii_tokenization_is_unchanged_by_the_unicode_rewrite():
+    from lib.common.extract import significant_words
+    import re
+    ascii_text = "Precision bearings for machine shops, next-day dispatch (stocked sizes only) 2026."
+    previous = {w for w in re.findall(r"[a-z0-9]+", ascii_text.lower())
+                if len(w) >= 4 and w not in {"a", "an", "the", "and", "or", "but", "of", "to", "for",
+                                             "in", "on", "at", "is", "are", "was", "were", "with",
+                                             "that", "this", "it", "as", "by", "be"}}
+    assert significant_words(ascii_text) == previous
+
+
+def test_word_thresholds_are_measurable_in_scripts_without_spaces():
+    from lib.common.extract import text_weight
+    # Splitting on whitespace scores any amount of Japanese prose as one word,
+    # which puts every word-count threshold permanently out of reach for it.
+    assert text_weight("one two three four five") == 5          # unchanged for spaced text
+    assert text_weight(JAPANESE * 10) > 25
+    assert text_weight(JAPANESE) < text_weight(JAPANESE * 10)   # monotonic, not a constant

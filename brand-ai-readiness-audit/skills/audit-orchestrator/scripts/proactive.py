@@ -31,6 +31,7 @@ actually checked.
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -123,6 +124,21 @@ def _suppressed_urls(findings: Optional[List[Dict[str, Any]]]) -> set:
     }
 
 
+# A question mark is not one character. Restricting to ASCII "?" excludes
+# Japanese and Chinese (fullwidth), Arabic and Greek outright. Greek normally
+# uses a plain semicolon, which is only read as a question mark when the
+# heading is actually Greek -- otherwise an English heading ending in ";"
+# would be misread as a question.
+_QUESTION_MARKS = ("?", "\uff1f", "\u061f", "\u037e")
+_GREEK_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
+
+
+def _is_question(text: str) -> bool:
+    if text.endswith(_QUESTION_MARKS):
+        return True
+    return text.endswith(";") and bool(_GREEK_RE.search(text))
+
+
 def _answered_questions(html: str) -> List[str]:
     """Question-shaped headings that are actually answered in the prose below.
 
@@ -134,7 +150,7 @@ def _answered_questions(html: str) -> List[str]:
         section["text"]
         for section in heading_sections(html)
         if 2 <= section["level"] <= 4
-        and section["text"].endswith("?")
+        and _is_question(section["text"])
         and 12 <= len(section["text"]) <= 200
         and section["body_words"] >= MIN_ANSWER_WORDS
     ]

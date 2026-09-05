@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import urljoin
+import re
 import time
 
 import requests
@@ -44,6 +45,56 @@ def resolve_redirect_chain(history: Iterable[Any]) -> List[Dict[str, Any]]:
                 }
             )
     return chain
+
+
+# A charset declared inside the document, which is where HTML5 puts it when the
+# transport does not. Scanned over bytes, before any decode has happened.
+_META_CHARSET_RE = re.compile(rb"""<meta[^>]+?charset\s*=\s*["']?\s*([A-Za-z0-9_.:-]+)""", re.IGNORECASE)
+_BOMS = ((b"\xef\xbb\xbf", "utf-8"), (b"\xff\xfe", "utf-16-le"), (b"\xfe\xff", "utf-16-be"))
+_META_SCAN_BYTES = 2048
+
+
+def html_encoding(headers: Dict[str, Any], body: bytes) -> str:
+    """Resolve a response's encoding the way a browser does.
+
+    `requests` falls back to ISO-8859-1 for any text/* response with no charset
+    parameter. That is the HTTP/1.1 default, but it is not what HTML5 or any
+    browser does, and a page served as `text/html` carrying only a
+    `<meta charset>` is both valid and common. Taking the RFC default silently
+    turns every non-ASCII page into mojibake, which corrupts every text-based
+    check downstream -- names, titles, claims, overlap -- and can even be
+    reported back to the site as an encoding defect that is ours, not theirs.
+
+    Deterministic ladder, no character-set guessing library: an explicit
+    transport charset, then a byte-order mark, then the document's own
+    declaration, then UTF-8 if the bytes are valid UTF-8 (the HTML5 default),
+    and finally Latin-1, which cannot fail.
+    """
+    content_type = ""
+    for key, value in (headers or {}).items():
+        if str(key).lower() == "content-type":
+            content_type = str(value or "")
+            break
+    declared = re.search(r"charset\s*=\s*[\"']?\s*([A-Za-z0-9_.:-]+)", content_type, re.IGNORECASE)
+    if declared:
+        return declared.group(1)
+
+    for mark, encoding in _BOMS:
+        if body.startswith(mark):
+            return encoding
+
+    meta = _META_CHARSET_RE.search(body[:_META_SCAN_BYTES])
+    if meta:
+        try:
+            return meta.group(1).decode("ascii")
+        except UnicodeDecodeError:
+            pass
+
+    try:
+        body.decode("utf-8")
+        return "utf-8"
+    except UnicodeDecodeError:
+        return "iso-8859-1"
 
 
 def request_once(url, timeout=10):
@@ -120,6 +171,15 @@ def fetch_url(url: str, timeout: int = 10, allow_redirects: bool = True, policy=
             destination = urljoin(current, location)
             redirects.append({"from": current, "to": destination, "status": response.status_code})
             current = destination
+        # Decode before anything reads `.text`: `response.encoding` is what
+        # requests inferred from headers alone, which is wrong for a page that
+        # declares its charset in the document.
+        body = getattr(response, "content", None)
+        if isinstance(body, bytes):
+            try:
+                response.encoding = html_encoding(getattr(response, "headers", {}) or {}, body)
+            except (LookupError, TypeError, AttributeError):
+                pass
         final_url = getattr(response, "url", None) or url
         content_type = (response.headers or {}).get("Content-Type") or (response.headers or {}).get("content-type")
         encoding = getattr(response, "encoding", None) or "utf-8"

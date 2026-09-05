@@ -384,6 +384,69 @@ def test_proactive_reframes_demoted_findings_never_as_defects():
 
 
 # ---------------------------------------------------------------------------
+# Checks that could not be evaluated at all (unavailable instrument)
+# ---------------------------------------------------------------------------
+#
+# A check gated on an instrument this deployment does not have is neither
+# passed nor failed -- it did not run. Silence from it must not read as a clean
+# result, so the report names it.
+
+def test_unavailable_instrument_produces_coverage_and_never_a_finding():
+    store = {"observations": [make_observation("HTTP_FETCH", "https://example.org/", {"html": "<h1>Hi</h1>"})],
+             "capabilities": {}}
+    entries = run_audit._unavailable_instrument_coverage(store)
+
+    assert entries, "no probe, corroboration or sitemap observation exists in this store"
+    for entry in entries:
+        assert entry["check_id"] == "X-COV-01"        # a coverage row, never a finding
+        assert entry["status"] == "skipped"
+        assert entry["reason"] == "UNAVAILABLE_INSTRUMENT"
+        assert "did not run" in entry["detail"]
+
+
+@pytest.mark.parametrize("check_id", [
+    "D-EXTRACT-01", "D-EXTRACT-03", "D-EXTRACT-06", "D-EXTRACT-07", "D-RENDER-02",
+    "E-ANSWER-04", "D-ENTITY-03", "D-TRUST-05", "D-CRAWL-07", "D-CRAWL-14",
+])
+def test_every_unevaluable_check_is_named_in_coverage(check_id):
+    # Naming the capability is not enough; a reader needs the check IDs, because
+    # that is what they would otherwise assume had passed.
+    detail = " ".join(e["detail"] for e in run_audit._unavailable_instrument_coverage(
+        {"observations": [], "capabilities": {}}))
+    assert check_id in detail
+
+
+def test_declared_unevaluable_checks_actually_exist_in_the_detectors():
+    # Guards against the disclosure list drifting away from the code it describes.
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    implemented = set()
+    for path in root.glob("skills/*/scripts/detect_*.py"):
+        implemented.update(re.findall(r'check_id="([DE]-[A-Z]+-[0-9]+)"', path.read_text(encoding="utf-8")))
+    declared = {c for _, _, checks, _ in run_audit.INSTRUMENT_DEPENDENT_CHECKS for c in checks}
+    declared.update(run_audit.BUDGET_TELEMETRY_CHECKS)
+    assert declared <= implemented, f"disclosed checks that no detector implements: {declared - implemented}"
+
+
+def test_an_available_instrument_removes_its_coverage_entry():
+    store = {"observations": [make_observation("PROBE", "https://example.org/", {"questions": []})],
+             "capabilities": {}}
+    reasons = [e["detail"] for e in run_audit._unavailable_instrument_coverage(store)]
+    assert not any("D-RENDER-02" in detail for detail in reasons), "probe is present, so its checks are evaluable"
+    assert any("D-ENTITY-03" in detail for detail in reasons), "corroboration is still absent"
+
+
+def test_coverage_entries_are_not_duplicated():
+    duplicated = [
+        {"check_id": "X-COV-01", "status": "skipped", "reason": "UNAVAILABLE_INSTRUMENT", "scope": "a", "detail": "x"},
+        {"check_id": "X-COV-01", "status": "skipped", "reason": "UNAVAILABLE_INSTRUMENT", "scope": "a", "detail": "y"},
+        {"check_id": "X-COV-01", "status": "skipped", "reason": "UNAVAILABLE_INSTRUMENT", "scope": "b", "detail": "z"},
+    ]
+    assert len(run_audit._deduplicate_coverage(duplicated)) == 2
+
+
+# ---------------------------------------------------------------------------
 # Proactive opportunities on HEALTHY observations (FINDING vs OPPORTUNITY)
 # ---------------------------------------------------------------------------
 #
@@ -461,6 +524,42 @@ def test_pages_that_already_did_the_work_get_no_advice():
         healthy_page(sectioned_html(with_ids=True), url="https://example.org/guide"),
     ]}
     assert proactive.generate_proactive_opportunities(store, demoted=[], findings=[]) == []
+
+
+# -- cross-script: an opportunity source must not be English-shaped ----------
+
+NON_ASCII_QUESTIONS = {
+    # Structurally different question marks: fullwidth, Arabic, and Greek's
+    # semicolon. A page in any of these is as markup-able as an English one.
+    "japanese": ("どのサイズを在庫していますか？",
+                 "当社は三ミリから二百ミリまでの精密ベアリングを在庫しており、在庫品は翌営業日に"
+                 "倉庫から発送されます。在庫のないサイズはお取り寄せとなり、通常十営業日ほどで入荷します。"),
+    "arabic": ("ما هي المقاسات المتوفرة لديكم؟",
+               "نحتفظ بمخزون من المحامل الدقيقة بأقطار تتراوح بين ثلاثة ومائتي مليمتر، وتشحن المقاسات "
+               "المتوفرة في المخزون في يوم العمل التالي من مستودعنا، أما المقاسات الأخرى فتطلب خصيصا."),
+    "greek": ("Ποια μεγέθη έχετε σε απόθεμα;",
+              "Διαθέτουμε ρουλεμάν ακριβείας από τρία έως διακόσια χιλιοστά και τα αποθηκευμένα μεγέθη "
+              "αποστέλλονται την επόμενη εργάσιμη ημέρα από την αποθήκη μας στον Πειραιά κάθε ημέρα."),
+}
+
+
+@pytest.mark.parametrize("script", sorted(NON_ASCII_QUESTIONS), ids=sorted(NON_ASCII_QUESTIONS))
+def test_answered_questions_are_recognized_in_any_script(script):
+    question, answer = NON_ASCII_QUESTIONS[script]
+    sections = "".join(f"<section><h2>{question}</h2><p>{answer}</p></section>" for _ in range(4))
+    store = {"observations": [healthy_page(f"<html><body><h1>FAQ</h1>{sections}</body></html>")]}
+
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+    assert any(o["source"] == "answer_markup_gap" for o in opportunities), (
+        f"{script} answers are as markup-able as English ones"
+    )
+
+
+def test_a_heading_ending_in_a_semicolon_is_not_a_question_in_latin_script():
+    # Greek writes questions with ";", so it counts there -- but an English
+    # heading ending in ";" must not be read as an answered question.
+    assert proactive._is_question("Ποια μεγέθη έχετε σε απόθεμα;")
+    assert not proactive._is_question("Sizes, dispatch and returns;")
 
 
 # -- B: healthy minimalist site, nothing forced ------------------------------
@@ -611,6 +710,41 @@ def test_run_audit_composes_findings_from_multiple_detector_skills():
     assert report["run"]["evidence_binding_drops"] == []
     assert report["run"]["skill_failures"] == []
     assert report["summary"]["total_findings"] == len(report["findings"])
+
+
+def test_unevaluable_checks_are_disclosed_without_disturbing_the_rest_of_the_audit():
+    """End to end: the checks that could not run are named in coverage, the
+    checks that could run still produce their findings, and the report is
+    still schema-valid with no duplicate coverage rows."""
+    report = run_audit.run_audit(
+        "https://acme.example/",
+        fetch=make_fetch(acme_site()),
+        robots_fetcher=robots_missing,
+        render_capability={"available": False, "reason": "x"},
+        now=FIXED_NOW,
+        sleep=NO_SLEEP,
+    )
+
+    # A: the unavailable instrument becomes coverage, never a finding.
+    unavailable = [c for c in report["coverage"] if c["reason"] == "UNAVAILABLE_INSTRUMENT"]
+    assert unavailable
+    disclosed = " ".join(c["detail"] for c in unavailable)
+    for check_id in ("D-RENDER-02", "E-ANSWER-04", "D-ENTITY-03", "D-CRAWL-14"):
+        assert check_id in disclosed
+        assert not any(f["check_id"] == check_id for f in report["findings"]), \
+            f"{check_id} cannot have a finding when its instrument was unavailable"
+
+    # B: the report is still schema-valid.
+    is_valid, errors = validate_report_schema(report)
+    assert is_valid, errors
+    assert report["run"]["schema_valid"] is True
+
+    # C: checks that do not need the missing instrument still run.
+    assert len({f["check_id"] for f in report["findings"]}) >= 3
+
+    # E: no duplicate coverage rows.
+    keys = [(c["reason"], c.get("scope")) for c in report["coverage"]]
+    assert len(keys) == len(set(keys)), f"duplicate coverage entries: {keys}"
 
 
 def test_run_audit_is_deterministic_given_the_same_inputs():

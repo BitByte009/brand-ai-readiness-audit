@@ -29,7 +29,8 @@ enforcing test. Where a property is *not* enforced in code, it is listed under
 Five violations were found. All five are fixed, each with a regression test that
 fails against the previous code. The offline suite is 600 passing tests; the
 19-fixture corpus is 27/27 findings with zero false positives, zero false
-negatives and zero guardrail violations; the nine real-browser scenarios in
+negatives and zero guardrail violations against this repository's own authored
+expectations (a regression gate, not independent accuracy evidence); the nine real-browser scenarios in
 `tests/harness/run_safety.py` pass against Chromium.
 
 ## Violations found and fixed

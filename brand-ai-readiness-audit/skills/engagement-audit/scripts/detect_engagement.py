@@ -33,6 +33,7 @@ from _engagement_util import (
     http_fetches,
     hub_url,
     internal_fragment_links,
+    navigation_destinations,
     is_in_collapsed_region,
     is_terminal_page,
     main_text,
@@ -428,6 +429,10 @@ def check_e_continue_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
     return findings
 
 
+# Two destinations, because one is satisfied by a bare "Home" link, which
+# returns the visitor to the start rather than letting them continue.
+MIN_NAVIGATION_DESTINATIONS = 2
+
 def check_e_continue_02(store: Dict[str, Any]) -> List[Dict[str, Any]]:
     pages = effective_pages(store)
     if len(pages) < 2:
@@ -443,6 +448,14 @@ def check_e_continue_02(store: Dict[str, Any]) -> List[Dict[str, Any]]:
         if kinds:
             continue
 
+        # No in-content link is not the same as no way out. Standing navigation
+        # that reaches real internal destinations is a continuation path, and
+        # treating its absence from the prose as a dead end reports every
+        # well-built brochure and documentation page as a defect.
+        navigation = navigation_destinations(page["html"], url)
+        if len(navigation) >= MIN_NAVIGATION_DESTINATIONS:
+            continue
+
         findings.append(
             make_finding(
                 check_id="E-CONTINUE-02",
@@ -451,10 +464,13 @@ def check_e_continue_02(store: Dict[str, Any]) -> List[Dict[str, Any]]:
                 severity="medium",
                 confidence="high",
                 mechanism="There is structurally nothing to click that leads "
-                "deeper into the site from this page's own content.",
-                impact="A visitor has no way to continue browsing from this page's content.",
-                observed_signal="0 outgoing links in the main-content region",
-                evidence=f"No content-region links found on {url}",
+                "deeper into the site, either from this page's own content or "
+                "from its navigation.",
+                impact="A visitor has no way to continue browsing from this page.",
+                observed_signal="no in-content internal links and fewer than "
+                f"{MIN_NAVIGATION_DESTINATIONS} internal destination(s) in site navigation",
+                evidence=f"Outgoing content-area link kinds on {url}: {kinds}; "
+                f"internal navigation destinations: {navigation}",
                 observation_ids=[page["observation_id"]],
                 source_urls=[url],
                 affected=affected_block([url]),

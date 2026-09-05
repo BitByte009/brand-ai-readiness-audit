@@ -16,7 +16,12 @@ from bs4 import BeautifulSoup
 
 _PARSE_CACHE = ContextVar("audit_parse_cache", default=None)
 _TITLE_SEPARATOR_RE = re.compile(r"\s*[|—:]\s*|\s+-\s+")
-_SIGNIFICANT_WORD_RE = re.compile(r"[a-z0-9]+")
+# Word characters in any script, and the CJK ranges that are written without
+# spaces. The ASCII-only class these replaced dropped every non-Latin script
+# outright and split accented words mid-token ("precision" with an accent came
+# back as "cision"), so overlap comparisons silently scored 0 on healthy pages.
+_SIGNIFICANT_WORD_RE = re.compile(r"[^\W_]+")
+_SPACELESS_SCRIPT_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]+")
 _STOPWORDS = {
     "a", "an", "the", "and", "or", "but", "of", "to", "for", "in", "on", "at",
     "is", "are", "was", "were", "with", "that", "this", "it", "as", "by", "be",
@@ -29,8 +34,21 @@ def title_segments(title: str) -> List[str]:
 
 
 def significant_words(text: str) -> set:
-    words = _SIGNIFICANT_WORD_RE.findall((text or "").lower())
-    return {w for w in words if len(w) >= 4 and w not in _STOPWORDS}
+    """Content tokens for overlap comparisons, across scripts that separate
+    words and scripts that do not.
+
+    Space-separated scripts tokenize on word characters. Scripts written
+    without spaces are approximated by character bigrams: crude next to real
+    segmentation, but enough to tell "this title describes this body" from
+    "it does not", which is all the callers ask. Output for ASCII input is
+    unchanged from the ASCII-only implementation this replaced.
+    """
+    lowered = (text or "").lower()
+    spaced = _SIGNIFICANT_WORD_RE.findall(_SPACELESS_SCRIPT_RE.sub(" ", lowered))
+    words = {w for w in spaced if len(w) >= 4 and w not in _STOPWORDS}
+    for run in _SPACELESS_SCRIPT_RE.findall(lowered):
+        words.update(run[index:index + 2] for index in range(len(run) - 1))
+    return words
 
 
 def containment_ratio(a: str, b: str) -> float:
@@ -268,6 +286,21 @@ def extract_text(html: str) -> str:
     return re.sub(r"\s+", " ", text)
 
 
+def text_weight(text: str) -> int:
+    """Approximate word count for prose in any script.
+
+    Splitting on whitespace scores a page of Japanese or Chinese at one or two
+    "words" however substantial it is, so any threshold expressed in words
+    excludes those languages entirely. Spaceless runs are charged at one word
+    per three characters -- deliberately below the real ratio, so the estimate
+    under-counts rather than manufacturing substance. Text without such runs
+    scores exactly as `len(text.split())` did.
+    """
+    spaceless = sum(len(run) for run in _SPACELESS_SCRIPT_RE.findall(text or ""))
+    spaced = len(_SPACELESS_SCRIPT_RE.sub(" ", text or "").split())
+    return spaced + spaceless // 3
+
+
 _HEADING_TAGS = ("h1", "h2", "h3", "h4", "h5", "h6")
 
 
@@ -293,7 +326,7 @@ def heading_sections(html: str) -> List[Dict[str, Any]]:
             if name in _HEADING_TAGS and int(name[1]) <= level:
                 break
             text = sibling.get_text(" ", strip=True) if name else str(sibling).strip()
-            words += len(text.split())
+            words += text_weight(text)
         sections.append(
             {
                 "level": level,

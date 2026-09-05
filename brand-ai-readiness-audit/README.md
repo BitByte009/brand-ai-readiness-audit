@@ -12,6 +12,22 @@ Read-only. The marketplace audits and reports. No skill in it ever modifies a li
 > Its scored check-presence results exclude documented untestable/known-missing
 > cases; its evidence/action/severity checks are structural proxies, not proof
 > of diagnostic correctness. External corroboration remains unavailable.
+>
+> **What the corpus result means.** The corpus scores 27/27 with no false
+> positives or false negatives *against expectations authored in this
+> repository, for fixtures authored in this repository*. It measures whether
+> the implementation still does what it was built to do; it is not independent
+> evidence of real-world accuracy, and it is not a benchmark. Every fixture is
+> English and ASCII, so it cannot speak to other languages or scripts at all.
+> Treat it as a regression gate, which is what it is.
+>
+> **Some checks cannot run here.** D-EXTRACT-01/03/06/07, D-RENDER-02 and
+> E-ANSWER-04 need a per-page extraction probe; D-ENTITY-03 and D-TRUST-05 need
+> an outbound corroboration search; D-CRAWL-07's sitemap half needs a fetched
+> sitemap; D-CRAWL-14 needs crawl telemetry the collector does not record.
+> None of those instruments is wired into this environment. Every report says
+> so explicitly, as `UNAVAILABLE_INSTRUMENT` coverage entries naming the exact
+> check IDs, so a reader can tell *did not run* from *ran and found nothing*.
 > See [REDTEAM_FIXES.md](REDTEAM_FIXES.md) for fixes, regression tests, and
 > remaining safety, accuracy, schema, and packaging limitations.
 

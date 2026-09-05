@@ -116,22 +116,7 @@ def write_fixture(fixture_id: str, files: Dict[str, str], expected: Dict[str, An
 
 
 EXTRACT_RENDER_WIRING_GAP = (
-    "CRITICAL, CONFIRMED ORCHESTRATOR BUG (more fundamental than any probe-availability gap): "
-    "skills/audit-orchestrator/scripts/run_audit.py::_invoke_detectors() imports and calls only "
-    "detect_crawl.detect_crawl(store), detect_entity.detect_entity(...), detect_trust.detect_trust(...), "
-    "and detect_engagement.detect_engagement(...). It never imports or calls detect_render.detect_render(store) "
-    "or detect_extract.detect_extract(store) -- confirmed by grep: those two functions are invoked ONLY from "
-    "tests/test_crawl_render_audit.py, nowhere in production code. detect_crawl.py's own CHECKS list (feeding "
-    "its detect_crawl() dispatcher) contains only check_d_crawl_01..15 -- no delegation to the other two files. "
-    "Consequence: ALL 5 D-RENDER-01..05 checks and ALL 9 D-EXTRACT-01..09 checks -- 14 of the marketplace's 53 "
-    "taxonomy checks, more than a quarter of the whole catalog, including the flagship raw-vs-rendered-gap and "
-    "structured-data-validity checks -- never fire in any real audit, regardless of site content, independent of "
-    "and in addition to the two checks' own probe-capability gaps documented elsewhere. Verified directly: calling "
-    "detect_extract.check_d_extract_04(store) by hand on this fixture's real collected store returns the correct "
-    "findings; calling the real run_audit(url) end to end on the identical fixture returns none. The 63 unit tests "
-    "in tests/test_crawl_render_audit.py all call detect_render()/detect_extract() directly and therefore pass "
-    "despite this gap -- they could not have caught it; only an end-to-end run through the real entrypoint could, "
-    "which is exactly what this fixture corpus does. The fix is a two-line addition to _invoke_detectors()."
+    "HISTORICAL, NOW FIXED -- orchestrator wiring gap: run_audit.py::_invoke_detectors() once called only detect_crawl/detect_entity/detect_trust/detect_engagement, never detect_render.detect_render(store) or detect_extract.detect_extract(store), so all D-RENDER and D-EXTRACT checks were dead in real runs. That gap has been closed: _invoke_detectors() invokes both today, and D-RENDER-01, D-EXTRACT-02 and D-EXTRACT-04 now fire from full end-to-end run_audit() passes on this corpus. Any remaining silence from a D-RENDER/D-EXTRACT check has a different and specific cause, recorded per fixture."
 )
 PROBE_GAP = (
     "Requires a PROBE observation. lib/site_observer/probe.py::detect_capability() is "
@@ -329,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "expected_non_findings": ["D-ENTITY-01", "D-ENTITY-02", "D-ENTITY-06", "D-TRUST-06"],
         "expected_false_negative": {
             "check": "D-RENDER-02 (facts-render-only, the check designed for exactly this)",
-            "why": "Doubly unreachable: " + EXTRACT_RENDER_WIRING_GAP + " Independently, this specific check also requires a PROBE observation, and " + PROBE_GAP + " Either gap alone would already zero this out. The tool reports zero findings on this page despite the rate being genuinely unextractable from raw HTML.",
+            "why": "Unreachable because this check requires a PROBE observation, and " + PROBE_GAP + " (An earlier orchestrator wiring gap also blocked it; that is fixed -- see EXTRACT_RENDER_WIRING_GAP.) The tool reports zero findings on this page despite the rate being genuinely unextractable from raw HTML.",
         },
         "notes": "Deliberately distinct from js-render-gap: isolates the case D-RENDER-01's bulk-ratio heuristic cannot catch -- a single critical fact hidden in an otherwise text-heavy page.",
     }
@@ -375,7 +360,7 @@ def build_image_locked_facts() -> None:
         "expected_findings": [],
         "expected_false_negative": {
             "check": "D-EXTRACT-01 (image-locked facts, the check designed for exactly this)",
-            "why": "Doubly unreachable: " + EXTRACT_RENDER_WIRING_GAP + " Independently, this specific check also requires a PROBE observation (a relevant factual question answered=false AND an image/PDF carrier present), and " + PROBE_GAP,
+            "why": "Unreachable because this check requires a PROBE observation (a relevant factual question answered=false AND an image/PDF carrier present), and " + PROBE_GAP + " (An earlier orchestrator wiring gap also blocked it; that is fixed -- see EXTRACT_RENDER_WIRING_GAP.)",
         },
         "notes": "The clearest single demonstration that the marketplace's stated probe-driven-extractability differentiator is not wired into the shipped pipeline -- and that even if it were, the detector that would use it is itself never invoked.",
     }

@@ -64,6 +64,11 @@ real timestamp, query and method exists in the store. Absent that record the che
 neither passed nor failed: it is logged as coverage gap X-COV-01.
 See [references/corroboration-honesty.md](references/corroboration-honesty.md).
 
+> **Capability note.** D-TRUST-05 (claim corroborated only on the entity's own site) needs
+> an outbound corroboration search, which is not wired into this environment. It is
+> reported as an `UNAVAILABLE_INSTRUMENT` coverage entry rather than evaluated; silence
+> from it is not a pass. The other D-TRUST checks run from the ordinary collection pass.
+
 ## Outputs
 
 Unscored findings built with the common finding contract ([../../lib/common/findings.py](../../lib/common/findings.py)

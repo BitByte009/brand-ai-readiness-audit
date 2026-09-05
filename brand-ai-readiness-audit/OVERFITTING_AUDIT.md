@@ -42,6 +42,32 @@ the retired assumption.
 | The final two hostname labels identify one organization. | Treat the audited host and its descendants as site-local, normalize www, and leave unrelated hosts external. Do not guess registrable domains or ownership. | `test_continuation_host_scope_does_not_guess_registrable_domains` covers co.uk, hosted tenants and valid descendants. |
 | Printing corpus failures while exiting zero is adequate validation. | Exit nonzero for measured FP/FN, guardrail, coverage, skill, schema or quality failures. No fixture-name exceptions added. | `test_corpus_gate.py` exercises each failure class and a clean result. |
 
+## Second pass: cross-script generalization
+
+The first pass reviewed rule shape — URL forms, markup spellings, archetypes,
+scope inference. It did not review the two primitives every text-based rule
+sits on: how bytes become text, and how text becomes tokens. Both assumed
+ASCII, and neither fails loudly. Reproduced end to end against a healthy Greek
+site before fixing.
+
+| OLD ASSUMPTION | GENERALIZED RULE | NEW TEST / regression |
+|---|---|---|
+| A response with no charset parameter is ISO-8859-1 (the HTTP/1.1 default `requests` applies). | Resolve encoding the way HTML5 and browsers do: transport charset, then BOM, then the document's own `<meta charset>`, then UTF-8 if the bytes are valid UTF-8, then Latin-1. Deterministic ladder, no character-set guessing library. | `test_deterministic_foundation.py::test_html_is_decoded_the_way_a_browser_decodes_it` (5 declaration styles); `test_an_explicit_transport_charset_still_wins_over_the_document`; `test_genuinely_latin1_bytes_are_not_forced_to_utf8` |
+| Content words are `[a-z0-9]+`. | Tokenize on Unicode word characters, and approximate scripts written without spaces by character bigrams. ASCII output is unchanged. | `test_identical_text_is_recognized_as_identical_in_any_script`; `test_accented_words_are_not_split_at_the_accent`; `test_ascii_tokenization_is_unchanged_by_the_unicode_rewrite` |
+| A word count is `len(text.split())`. | Charge spaceless runs at one word per three characters — below the real ratio, so the estimate under-counts rather than manufacturing substance. Spaced text scores exactly as before. | `test_word_thresholds_are_measurable_in_scripts_without_spaces` |
+| A question heading ends in `"?"`. | Accept fullwidth, Arabic and Greek question marks; read a trailing `";"` as a question only when the heading is actually Greek. | `test_answered_questions_are_recognized_in_any_script`; `test_a_heading_ending_in_a_semicolon_is_not_a_question_in_latin_script` |
+
+Downstream effect, measured: E-ANSWER-01 compares a title against its body by
+word overlap. With an empty token set the overlap was always 0.0, so the check
+fired on **every** content page of a healthy Greek site (3 of 3). It now fires
+on none of them, and still fires on a genuine Greek title/body mismatch —
+`test_engagement_audit.py::test_e_answer_01_never_fires_when_a_non_ascii_title_matches_its_body`
+and `::test_e_answer_01_still_fires_on_a_genuine_non_ascii_mismatch`.
+
+The corpus is entirely ASCII, so it could not have caught any of these and its
+results are unchanged by the fixes. That is itself the finding: a corpus can
+score 27/27 with 0 FP while an entire class of unseen sites is mishandled.
+
 ## Deterministic checks intentionally retained
 
 - Observed HTTP failures, explicit robots/noindex signals, redirect loops,

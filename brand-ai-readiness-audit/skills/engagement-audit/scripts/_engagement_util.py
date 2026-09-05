@@ -389,6 +389,51 @@ def classify_link(link: Dict[str, Any], base_url: str) -> str:
     return "internal_content"
 
 
+# Regions that carry a site's standing navigation. `main_content_soup` strips
+# these before looking for in-content links, which is correct for measuring
+# whether a page's own prose leads anywhere -- but they still have to be looked
+# at before calling a page a dead end.
+_NAVIGATION_REGIONS = ("nav", "header", "footer")
+
+
+def navigation_destinations(html: str, base_url: str) -> List[str]:
+    """Distinct internal destinations this page's navigation actually reaches.
+
+    In-content links are the strongest evidence that a visitor can continue,
+    but they are not the only evidence. Brochure, documentation and catalogue
+    sites routinely keep their entire internal link graph in a `<nav>` and
+    nowhere else; a visitor on those pages plainly has somewhere to go.
+
+    Only destinations that would really move the visitor count. A nav that is
+    empty, malformed, purely external, or that links only back to this page is
+    not a continuation path, so those cases return too few destinations to
+    suppress anything.
+    """
+    from bs4 import BeautifulSoup
+
+    from lib.common.extract import extract_links
+
+    soup = BeautifulSoup(html or "", "html.parser")
+    root = soup.body if soup.body is not None else soup
+    regions = list(root.find_all(list(_NAVIGATION_REGIONS)))
+    # The ARIA spelling is equivalent to <nav> and common in generated markup.
+    regions += [tag for tag in root.find_all(attrs={"role": "navigation"}) if tag not in regions]
+
+    self_path = urlparse(base_url).path or "/"
+    destinations = set()
+    for region in regions:
+        for link in extract_links(str(region), base_url=base_url):
+            if link.get("unsafe_action"):
+                continue
+            if classify_link(link, base_url) != "internal_content":
+                continue
+            destination = link["href"].split("#")[0]
+            if (urlparse(destination).path or "/") == self_path:
+                continue
+            destinations.add(destination)
+    return sorted(destinations)
+
+
 def hub_url(url: str) -> Optional[str]:
     parsed = urlparse(url)
     segments = [seg for seg in parsed.path.split("/") if seg]

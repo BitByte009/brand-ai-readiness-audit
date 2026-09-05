@@ -59,6 +59,11 @@ DOM position is a structural proxy, not a measured viewport or first-paint resul
 Comparison findings must quote both strings; preserve the documented confidence
 caps. Do not substitute raw HTML for render-dependent evidence.
 
+> **Capability note.** E-ANSWER-04 (answer buried below the fold) needs a per-page
+> extraction probe, which is not wired into this environment. It is reported as an
+> `UNAVAILABLE_INSTRUMENT` coverage entry rather than evaluated; silence from it is not a
+> pass. The other E-* checks run from the ordinary collection pass.
+
 ## Outputs
 
 Unscored findings built with the common finding contract ([../../lib/common/findings.py](../../lib/common/findings.py)
