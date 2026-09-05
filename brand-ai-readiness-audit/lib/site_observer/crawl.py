@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 from urllib.parse import urlparse
 
 from lib.common.extract import extract_links
-from lib.common.robots import robots_allows
+from lib.common.robots import robots_allows_every_interpretation
 from lib.common.network_policy import unsafe_target
 
 _NUMERIC_SEGMENT_RE = re.compile(r"^\d+$")
@@ -100,7 +100,7 @@ def crawl(
         path = urlparse(url).path or "/"
         if urlparse(url).query:
             path += "?" + urlparse(url).query
-        if robots is not None and not robots_allows(robots, path):
+        if robots is not None and not robots_allows_every_interpretation(robots, path):
             skipped_robots.append(url)
             continue
 

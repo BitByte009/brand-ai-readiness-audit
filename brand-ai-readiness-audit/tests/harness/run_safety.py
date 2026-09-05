@@ -27,7 +27,7 @@ def main():
         "/cookie": "document.cookie='session=secret'; let i=new Image();i.src='/asset.png';",
         "/private": "let i=new Image();i.src='/robots-denied';",
         "/external": "fetch('http://169.254.169.254/latest/meta-data/').catch(()=>{});",
-        "/channels": "document.querySelector('h1').textContent = [typeof Worker,typeof SharedWorker,typeof RTCPeerConnection].join(',');",
+        "/channels": "document.querySelector('h1').textContent = [typeof Worker,typeof SharedWorker,typeof RTCPeerConnection,typeof WebTransport,typeof EventSource,typeof navigator.sendBeacon].join(',');",
         "/socket": "new WebSocket('ws://'+location.host+'/side-effect');",
     }
     class Handler(BaseHTTPRequestHandler):
@@ -69,7 +69,10 @@ def main():
                 if path == "/inline":
                     assert result["status"] == "ok" and "Rendered public answer" in result["html"], result
                 elif path == "/channels":
-                    assert "undefined,undefined,undefined" in result["html"], result
+                    # WebTransport in particular opens a QUIC channel that
+                    # Playwright's page routes never observe, so the route
+                    # allowlist below cannot be what blocks it.
+                    assert "undefined," * 5 + "undefined" in result["html"], result
                 elif path != "/cookie":
                     assert result["status"] == "error" and not result["html"], result
                 print(f"PASS {path}", flush=True)

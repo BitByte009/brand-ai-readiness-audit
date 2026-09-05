@@ -31,6 +31,7 @@ for _path in (str(MARKETPLACE_ROOT), str(SCRIPTS_DIR)):
         sys.path.insert(0, _path)
 
 from lib.common.budget import Budget  # noqa: E402
+from lib.common.network_policy import MAX_REQUESTS_PER_AUDIT  # noqa: E402
 from lib.common.extract import with_parse_cache  # noqa: E402
 from lib.common.schema import validate_report as validate_report_schema  # noqa: E402
 from lib.site_observer.collect import collect  # noqa: E402
@@ -202,7 +203,7 @@ def run_audit(
             }
         )
 
-    proactive_opportunities = proactive_mod.generate_proactive_opportunities(store, prioritized["demoted"])
+    proactive_opportunities = proactive_mod.generate_proactive_opportunities(store, prioritized["demoted"], kept_findings)
 
     report: Dict[str, Any] = {
         "site": store["target"]["audited_host"],
@@ -245,6 +246,12 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     options: Dict[str, Any] = {}
     if args.max_pages is not None:
+        # The per-origin request ceiling in network_policy already caps real
+        # load, but an operator should not be able to ask for a crawl the
+        # platform has no intention of performing, nor for a zero-page audit
+        # that would look like a clean site rather than a skipped one.
+        if not 1 <= args.max_pages <= MAX_REQUESTS_PER_AUDIT:
+            parser.error(f"--max-pages must be between 1 and {MAX_REQUESTS_PER_AUDIT}")
         options["budget"] = {"raw_crawl_max_pages": args.max_pages}
 
     report = run_audit(args.url, options)

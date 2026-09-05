@@ -11,6 +11,10 @@ from .http_client import AUDIT_USER_AGENT, request_once
 
 AUDIT_PRODUCT_TOKEN = "brand-ai-readiness-audit"
 
+# A doubly-decoding origin is already pathological; three rounds bounds the
+# work while covering the encodings a real server plausibly collapses.
+MAX_DECODE_ROUNDS = 3
+
 
 def parse_robots(raw_text: str) -> dict:
     """Return a normalized, deterministic robots.txt model."""
@@ -131,6 +135,46 @@ def _wildcard_matches(pattern, target, terminal):
     if terminal:
         return target.endswith(last) and len(target) - len(last) >= position
     return target.find(last, position) >= 0
+
+
+def path_interpretations(target: str) -> list:
+    """Every path a compliant origin could resolve one request-target to.
+
+    A robots rule is matched against the request path's octets, so
+    ``/%2Fprivate`` and ``//private`` both slip past ``Disallow: /private``
+    while ordinary origins (nginx with merge_slashes, Apache, most
+    frameworks) still serve the disallowed resource. Rather than guess which
+    server is on the other end, enumerate the interpretations it could
+    collapse the target to; callers fail closed if any of them is excluded.
+
+    Decoding is repeated a bounded number of times because a double-encoded
+    ``/%252Fprivate`` reaches a doubly-decoding origin as ``/private``.
+    """
+    path, separator, query = (target or "/").partition("?")
+    variants = []
+    current = path
+    for _ in range(MAX_DECODE_ROUNDS):
+        for candidate in (current, re.sub(r"/{2,}", "/", current)):
+            if candidate and candidate not in variants:
+                variants.append(candidate)
+        # "%25" is decoded alongside the separators so a double-encoded
+        # "/%252Fprivate" reaches "/private" within the round limit, the way a
+        # doubly-decoding origin would resolve it.
+        decoded = re.sub(r"%(?:25|2[Ff]|5[Cc])",
+                         lambda match: "%" if match.group() == "%25" else "/", current)
+        if decoded == current:
+            break
+        current = decoded
+    return [variant + separator + query for variant in variants]
+
+
+def robots_allows_every_interpretation(robots: dict, target: str, user_agent: str = AUDIT_PRODUCT_TOKEN) -> bool:
+    """Fail-closed robots evaluation: excluded under *any* reading is excluded.
+
+    This, not `robots_allows`, is what a fetch decision must consult -- see
+    `path_interpretations` for the evasions a single literal match misses.
+    """
+    return all(robots_allows(robots, variant, user_agent) for variant in path_interpretations(target))
 
 
 def is_disallow_all(robots: dict) -> bool:

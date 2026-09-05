@@ -384,6 +384,196 @@ def test_proactive_reframes_demoted_findings_never_as_defects():
 
 
 # ---------------------------------------------------------------------------
+# Proactive opportunities on HEALTHY observations (FINDING vs OPPORTUNITY)
+# ---------------------------------------------------------------------------
+#
+# A FINDING says something is wrong. An OPPORTUNITY says the observed state is
+# healthy and there is still a specific, evidence-backed improvement. These
+# cases pin that boundary: an opportunity must never be a demoted defect, and
+# a site with nothing to build on must get nothing invented for it.
+
+ANSWER = (
+    "Stocked metric sizes run from three millimetres to two hundred millimetres bore, and every "
+    "listed size ships the same working day when the order arrives before fifteen hundred hours."
+)
+LONG_BODY = ANSWER + " " + ANSWER
+
+
+def healthy_page(html: str, url: str = "https://example.org/support", kind: str = "HTTP_FETCH"):
+    return make_observation(kind, url, {"html": html, "status_code": 200})
+
+
+def faq_html(count: int = 4, answer: str = ANSWER, heading: str = "h2") -> str:
+    sections = "".join(
+        f"<section><{heading}>Question number {index} about stock and dispatch?</{heading}>"
+        f"<p>{answer}</p></section>"
+        for index in range(count)
+    )
+    return f"<html><body><h1>Support</h1>{sections}</body></html>"
+
+
+def sectioned_html(count: int = 5, body: str = LONG_BODY, with_ids: bool = False) -> str:
+    sections = "".join(
+        f'<section><h2{f' id="s{index}"' if with_ids else ""}>Section {index} on bearing maintenance</h2>'
+        f"<p>{body}</p></section>"
+        for index in range(count)
+    )
+    return f"<html><body><h1>Guide</h1>{sections}</body></html>"
+
+
+# -- A: healthy site, zero findings, still a grounded opportunity ------------
+
+def test_healthy_site_with_no_findings_still_yields_a_grounded_opportunity():
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+
+    markup = [o for o in opportunities if o["source"] == "answer_markup_gap"]
+    assert len(markup) == 1
+    item = markup[0]
+    # Every field the report contract requires, and none that would make it a defect.
+    for field in ("title", "evidence", "why_it_matters", "suggested_action", "validation"):
+        assert item[field].strip()
+    assert item["confidence"] == "high"          # five answered questions
+    assert item["observation_ids"] and item["source_urls"]
+    assert "severity" not in item and "check_id" not in item
+    # Grounded in what was actually observed, not a template.
+    assert "5 question-shaped heading" in item["evidence"]
+    assert "Question number 0 about stock and dispatch?" in item["evidence"]
+
+
+def test_long_form_page_without_heading_ids_is_an_opportunity_not_a_defect():
+    store = {"observations": [healthy_page(sectioned_html(), url="https://example.org/guide")]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+    anchors = [o for o in opportunities if o["source"] == "section_anchor_gap"]
+    assert len(anchors) == 1
+    assert anchors[0]["confidence"] == "medium"
+    assert "none of their headings has an id" in anchors[0]["evidence"]
+
+
+def test_pages_that_already_did_the_work_get_no_advice():
+    # Existing FAQ markup, and a generator that already anchors headings.
+    marked_up = faq_html(count=5).replace(
+        "<h1>Support</h1>",
+        '<h1>Support</h1><script type="application/ld+json">{"@type":"FAQPage","mainEntity":[]}</script>',
+    )
+    store = {"observations": [
+        healthy_page(marked_up),
+        healthy_page(sectioned_html(with_ids=True), url="https://example.org/guide"),
+    ]}
+    assert proactive.generate_proactive_opportunities(store, demoted=[], findings=[]) == []
+
+
+# -- B: healthy minimalist site, nothing forced ------------------------------
+
+def test_healthy_minimalist_site_gets_no_forced_or_generic_opportunity():
+    # A small, correct brochure page: no questions, no long sections, and its
+    # Organization markup already carries sameAs. There is nothing to say.
+    html = (
+        '<html><head><title>Northwind Robotics</title>'
+        '<script type="application/ld+json">{"@type":"Organization","name":"Northwind",'
+        '"sameAs":["https://en.wikipedia.org/wiki/Robotics"]}</script></head>'
+        "<body><h1>Northwind Robotics</h1><p>We build warehouse robots in Leeds.</p></body></html>"
+    )
+    store = {"observations": [healthy_page(html, url="https://example.org/")]}
+    assert proactive.generate_proactive_opportunities(store, demoted=[], findings=[]) == []
+
+
+# -- C: a genuinely broken site keeps its findings, unchanged ----------------
+
+def test_broken_page_keeps_its_finding_and_is_not_offered_an_enhancement():
+    findings = [{
+        "id": "F-001", "check_id": "D-EXTRACT-02", "severity": "medium",
+        "title": "Duplicate titles", "evidence": "Two pages share one title.",
+        "source_urls": ["https://example.org/support"],
+    }]
+    before = json.dumps(findings, sort_keys=True)
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=findings)
+
+    # The defect is untouched: the proactive layer neither rewrites nor demotes it.
+    assert json.dumps(findings, sort_keys=True) == before
+    # And the page with an extractability defect is not also handed an enhancement.
+    assert not any("support" in url for o in opportunities for url in o["source_urls"])
+
+
+def test_a_page_without_a_finding_is_unaffected_by_another_pages_finding():
+    findings = [{"id": "F-001", "check_id": "D-EXTRACT-02", "severity": "medium",
+                 "title": "t", "evidence": "e", "source_urls": ["https://example.org/other"]}]
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=findings)
+    assert any(o["source"] == "answer_markup_gap" for o in opportunities)
+
+
+# -- D: ambiguous evidence produces nothing ---------------------------------
+
+@pytest.mark.parametrize("html,reason", [
+    (faq_html(count=5, answer="Yes."), "question headings with no substantive answer below them"),
+    (faq_html(count=2), "too few question headings to be an answer set"),
+    (sectioned_html(count=5, body="Short."), "sections too thin to be worth citing"),
+    (sectioned_html(count=2), "too few sections to call the page long-form"),
+    ("<html><body><h2>Is this a question?</h2></body></html>", "a heading with no page behind it"),
+], ids=["unanswered-questions", "too-few-questions", "thin-sections", "too-few-sections", "bare-heading"])
+def test_ambiguous_evidence_yields_no_opportunity(html, reason):
+    store = {"observations": [healthy_page(html)]}
+    assert proactive.generate_proactive_opportunities(store, demoted=[], findings=[]) == [], reason
+
+
+# -- E: duplicates are collapsed --------------------------------------------
+
+def test_the_same_page_seen_through_both_lenses_yields_one_opportunity():
+    html = faq_html(count=5)
+    store = {"observations": [
+        healthy_page(html, kind="HTTP_FETCH"),
+        healthy_page(html, kind="RENDER"),
+    ]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+    assert len([o for o in opportunities if o["source"] == "answer_markup_gap"]) == 1
+
+
+def test_identical_opportunities_are_deduplicated():
+    one = {"source": "answer_markup_gap", "title": "T", "evidence": "e", "why_it_matters": "w",
+           "suggested_action": "a", "validation": "v", "confidence": "high",
+           "source_urls": ["https://example.org/x"], "observation_ids": ["OBS-1"]}
+    assert len(proactive._deduplicate([dict(one), dict(one), dict(one)])) == 1
+
+
+# -- F: speculative opportunities are rejected before emission --------------
+
+@pytest.mark.parametrize("field", ["title", "evidence", "why_it_matters", "suggested_action", "validation"])
+def test_an_opportunity_missing_its_grounding_is_rejected(field):
+    item = proactive._opportunity(
+        source="answer_markup_gap", title="T", evidence="e", why_it_matters="w",
+        suggested_action="a", validation="v", confidence="high",
+        source_urls=["https://example.org/x"], observation_ids=["OBS-1"])
+    item[field] = "   "
+    assert not proactive._is_grounded(item)
+
+
+def test_an_opportunity_anchored_to_nothing_observed_is_rejected():
+    item = proactive._opportunity(
+        source="section_anchor_gap", title="T", evidence="e", why_it_matters="w",
+        suggested_action="a", validation="v", confidence="high")
+    assert not item["source_urls"] and not item["observation_ids"]
+    assert not proactive._is_grounded(item)
+
+
+def test_an_opportunity_with_an_invented_confidence_is_rejected():
+    item = proactive._opportunity(
+        source="answer_markup_gap", title="T", evidence="e", why_it_matters="w",
+        suggested_action="a", validation="v", confidence="certain",
+        source_urls=["https://example.org/x"])
+    assert not proactive._is_grounded(item)
+
+
+def test_opportunities_never_reach_the_report_ungrounded():
+    # The generator, not just the predicate, is what enforces this.
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+    for item in proactive.generate_proactive_opportunities(store, demoted=[], findings=[]):
+        assert proactive._is_grounded(item)
+
+
+# ---------------------------------------------------------------------------
 # Integration tests -- run_audit() end to end
 # ---------------------------------------------------------------------------
 

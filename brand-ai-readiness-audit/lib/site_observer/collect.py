@@ -21,7 +21,7 @@ from lib.common.budget import Budget
 from lib.common.http_client import fetch_url
 from lib.common.network_policy import RequestPolicy
 from lib.common.observations import make_observation
-from lib.common.robots import fetch_robots, robots_allows
+from lib.common.robots import fetch_robots, robots_allows_every_interpretation
 from lib.site_observer import classify as classify_mod
 from lib.site_observer import render as render_mod
 from lib.site_observer.crawl import crawl, stratified_sample
@@ -260,7 +260,7 @@ def collect(
         "pages_crawled": len(pages),
         "pages_rendered": sum(1 for obs in observations if obs["type"] == "RENDER"),
         "template_clusters": len(clusters),
-        "disallowed": degradation is not None or not robots_allows(robots, urlparse(seed_url).path + ("?" + urlparse(seed_url).query if urlparse(seed_url).query else "")),
+        "disallowed": degradation is not None or not robots_allows_every_interpretation(robots, urlparse(seed_url).path + ("?" + urlparse(seed_url).query if urlparse(seed_url).query else "")),
     }
 
     return {"store": store, "coverage": coverage, "budget": {**budget.snapshot(), "network_requests": policy.requests}, "scope": scope}

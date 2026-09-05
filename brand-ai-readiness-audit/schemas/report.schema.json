@@ -2,68 +2,270 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Audit report",
   "type": "object",
-  "required": ["site", "audited_at", "summary", "findings"],
+  "required": [
+    "site",
+    "audited_at",
+    "summary",
+    "findings"
+  ],
   "properties": {
-    "site": { "$ref": "#/$defs/text" },
-    "audited_at": { "type": "string", "format": "date-time" },
+    "site": {
+      "$ref": "#/$defs/text"
+    },
+    "audited_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "summary": {
       "type": "object",
-      "required": ["total_findings", "critical", "high", "medium", "low"],
+      "required": [
+        "total_findings",
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
       "properties": {
-        "total_findings": { "type": "integer", "minimum": 0 },
-        "critical": { "type": "integer", "minimum": 0 },
-        "high": { "type": "integer", "minimum": 0 },
-        "medium": { "type": "integer", "minimum": 0 },
-        "low": { "type": "integer", "minimum": 0 }
+        "total_findings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "critical": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "high": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "medium": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "low": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
-    "findings": { "type": "array", "items": { "$ref": "#/$defs/finding" } },
-
-    "scope": { "type": "object", "description": "archetype, pages crawled, rendered, template clusters" },
-    "coverage": { "type": "array", "description": "checks that could not run, with reason codes" },
-    "proactive_opportunities": { "type": "array" },
-    "demoted": { "type": "array" },
-    "run": { "type": "object", "description": "capabilities, budget consumed, skill versions" }
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "scope": {
+      "type": "object",
+      "description": "archetype, pages crawled, rendered, template clusters"
+    },
+    "coverage": {
+      "type": "array",
+      "description": "checks that could not run, with reason codes"
+    },
+    "proactive_opportunities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/proactive_opportunity"
+      }
+    },
+    "demoted": {
+      "type": "array"
+    },
+    "run": {
+      "type": "object",
+      "description": "capabilities, budget consumed, skill versions"
+    }
   },
   "$defs": {
-    "text": { "type": "string", "pattern": "\\S" },
+    "text": {
+      "type": "string",
+      "pattern": "\\S"
+    },
     "finding": {
       "type": "object",
-      "required": ["id", "title", "severity", "evidence", "suggested_action"],
+      "required": [
+        "id",
+        "title",
+        "severity",
+        "evidence",
+        "suggested_action"
+      ],
       "properties": {
-        "id": { "type": "string", "pattern": "^F-[0-9]{3,}$" },
-        "title": { "type": "string", "pattern": "\\S" },
-        "severity": { "enum": ["critical", "high", "medium", "low"] },
-        "evidence": { "type": "string", "pattern": "\\S" },
+        "id": {
+          "type": "string",
+          "pattern": "^F-[0-9]{3,}$"
+        },
+        "title": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "evidence": {
+          "type": "string",
+          "pattern": "\\S"
+        },
         "suggested_action": {
           "type": "object",
-          "required": ["summary", "priority"],
+          "required": [
+            "summary",
+            "priority"
+          ],
           "properties": {
-            "summary": { "type": "string", "pattern": "\\S" },
-            "priority": { "enum": ["critical", "high", "medium", "low"] },
-            "how_to_fix": { "type": "string" },
-            "validation": { "type": "string" }
+            "summary": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "priority": {
+              "enum": [
+                "critical",
+                "high",
+                "medium",
+                "low"
+              ]
+            },
+            "how_to_fix": {
+              "type": "string"
+            },
+            "validation": {
+              "type": "string"
+            }
           }
         },
-
-        "check_id": { "type": "string" },
-        "category": { "type": "string" },
-        "confidence": { "enum": ["high", "medium", "low"] },
-        "mechanism": { "type": "string" },
-        "impact": { "type": "string" },
-        "observed_signal": { "type": "string" },
-        "source_urls": { "type": "array", "uniqueItems": true, "items": { "type": "string", "format": "uri", "pattern": "^https?://" } },
-        "observation_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "\\S" } },
+        "check_id": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "mechanism": {
+          "type": "string"
+        },
+        "impact": {
+          "type": "string"
+        },
+        "observed_signal": {
+          "type": "string"
+        },
+        "source_urls": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://"
+          }
+        },
+        "observation_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "\\S"
+          }
+        },
         "affected": {
           "type": "object",
           "description": "Finding scope; counts describe observed items, not an estimate of the whole site.",
           "properties": {
-            "count": { "type": "integer", "minimum": 0 },
-            "total_in_scope": { "type": ["integer", "null"], "minimum": 0 },
-            "sample_urls": { "type": "array", "uniqueItems": true, "description": "Observed URLs or robots path patterns; patterns are not fetched URLs.", "items": { "type": "string", "pattern": "\\S" } }
+            "count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "total_in_scope": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "sample_urls": {
+              "type": "array",
+              "uniqueItems": true,
+              "description": "Observed URLs or robots path patterns; patterns are not fetched URLs.",
+              "items": {
+                "type": "string",
+                "pattern": "\\S"
+              }
+            }
           }
         },
-        "related_findings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^F-[0-9]{3,}$" } }
+        "related_findings": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^F-[0-9]{3,}$"
+          }
+        }
+      }
+    },
+    "proactive_opportunity": {
+      "type": "object",
+      "description": "An improvement available on a healthy observation. Never a defect, and never counted in the severity summary.",
+      "required": [
+        "source",
+        "title",
+        "evidence",
+        "why_it_matters",
+        "suggested_action",
+        "validation",
+        "confidence"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/text"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "evidence": {
+          "$ref": "#/$defs/text"
+        },
+        "why_it_matters": {
+          "$ref": "#/$defs/text"
+        },
+        "suggested_action": {
+          "$ref": "#/$defs/text"
+        },
+        "validation": {
+          "$ref": "#/$defs/text"
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source_urls": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^https?://"
+          }
+        },
+        "observation_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        }
       }
     }
   }

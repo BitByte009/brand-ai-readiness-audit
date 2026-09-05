@@ -9,6 +9,43 @@ import re
 from urllib.parse import urlsplit, unquote, parse_qsl
 
 
+# Matched against whole, percent-decoded path segments, never substrings, so a
+# public article at /articles/deletion-safety is unaffected. Two kinds of
+# target are excluded: those that plausibly change state on GET (a cart or
+# vote endpoint), and authenticated areas an anonymous auditor has no business
+# probing and would only ever see a login wall for. Losing these costs a page
+# with no AI-discoverability value; fetching one is a safety violation, so the
+# trade runs one way.
+ACTION_OR_AUTHENTICATED_SEGMENTS = {
+    "login", "signin", "sign-in", "log-in", "logout", "log-out", "signout", "sign-out",
+    "signup", "sign-up", "register", "account", "my-account", "admin", "wp-admin",
+    "wp-login.php", "reset-password", "password-reset", "delete", "remove", "edit",
+    "create", "update", "subscribe", "unsubscribe", "checkout", "cart", "basket",
+}
+
+CREDENTIAL_QUERY_KEYS = {
+    "access_token", "auth_token", "token", "session", "sessionid", "sid",
+    "password", "api_key", "authorization",
+}
+
+# Action-shaped parameter *names*. Values are deliberately not scanned: a
+# search box legitimately carries ?q=logout, and treating that as an action
+# would blind the audit to ordinary content.
+ACTION_QUERY_KEYS = {
+    "logout", "log-out", "signout", "sign-out", "delete", "remove",
+    "subscribe", "unsubscribe", "add-to-cart", "add_to_cart", "addtocart",
+    "add-to-basket", "vote", "revoke",
+}
+
+# Generic "which operation" parameters, safe only for explicitly read-only values.
+VERB_QUERY_KEYS = {"action", "do", "operation", "cmd", "op", "act", "task"}
+
+# The absolute number of requests one audit may make to one origin, across the
+# raw and rendered lenses combined. A hard ceiling, not a default: callers may
+# lower it, and `RequestPolicy` clamps anything higher back down to it.
+MAX_REQUESTS_PER_AUDIT = 200
+
+
 def unsafe_target(url):
     """Reject credential/action URLs and parser-ambiguous paths, not page topics.
 
@@ -23,13 +60,13 @@ def unsafe_target(url):
     if "\\" in decoded or any(part in {".", ".."} for part in decoded.split("/")):
         return True
     segments = {part.casefold() for part in decoded.split("/")}
-    if segments & {"logout", "log-out", "signout", "sign-out", "login", "signin", "delete", "remove", "unsubscribe", "checkout"}:
+    if segments & ACTION_OR_AUTHENTICATED_SEGMENTS:
         return True
     for key, value in parse_qsl(parsed.query, keep_blank_values=True):
         key, value = key.casefold(), value.casefold()
-        if key in {"access_token", "auth_token", "token", "session", "sessionid", "sid", "password", "api_key", "authorization"}:
+        if key in CREDENTIAL_QUERY_KEYS or key in ACTION_QUERY_KEYS:
             return True
-        if key in {"action", "do", "operation", "cmd"} and value not in {"", "view", "read", "list", "search"}:
+        if key in VERB_QUERY_KEYS and value not in {"", "view", "read", "list", "search"}:
             return True
     return False
 
@@ -42,9 +79,9 @@ def origin(url):
 
 
 class RequestPolicy:
-    def __init__(self, url, *, max_requests=200, delay=0.2, sleep=time.sleep, clock=time.monotonic):
+    def __init__(self, url, *, max_requests=MAX_REQUESTS_PER_AUDIT, delay=0.2, sleep=time.sleep, clock=time.monotonic):
         self.origin = origin(url)
-        self.max_requests = min(200, max(0, max_requests))
+        self.max_requests = min(MAX_REQUESTS_PER_AUDIT, max(0, max_requests))
         self.delay = max(0.2, delay)
         self.sleep, self.clock = sleep, clock
         self.last_request = None
@@ -55,7 +92,7 @@ class RequestPolicy:
         self.time_left = lambda: float("inf")
 
     def admit(self, url, method="GET", *, preflight=False):
-        from .robots import robots_allows
+        from .robots import robots_allows_every_interpretation
         reason = None
         try:
             if method not in {"GET", "HEAD"}:
@@ -71,7 +108,7 @@ class RequestPolicy:
             elif not preflight:
                 parsed = urlsplit(url)
                 target = (parsed.path or "/") + ("?" + parsed.query if parsed.query else "")
-                if self.robots is None or not robots_allows(self.robots, target):
+                if self.robots is None or not robots_allows_every_interpretation(self.robots, target):
                     reason = "robots_disallowed_or_unknown"
         except ValueError:
             reason = "invalid_or_credentialed_url"

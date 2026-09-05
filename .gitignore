@@ -1,0 +1,8 @@
+# Compiled bytecode must not ship with the marketplace package: it is not
+# reviewable, and a distributed skill package should carry only its source.
+__pycache__/
+*.py[cod]
+
+# Local development environments and test caches.
+.venv/
+.pytest_cache/

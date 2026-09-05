@@ -268,6 +268,43 @@ def extract_text(html: str) -> str:
     return re.sub(r"\s+", " ", text)
 
 
+_HEADING_TAGS = ("h1", "h2", "h3", "h4", "h5", "h6")
+
+
+def heading_sections(html: str) -> List[Dict[str, Any]]:
+    """Split a page into (heading, prose that follows it) sections.
+
+    A structural view of a page that `page_inventory`'s counts cannot give:
+    whether real prose actually follows a heading, which is what separates a
+    documented answer from a bare label. Body text runs from the heading to
+    the next heading at the same or a shallower level.
+
+    Sibling traversal only sees prose that shares the heading's parent. That
+    is the common authoring shape, and when a page nests differently the word
+    count comes back low, so callers under-fire rather than over-fire.
+    """
+    soup = _soup(html)
+    sections: List[Dict[str, Any]] = []
+    for heading in soup.find_all(_HEADING_TAGS):
+        level = int(heading.name[1])
+        words = 0
+        for sibling in heading.next_siblings:
+            name = getattr(sibling, "name", None)
+            if name in _HEADING_TAGS and int(name[1]) <= level:
+                break
+            text = sibling.get_text(" ", strip=True) if name else str(sibling).strip()
+            words += len(text.split())
+        sections.append(
+            {
+                "level": level,
+                "text": heading.get_text(" ", strip=True),
+                "id": str(heading.get("id") or "").strip(),
+                "body_words": words,
+            }
+        )
+    return sections
+
+
 def page_inventory(html: str) -> Dict[str, Any]:
     """Summarize the page structure for raw-vs-rendered comparison."""
     soup = _soup(html)

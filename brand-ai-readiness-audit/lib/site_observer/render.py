@@ -97,12 +97,24 @@ def _render_with_playwright(url: str, timeout_ms: int, policy=None) -> Dict[str,
     with _browser_instance() as browser:
         context = browser.new_context(user_agent=AUDIT_USER_AGENT, service_workers="block", accept_downloads=False)
         try:
-            # No active network outside the routed HTTP transport. In particular
-            # WebRTC and workers can create channels not covered by page routes.
+            # No active network outside the routed HTTP transport. Workers,
+            # WebRTC and WebTransport open channels the page route below never
+            # sees, so blocking a resource type there is not sufficient for
+            # them. EventSource and sendBeacon *are* routed; they are removed
+            # too so a single interception failure is not a single point of
+            # failure. Each definition is attempted independently: one global
+            # that resists redefinition must not abort the rest of the script.
             context.add_init_script("""(() => {
-              for (const name of ['Worker', 'SharedWorker', 'RTCPeerConnection', 'webkitRTCPeerConnection']) {
-                Object.defineProperty(globalThis, name, {value: undefined, configurable: false, writable: false});
+              const deny = (target, name) => {
+                try {
+                  Object.defineProperty(target, name, {value: undefined, configurable: false, writable: false});
+                } catch (error) { /* keep neutering the remaining channels */ }
+              };
+              for (const name of ['Worker', 'SharedWorker', 'ServiceWorker', 'RTCPeerConnection',
+                                  'webkitRTCPeerConnection', 'WebTransport', 'EventSource']) {
+                deny(globalThis, name);
               }
+              if (globalThis.Navigator) { deny(Navigator.prototype, 'sendBeacon'); }
             })();""")
             navigated = False
             def route_request(route):
