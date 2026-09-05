@@ -13,8 +13,8 @@ a grader reading this file.
 |---|---|---|
 | **Impact** | How severe the underlying mechanism failure is | the detecting skill's *proposed* base `severity` — already calibrated per check against the taxonomy (see below, "why impact is not re-derived here") |
 | **Confidence** | How sure we are the finding is real | the detecting skill's `confidence`, adjusted for thin samples (`confidence-model.md`) |
-| **Scope** | How much of the site is affected | `affected.count / affected.total_in_scope` on the finding itself |
-| **Importance** | Whether the affected page(s) are structurally central | a depth heuristic over `source_urls` (self-contained; a real link-centrality signal is a documented, not required, future upgrade) |
+| **Scope** | How much of the measured population is affected | `affected.count / affected.total_in_scope` only when the detector supplied a real denominator; unknown is neutral |
+| **Importance** | Whether the affected page was explicitly placed in scope | the requested audit target from the observation store; URL depth is not a proxy for importance |
 | **Urgency** | Whether the defect actively worsens over time | a fixed check_id set (stale/expiring/actively-blocking checks) — **ranking only** |
 
 ### Why impact is not re-derived from a coarse gate table
@@ -62,8 +62,8 @@ Applied in this order; each either fires or doesn't, independently:
 |---|---|---|
 | Scope (broad) | `total_in_scope > 1` and `count / total_in_scope >= 0.8` | `+1` |
 | Scope (narrow) | `total_in_scope > 1` and `count == 1` | `-1` |
-| Scope (singular target) | `total_in_scope <= 1` | no modifier — neutral |
-| Importance | any `source_urls` entry at URL depth `<=1` | `+1` |
+| Scope (unknown/singular target) | denominator absent, or `total_in_scope <= 1` | no modifier — neutral |
+| Importance | the affected set includes the explicitly requested audit target | `+1` |
 | Confidence | `confidence == "low"` | `-1` |
 
 Severity moves along `low -> medium -> high -> critical`, clamped at both
@@ -106,19 +106,15 @@ Findings are ordered by, in order:
 4. `affected.count` (larger first — a defect hitting more of the site first)
 5. `check_id` (deterministic final tie-break)
 
-## Distribution guard
+## Distribution diagnostic
 If more than 30% of the (post-demotion) findings land in `high`+`critical`,
-recalibrate: sort the `high`-tier findings (never `critical` — the allowlist
-above is a floor as well as a ceiling for those four checks) by weakest
-evidence first (lowest confidence, then smallest scope ratio), and downgrade
-them to `medium` one at a time until back at or under 30%. Every downgrade is
-logged in `calibration_log` with the check, the direction, and why — this is
-the concrete, deterministic answer to "avoid turning every issue into
-HIGH/CRITICAL": a report where scope/importance modifiers alone happened to
-inflate a third of findings gets automatically, transparently re-leveled
-rather than shipped as-is.
+record a `severity_distribution_warning` in `calibration_log`. The diagnostic
+never rewrites a finding: adding an unrelated result cannot change the
+severity of evidence already evaluated. Inflated severity is corrected by the
+finding-local impact, confidence, measured-scope, and importance rules above,
+not by enforcing a desired report shape.
 
-**The guard only runs with at least `DISTRIBUTION_GUARD_MIN_FINDINGS` (5)
+**The diagnostic only runs with at least `DISTRIBUTION_GUARD_MIN_FINDINGS` (5)
 kept findings.** A percentage is not evidence of a pattern when the
 denominator is tiny: a report with exactly one genuinely severe, well-evidenced
 problem and one unrelated minor one is a 50% high-ratio, and a naive guard
@@ -134,9 +130,9 @@ importance modifier, no confidence modifier → index `low(0) - 1` clamped to
 `0` → stays `low`.
 
 A `D-CRAWL-06` finding (base `high`, canonical conflict) affecting 8 of 10
-in-scope pages including the homepage (depth 0), high confidence: scope `+1`
-(broad: `8/10 = 80% >= 80%`), importance `+1` (a depth-`<=1` page is among
-those affected) → index `high(2) + 1 + 1` → `critical` — but `D-CRAWL-06` is
+measured pages including the requested audit target, high confidence: scope
+`+1` (broad: `8/10 = 80% >= 80%`), importance `+1` (the requested target is
+affected) → index `high(2) + 1 + 1` → `critical` — but `D-CRAWL-06` is
 not on the allowlist, so the cap fires and it is recorded back down to `high`,
 with `"critical-cap: ..."` in its `scoring_trace`.
 

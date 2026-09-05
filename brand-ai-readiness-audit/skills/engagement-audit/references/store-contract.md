@@ -9,12 +9,12 @@ each skill documents only the part of the shared contract it actually reads.
 | Type | Cardinality | `value` shape (fields this skill reads) |
 |---|---|---|
 | `HTTP_FETCH` | one per crawled URL | `{status_code, final_url, headers, html}` — used as a fallback lens and for `E-CONTINUE-04`'s link-status check. |
-| `RENDER` | zero or one per sampled URL | `{status, html}`. This is the **primary** lens for this skill — a human visitor experiences the rendered page, not raw HTML. Text-based checks (`E-ORIENT-01`, `E-ANSWER-01`, `E-CONTINUE-*`) fall back to raw `HTTP_FETCH` HTML when no render exists (`effective_pages()`, same pattern as the other two detector skills). DOM-geometry checks that reason about what appears at first paint (`E-ANSWER-02`, `E-ANSWER-04`) do **not** fall back — without a render, they are inapplicable and stay silent, never approximated from raw HTML, because "what a rendered page shows at first paint" is not a question raw HTML can answer. |
+| `RENDER` | zero or one per sampled URL | `{status, status_code, html}`. Prefer successful 2xx rendered HTML. Eligible text checks may fall back to successful 2xx raw HTML, but render-dependent checks may not. The current renderer supplies HTML, not viewport/first-paint geometry; DOM order is a structural proxy only. Shared [page selection](../../../lib/common/pages.py) rejects failed-page content. |
 | `PAGE_CLASSIFICATION` | zero or one per URL | `{page_type}` — used to recognize utility/terminal pages (e.g. `contact`, `thank_you`) whose job is complete and need no next step (`E-CONTINUE-01`/`02`/`03`). |
-| `PROBE` | zero or one per URL | `{questions: [{id, category, answered, answer, evidence_span}], source_text_hash}`. This skill reads `category == "engagement"` questions **Q5** (what question does this page answer) and **Q8** (how would a visitor take the next step) from `references/probe-questions.md`'s canonical numbering (defined in `entity-semantic-audit`'s references, consumed here per that file's own "Consumed by" column) — never `factual` or `identity` questions, which belong to `crawl-render-audit` and `entity-semantic-audit` respectively. |
+| `PROBE` | zero or one per URL | `{questions: [{id, category, answered, answer, evidence_span}], source_text_hash}`. Reads engagement Q5/Q8 only, following the [canonical probe questions](../../entity-semantic-audit/references/probe-questions.md). The current collector does not generate probe results. |
 
 `entity_profile` (not a store observation — an artifact passed in alongside the
-store, exactly as `trust-freshness-audit` consumes it) supplies the canonical name
+store; the optional trust recorder can also consume it) supplies the canonical name
 and aliases used as the brand-token set for `E-ORIENT-01`.
 
 Archetype gating reads the store's top-level `archetype` field.

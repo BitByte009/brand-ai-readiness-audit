@@ -46,7 +46,8 @@ log) and is never reintroduced here.
   `title_segments()` segment, reusing `entity-semantic-audit`'s split so a
   "Page - Brand" title still counts).
 - **Detection test:** fire when the brand token is absent from **all three**
-  positions: early body text, logo alt/aria-label, and title.
+  positions: early body text, logo alt/aria-label, and title. Match with Unicode
+  word boundaries, not substrings of unrelated words (e.g. AI in training).
 - **Evidence required:** the page's first-screen text excerpt, the logo `alt`
   value (or its absence), and the title — showing none contain the brand token.
 - **False-positive rules:** a logo image *with* correct alt text counts as
@@ -339,12 +340,11 @@ log) and is never reintroduced here.
   content-area link (below this, see `E-CONTINUE-02` instead).
 - **Observable signals:** the classification of each outgoing content-area
   link's target: same-page anchor, external social-share pattern
-  (`share`/`tweet`/`mailto:`), a same-organization subdomain (e.g.
-  `app.acme.com` from `acme.com`), vs. a genuinely third-party external site.
-  Same-organization subdomains and internal content pages both count as
-  "internal content" for this test — a hostile review found the
-  marketing-site-to-app-subdomain CTA (near-universal on SaaS sites) being
-  classified the same as an unrelated third-party link and penalized for it.
+  (`share`/`tweet`/`mailto:`), the audited host or its descendant subdomains,
+  vs. another host. Normalize the conventional www alias. Do not infer
+  ownership from the last two DNS labels: unrelated co.uk domains and sibling
+  tenants of a shared hosting service must remain external. This is a site-scope
+  heuristic, not proof of legal ownership or registrable-domain resolution.
 - **Detection test:** fire when every outgoing content-area link classifies as
   same-page-anchor or social-share — i.e. zero links point to another internal
   or same-organization content page.

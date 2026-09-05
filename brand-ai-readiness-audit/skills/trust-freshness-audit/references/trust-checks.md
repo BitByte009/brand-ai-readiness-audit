@@ -63,19 +63,17 @@ what "seems true" or "is probably fine."
 ## D-TRUST-02 — stale signals
 - **Meaning:** a forward-framed claim (an "upcoming" event, an offer with an end
   date, a countdown) carries a date that has already passed relative to the
-  audit time, or the only date signal on the page is a long-stale copyright year.
+  audit time. Copyright age alone does not establish content staleness.
 - **Mechanism:** Appendix B/D. A stale forward-framed claim is actively
   misleading if repeated, not merely uninformative.
 - **Applicability:** a `dated_offer`/`dated_event` claim exists with an
-  extractable date, or a page's only date signal is a copyright year.
+  extractable date.
 - **Observable signals:** the claim's extracted date compared against
-  `audited_at`; the page's `copyright_year` compared against the audit year.
-- **Detection test:** three independent sub-triggers, each requiring the
+  `audited_at`.
+- **Detection test:** two independent sub-triggers, each requiring the
   forward-framing pattern *and* a date, never a stale date alone: (a) an
   "upcoming"/"next" event dated before `audited_at`; (b) an "ends"/"until"/
-  "sale" claim dated before `audited_at`; (c) `copyright_year` more than 2
-  years before the audit year **and** no other, more recent date signal exists
-  on the page. Sub-triggers (a) and (b) additionally require that the page's
+  "sale" claim dated before `audited_at`. Both additionally require that the page's
   own date inventory (schema or visible dates) has **no** date on or before
   the claim's extracted date — see the false-positive rule below.
 - **Evidence required:** the claim text, the extracted date, `audited_at`, and
@@ -91,9 +89,7 @@ what "seems true" or "is probably fine."
   sub-trigger fires only when the page has no such earlier date, or was
   itself published/modified *after* the claim's date and is still presenting
   it as forward-looking — the genuine currency bug this check exists to
-  catch. The copyright-year sub-trigger never fires if a more recent date
-  signal exists anywhere on the same page (an old footer copyright next to a
-  fresh "last updated" date is not stale).
+  catch. Copyright dates identify rights, not content review or expiry dates.
 - **False-negative risks:** a stale claim phrased without any of the fixed
   forward-framing patterns is missed; same deliberate precision trade as
   D-TRUST-01.
@@ -101,7 +97,7 @@ what "seems true" or "is probably fine."
 - **Confidence:** high — date arithmetic against a fixed reference point is
   fully deterministic.
 - **Recommendation:** update or remove the stale date-bound claim, offer, or
-  event; refresh the copyright year if no other date signal exists.
+  event.
 - **Validation:** re-fetch; the extracted date is no longer past relative to
   its framing, or the stale claim has been removed or updated.
 
@@ -243,13 +239,15 @@ what "seems true" or "is probably fine."
   repeat a claim has no visible accountability trail to check.
 - **Applicability:** always evaluable; archetype-gated at the detection test
   (see below), never suppressed by absence alone without that gate.
-- **Observable signals:** presence of an about page and a contact page/contact
-  method (path or heading match, or an email/phone/address pattern); presence
-  of a named-author byline or JSON-LD `author` on `article`-classified pages.
+- **Observable signals:** classified accountability roles, named structured
+  operators, explicit operator prose, email/telephone links, message forms,
+  structured postal contacts, and exact conventional role-path fallbacks.
+  Named authors may appear in JSON-LD graphs, metadata, `itemprop`, `rel=author`,
+  or visible bylines; an empty author link does not name an author.
 - **Detection test:** two independent sub-triggers. (a) fires when **both**
-  an about page and a contact page/method are absent sitewide — never on
-  either alone. (b) fires when `>=1` `article`-classified page exists and
-  **none** carry a named author.
+  operator-identity and contact signals are both absent from sampled pages.
+  (b) evaluates each fetched `article` page independently and reports only
+  anonymous articles, with evaluated article count as the denominator.
 - **Evidence required:** the pages searched for about/contact signals; the
   article pages checked for authorship.
 - **False-positive rules:** personal blogs and single-purpose landing pages

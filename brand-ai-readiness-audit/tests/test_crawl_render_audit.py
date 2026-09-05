@@ -793,6 +793,49 @@ def test_d_extract_04_never_fires_when_required_properties_present():
     assert findings == []
 
 
+def test_d_extract_04_validates_product_inside_parameterized_jsonld_graph():
+    html = page(
+        extra_head="""
+        <script type="Application/LD+JSON; charset=utf-8">
+          {"@context":"https://schema.org","@graph":[
+            {"@type":"https://schema.org/Product","name":"Widget"}
+          ]}
+        </script>
+        """
+    )
+    store = make_store([fetch_obs("https://example.com/widget", html)])
+
+    findings = [f for f in detect_extract.detect_extract(store) if f["check_id"] == "D-EXTRACT-04"]
+
+    assert len(findings) == 1
+    assert "Product" in findings[0]["title"]
+    assert "offers.price" in findings[0]["observed_signal"]
+
+
+def test_d_extract_04_checks_dotted_property_across_all_list_elements():
+    html = page(
+        extra_head="""
+        <script type="application/ld+json">
+          {"@context":"https://schema.org","@graph":[
+            {
+              "@type":"https://schema.org/Product",
+              "name":"Widget",
+              "offers":[
+                {"@type":"Offer","availability":"https://schema.org/InStock"},
+                {"@type":"Offer","price":"9.99"}
+              ]
+            }
+          ]}
+        </script>
+        """
+    )
+    store = make_store([fetch_obs("https://example.com/widget", html)])
+
+    findings = [f for f in detect_extract.detect_extract(store) if f["check_id"] == "D-EXTRACT-04"]
+
+    assert findings == []
+
+
 def test_d_extract_04_fires_on_json_parse_error():
     html = page(extra_head='<script type="application/ld+json">{not valid json</script>')
     store = make_store([fetch_obs("https://example.com/broken", html)])
@@ -987,7 +1030,10 @@ def test_group_by_cluster_collapses_same_shaped_urls():
         ("/cart", True),
         ("/cart/items", True),
         ("/search", True),
-        ("/products?color=red", True),
+        ("/products?color=red", False),
+        ("/read?id=42", False),
+        ("/guide?utm_source=ai", False),
+        ("/search?q=guide", True),
         ("/blog/my-post", False),
         ("/about", False),
     ],

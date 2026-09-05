@@ -34,7 +34,7 @@ from _entity_util import (
     type_keyword_match,
 )
 
-from lib.common.extract import extract_metadata, extract_text
+from lib.common.extract import extract_metadata, extract_text, schema_type_matches
 
 FIELD_NAMES = [
     "canonical_name",
@@ -135,8 +135,10 @@ def _entity_type_field(store: Dict[str, Any], pages: Dict[str, Dict[str, Any]]) 
             }
 
         for node in jsonld_nodes_of_type(html, set(TYPE_LABEL_MAP.keys())):
-            node_type = node.get("@type")
-            node_type = node_type[0] if isinstance(node_type, list) else node_type
+            node_type = next(
+                (known_type for known_type in TYPE_LABEL_MAP if schema_type_matches(node.get("@type"), known_type)),
+                None,
+            )
             label = TYPE_LABEL_MAP.get(node_type)
             if label and label in text.lower():
                 return {

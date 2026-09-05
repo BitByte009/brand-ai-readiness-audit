@@ -159,6 +159,19 @@ def test_classify_archetype_from_jsonld_local_business():
     assert classify_archetype({"observations": [obs]}) == "local-business"
 
 
+def test_classify_archetype_from_graph_node_with_schema_type_uri():
+    html = """
+    <script type="Application/LD+JSON; charset=utf-8">
+      {"@context":"https://schema.org","@graph":[
+        {"@type":"https://schema.org/LocalBusiness","name":"Northstar Repair"}
+      ]}
+    </script>
+    """
+    obs = make_observation("HTTP_FETCH", "https://x.example/", {"html": html})
+
+    assert classify_archetype({"observations": [obs]}) == "local-business"
+
+
 def test_classify_archetype_returns_empty_when_unclear():
     assert classify_archetype({"observations": []}) == ""
 
@@ -430,7 +443,7 @@ def test_run_audit_never_fetches_a_page_when_robots_disallows_all():
         now=FIXED_NOW,
         sleep=NO_SLEEP,
     )
-    assert report["findings"] == []
+    assert {f["check_id"] for f in report["findings"]} == {"D-CRAWL-01"}
     assert report["scope"]["pages_crawled"] == 0
     assert any(c["reason"] == "ROBOTS_DISALLOWED" for c in report["coverage"])
     is_valid, errors = validate_report_schema(report)

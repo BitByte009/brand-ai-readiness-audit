@@ -203,15 +203,65 @@ def test_d_trust_02_never_fires_on_future_dated_event():
     assert findings == []
 
 
-def test_d_trust_02_fires_on_stale_copyright_with_no_other_date():
+def test_d_trust_02_copyright_alone_does_not_establish_staleness():
     html = page_html(body="Welcome to our site.", footer="© 2019 Acme Inc.")
     store = make_store([fetch_obs("https://example.com/", html)], collected_at="2026-01-01T00:00:00Z")
     table = build_claim_table.build_claim_table(store)
 
     findings = detect_trust.check_d_trust_02(store, table)
     hits = [f for f in findings if "copyright" in f["title"].lower()]
+    assert hits == []
+
+
+@pytest.mark.parametrize("html", [
+    '<a href="mailto:bonjour@example.org">Écrivez-nous</a>',
+    '<a href="tel:+33123456789">Appelez</a>',
+    '<form><input type="email"><textarea name="message"></textarea></form>',
+    page_html(jsonld={"@graph": [{"@type": "https://schema.org/Organization", "name": "研究所"}]}),
+])
+def test_accountability_does_not_require_english_page_names(html):
+    store = make_store([fetch_obs("https://example.com/資料/42", html)])
+    assert detect_trust.check_d_trust_06(store, {}) == []
+
+
+@pytest.mark.parametrize("path", ["/about-face", "/contact-lenses", "/products/contact-paper"])
+def test_product_path_substrings_do_not_establish_accountability(path):
+    store = make_store([fetch_obs("https://example.com" + path, page_html(body="Catalog item 12345678"))])
+    findings = detect_trust.check_d_trust_06(store, {})
+    assert len(findings) == 1
+    assert "operator" in findings[0]["title"]
+
+
+@pytest.mark.parametrize("html", [
+    '<meta name="author" content="李明">',
+    '<a rel="author" href="/people/42">Émilie Durand</a>',
+    '<span itemprop="author">研究チーム</span>',
+    page_html(jsonld={"@graph": [
+        {"@type": "Article", "author": {"@id": "#writer"}},
+        {"@id": "#writer", "@type": "Person", "name": "أمل"},
+    ]}),
+])
+def test_author_signals_are_not_english_byline_specific(html):
+    assert _trust_util.find_author_byline(html, "")
+
+
+def test_empty_contact_and_author_links_are_not_named_channels():
+    assert not _trust_util.has_contact_method('<a href="mailto:">Email</a><a href="tel:">Phone</a>')
+    assert not _trust_util.has_contact_info("Order 123456789, copyright 2010-2026")
+    assert not _trust_util.find_author_byline('<a rel="author" href="/people/42"></a>', "")
+
+
+def test_author_findings_scope_only_anonymous_articles():
+    named, anonymous = "https://example.com/a", "https://example.com/b"
+    store = make_store([
+        fetch_obs(named, '<meta name="author" content="李明">'),
+        fetch_obs(anonymous, page_html(body="A substantive article.")),
+        classification_obs(named, "article"), classification_obs(anonymous, "article"),
+    ])
+    hits = [f for f in detect_trust.check_d_trust_06(store, {}) if "author" in f["title"]]
     assert len(hits) == 1
-    assert_finding_shape(hits[0])
+    assert hits[0]["affected"] == {"count": 1, "sample_urls": [anonymous], "total_in_scope": 2}
+    assert set(hits[0]["observation_ids"]) <= {obs["id"] for obs in store["observations"]}
 
 
 def test_d_trust_02_never_fires_stale_copyright_when_a_recent_date_exists():

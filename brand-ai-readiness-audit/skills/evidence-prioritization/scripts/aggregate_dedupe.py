@@ -18,15 +18,17 @@ import json
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
-from _prioritization_util import confidence_index, finding_url_set
-
-MERGE_JACCARD_FLOOR = 0.5
+from _prioritization_util import affected_url_set, confidence_index
 
 
-def _jaccard(a: set, b: set) -> float:
-    if not a or not b:
-        return 0.0
-    return len(a & b) / len(a | b)
+def _dedupe_key(finding: Dict[str, Any]) -> tuple:
+    """Identity of a defect class, independent of its evidence wording.
+
+    Detectors may provide a stable ``dedupe_key``.  The mechanism is the safe
+    fallback because one check id can contain genuinely different subchecks
+    (for example D-ENTITY-04 description and address conflicts).
+    """
+    return (finding["check_id"], finding.get("dedupe_key") or finding.get("mechanism", ""))
 
 
 def _merge_group(sources: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -35,54 +37,65 @@ def _merge_group(sources: List[Dict[str, Any]]) -> Dict[str, Any]:
     group. All other fields come from whichever source has the highest
     confidence then the largest affected.count, as a deterministic tie-break.
 
-    affected.count is the size of the UNION of every source's affected URLs,
-    never a sum: the merge criterion (Jaccard >= 0.5) requires the sources'
-    URL sets to substantially overlap in the first place, so summing their
-    counts double-counts every URL both findings already agreed was affected
-    -- inflating scope, and therefore severity, in exactly the case (two
-    detections of the same underlying defect) merging exists to normalize
-    away."""
+    Scope is a lower bound: preserve the largest declared count and the union
+    of sampled affected URLs. Never sum overlapping counts or treat evidence
+    context URLs as affected instances. Canonical JSON breaks otherwise equal
+    ties without depending on detector execution order."""
     all_observation_ids = sorted({oid for f in sources for oid in f.get("observation_ids", [])})
     all_source_urls = sorted({u for f in sources for u in f.get("source_urls", [])})
-    total_count = len(all_source_urls)
-    total_in_scope = max((f.get("affected") or {}).get("total_in_scope", 0) for f in sources)
+    affected_urls = sorted({u for f in sources for u in affected_url_set(f)})
+    total_count = max(len(affected_urls), max((f.get("affected") or {}).get("count", 0) for f in sources))
+    measured_totals = [
+        (f.get("affected") or {}).get("total_in_scope")
+        for f in sources
+        if isinstance((f.get("affected") or {}).get("total_in_scope"), (int, float))
+    ]
+    total_in_scope = max(measured_totals) if measured_totals else None
     best_confidence = max((f["confidence"] for f in sources), key=confidence_index)
 
-    base = max(sources, key=lambda f: (confidence_index(f["confidence"]), (f.get("affected") or {}).get("count", 0)))
+    base = max(sources, key=lambda f: (confidence_index(f["confidence"]), (f.get("affected") or {}).get("count", 0), json.dumps(f, sort_keys=True)))
 
     merged = dict(base)
     merged["observation_ids"] = all_observation_ids
     merged["source_urls"] = all_source_urls
-    merged["affected"] = {"count": total_count, "sample_urls": all_source_urls[:5], "total_in_scope": total_in_scope}
+    merged["affected"] = {"count": total_count, "sample_urls": affected_urls[:5], "total_in_scope": total_in_scope}
     merged["confidence"] = best_confidence
     merged["suggested_action"] = dict(base["suggested_action"])
     return merged
 
 
 def merge_duplicate_findings(findings: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """Findings sharing a check_id and a substantially overlapping URL set
-    (Jaccard >= 0.5) are the same underlying (check_id, template_cluster)
-    finding surfacing twice in the pooled set -- merge rather than
-    duplicate-report it. Each detector skill already aggregates internally
-    (PROJECT_CONTEXT.md D-7); this is a defensive second pass over the *pooled*
-    set, not the primary aggregation."""
-    by_check: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    """Merge duplicate defect classes whose asserted affected sets overlap.
+
+    Connected components make the result permutation-invariant; unlike a
+    Jaccard cutoff, the rule does not change merely because one detector saw a
+    wider sample. Context-only ``source_urls`` never establish identity.
+    """
+    by_check: Dict[tuple, List[Dict[str, Any]]] = defaultdict(list)
     for finding in findings:
-        by_check[finding["check_id"]].append(finding)
+        by_check[_dedupe_key(finding)].append(finding)
 
     merged_findings: List[Dict[str, Any]] = []
     merge_log: List[Dict[str, Any]] = []
 
-    for check_id, group in by_check.items():
+    for (check_id, _subtype), group in sorted(by_check.items()):
+        remaining = sorted(group, key=lambda f: json.dumps(f, sort_keys=True))
         clusters: List[Dict[str, Any]] = []
-        for finding in group:
-            urls = finding_url_set(finding)
-            target = next((c for c in clusters if _jaccard(c["urls"], urls) >= MERGE_JACCARD_FLOOR), None)
-            if target is None:
-                clusters.append({"urls": urls, "sources": [finding]})
-            else:
-                target["sources"].append(finding)
-                target["urls"] = target["urls"] | urls
+        while remaining:
+            seed = remaining.pop(0)
+            component = [seed]
+            urls = affected_url_set(seed)
+            changed = True
+            while changed:
+                changed = False
+                for candidate in list(remaining):
+                    candidate_urls = affected_url_set(candidate)
+                    if urls and candidate_urls and urls & candidate_urls:
+                        remaining.remove(candidate)
+                        component.append(candidate)
+                        urls |= candidate_urls
+                        changed = True
+            clusters.append({"urls": urls, "sources": component})
 
         for cluster in clusters:
             sources = cluster["sources"]

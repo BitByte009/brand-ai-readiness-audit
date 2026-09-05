@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from lib.common.extract import extract_jsonld
+from lib.common.extract import extract_jsonld, schema_type_names
 
 ARCHETYPES = [
     "brand-product",
@@ -44,11 +44,7 @@ def _jsonld_types(store: Dict[str, Any]) -> List[str]:
         if not html:
             continue
         for item in extract_jsonld(html):
-            item_type = item.get("@type")
-            if isinstance(item_type, list):
-                types.extend(str(t) for t in item_type)
-            elif item_type:
-                types.append(str(item_type))
+            types.extend(schema_type_names(item.get("@type")))
     return types
 
 

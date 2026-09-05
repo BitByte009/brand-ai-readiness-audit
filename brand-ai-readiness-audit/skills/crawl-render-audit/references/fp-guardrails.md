@@ -18,7 +18,7 @@ ID without re-reading three files.
 
 | Check ID | Suppression condition | Effect |
 |---|---|---|
-| D-CRAWL-01 | Path is a utility path (cart/search/checkout/login/account/wishlist/admin, or carries a query string) | never fires |
+| D-CRAWL-01 | Path is a utility path (cart/search/checkout/login/account/wishlist/admin); a query string alone does not qualify | never fires |
 | D-CRAWL-01 | `ROBOTS.status != "ok"` | does not fire (that's D-CRAWL-15) |
 | D-CRAWL-02 | — | always fires as a neutral *consequence*, never as an error; downgraded to medium |
 | D-CRAWL-03 | Page is a tag/filter/thank-you/cart/search/checkout/print page, or is under the short-page floor | never fires |

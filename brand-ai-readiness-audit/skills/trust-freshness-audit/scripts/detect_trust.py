@@ -25,7 +25,8 @@ from _trust_util import (
     claim_corroborations,
     effective_pages,
     find_author_byline,
-    has_contact_info,
+    has_contact_method,
+    has_operator_identity,
     is_about_page,
     is_contact_page,
     make_finding,
@@ -141,37 +142,6 @@ def check_d_trust_02(store: Dict[str, Any], claim_table: Dict[str, Any]) -> List
                     "priority": severity,
                     "how_to_fix": f"Refresh or remove the claim on {claim['source_url']}.",
                     "validation": "Re-fetch; the extracted date is no longer past relative to its framing.",
-                },
-            )
-        )
-
-    audit_year = audited_at.year
-    for url, inventory in claim_table["date_inventory"].items():
-        year = inventory.get("copyright_year")
-        if year is None or audit_year - year < 2:
-            continue
-        if _has_date_signal(inventory):
-            continue  # a more recent date signal exists; the old copyright alone isn't stale
-        findings.append(
-            make_finding(
-                check_id="D-TRUST-02",
-                category=CATEGORY,
-                title=f"Stale copyright year on {url}",
-                severity=severity,
-                confidence="high",
-                mechanism="A long-stale copyright year with no other freshness "
-                "signal reads as an abandoned or unmaintained page.",
-                impact="Machines have no more recent freshness signal to prefer over this stale one.",
-                observed_signal=f"copyright year {year}, audit year {audit_year}, no more recent date signal on the page",
-                evidence=f"© {year}",
-                observation_ids=[inventory["observation_id"]],
-                source_urls=[url],
-                affected=affected_block([url]),
-                suggested_action={
-                    "summary": "Refresh the copyright year, or add a more recent date signal.",
-                    "priority": severity,
-                    "how_to_fix": f"Update the copyright year on {url} or add a dateModified/visible update date.",
-                    "validation": "Re-fetch; the copyright year is current or a more recent date signal exists.",
                 },
             )
         )
@@ -314,6 +284,8 @@ def check_d_trust_06(store: Dict[str, Any], claim_table: Dict[str, Any]) -> List
         return []
 
     pages = effective_pages(store)
+    if not pages:
+        return []
     findings = []
 
     # Parsed once per page and reused below for both the contact-info and
@@ -321,61 +293,74 @@ def check_d_trust_06(store: Dict[str, Any], claim_table: Dict[str, Any]) -> List
     # separately, doubling the per-page parsing cost.
     page_texts = {url: extract_text(page["html"]) for url, page in pages.items()}
 
-    has_about = any(is_about_page(url) for url in pages)
-    has_contact = any(is_contact_page(url) or has_contact_info(page_texts[url]) for url in pages)
-    if not has_about and not has_contact:
+    classifications = page_classifications(store)
+    has_operator = any(
+        is_about_page(url, classifications.get(url))
+        or has_operator_identity(page["html"], page_texts[url])
+        for url, page in pages.items()
+    )
+    has_contact = any(
+        is_contact_page(url, classifications.get(url))
+        or has_contact_method(page["html"], page_texts[url])
+        for url, page in pages.items()
+    )
+    if not has_operator and not has_contact:
         findings.append(
             make_finding(
                 check_id="D-TRUST-06",
                 category=CATEGORY,
-                title="No about page or contact information found",
+                title="No operator identity or contact method found",
                 severity="medium",
                 confidence="high",
                 mechanism="A citation pipeline weighing whether to trust and "
                 "repeat a claim has no visible accountability trail to check.",
                 impact="Nothing on the site identifies who is accountable for its claims.",
-                observed_signal="no about page and no contact page/contact info found sitewide",
-                evidence="No about or contact signal found on any sampled page",
+                observed_signal="no operator-identity or actionable contact signal found sitewide",
+                evidence="No classified accountability role, named operator, contact method, or exact role-path fallback found on any sampled page",
                 observation_ids=[],
                 source_urls=sorted(pages.keys()),
                 affected=affected_block(sorted(pages.keys())),
                 suggested_action={
-                    "summary": "Add an about page and a visible contact method.",
+                    "summary": "Identify the site operator and provide a visible contact method.",
                     "priority": "medium",
-                    "how_to_fix": "Publish a page stating who operates the site and how to contact them.",
-                    "validation": "Re-crawl; an about page and contact info are now present.",
+                    "how_to_fix": "State who operates the site and add an email, phone, contact form, or postal contact.",
+                    "validation": "Re-crawl; an operator-identity or actionable contact signal is now present.",
                 },
             )
         )
 
-    classifications = page_classifications(store)
     article_urls = [url for url, obs in classifications.items() if obs.get("value", {}).get("page_type") == "article"]
-    if article_urls:
-        byline_found = any(find_author_byline(pages[url]["html"], page_texts[url]) for url in article_urls if url in pages)
-        if not byline_found:
-            findings.append(
-                make_finding(
-                    check_id="D-TRUST-06",
-                    category=CATEGORY,
-                    title="Substantive articles carry no named author",
-                    severity="medium",
-                    confidence="high",
-                    mechanism="A citation pipeline weighing whether to trust and "
-                    "repeat a claim has no named source to attribute or check.",
-                    impact="Article claims cannot be attributed to a named, accountable author.",
-                    observed_signal=f"{len(article_urls)} article page(s), 0 with a named author",
-                    evidence="No byline or JSON-LD author found on any article page",
-                    observation_ids=[],
-                    source_urls=article_urls,
-                    affected=affected_block(article_urls),
-                    suggested_action={
-                        "summary": "Add a named author byline or JSON-LD author to article content.",
-                        "priority": "medium",
-                        "how_to_fix": "State the author's name on each article page.",
-                        "validation": "Re-crawl; article pages now carry a named author.",
-                    },
-                )
+    evaluated_articles = [url for url in article_urls if url in pages]
+    anonymous_articles = [
+        url
+        for url in evaluated_articles
+        if not find_author_byline(pages[url]["html"], page_texts[url])
+    ]
+    if anonymous_articles:
+        findings.append(
+            make_finding(
+                check_id="D-TRUST-06",
+                category=CATEGORY,
+                title="Article pages carry no named author",
+                severity="medium",
+                confidence="high",
+                mechanism="A citation pipeline weighing whether to trust and "
+                "repeat a claim has no named source to attribute or check.",
+                impact="Claims on the affected articles cannot be attributed to a named, accountable author.",
+                observed_signal=f"{len(anonymous_articles)}/{len(evaluated_articles)} evaluated article page(s) have no named author",
+                evidence=f"No JSON-LD, meta, rel=author, itemprop, or visible byline on: {', '.join(sorted(anonymous_articles)[:5])}",
+                observation_ids=[pages[url]["observation_id"] for url in anonymous_articles]
+                + [classifications[url]["id"] for url in anonymous_articles],
+                source_urls=anonymous_articles,
+                affected=affected_block(anonymous_articles, total_in_scope=len(evaluated_articles)),
+                suggested_action={
+                    "summary": "Add a named author identity to each affected article.",
+                    "priority": "medium",
+                    "how_to_fix": "State the author's name and expose it through a byline, author metadata, rel=author, or JSON-LD.",
+                    "validation": "Re-crawl; every affected article carries a resolvable named author.",
+                },
             )
+        )
 
     return findings
 

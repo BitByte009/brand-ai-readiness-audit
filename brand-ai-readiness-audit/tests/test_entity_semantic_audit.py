@@ -471,6 +471,27 @@ def test_integration_detect_entity_builds_profile_internally_when_omitted():
     assert by_check(findings_no_profile, "D-ENTITY-01")
 
 
+def test_integration_entity_profile_reads_graph_identity_node_with_type_uri():
+    graph = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "https://schema.org/Organization",
+                "name": "Northstar Instruments",
+                "url": "https://example.com/",
+            }
+        ],
+    }
+    store = make_store(
+        [fetch_obs("https://example.com/", page_html(jsonld=graph))]
+    )
+
+    profile = build_entity_profile.build_entity_profile(store)
+
+    assert profile["fields"]["canonical_name"]["value"] == "Northstar Instruments"
+    assert profile["identity_anchor"]["self_url"] == "https://example.com/"
+
+
 def test_integration_multi_check_pipeline_on_realistic_site():
     home = page_html(
         title="Acme",

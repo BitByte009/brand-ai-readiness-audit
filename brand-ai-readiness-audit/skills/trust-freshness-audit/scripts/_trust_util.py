@@ -15,7 +15,7 @@ import sys
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 MARKETPLACE_ROOT = SCRIPTS_DIR.parents[2]
@@ -23,53 +23,15 @@ for _path in (str(SCRIPTS_DIR), str(MARKETPLACE_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+# Shared mechanics, re-exported for the existing detector interfaces.
+from lib.common.observations import http_fetches, iter_type, page_classifications, renders, single
+from lib.common.pages import effective_pages
+
 from lib.common.findings import affected_block, make_finding  # noqa: F401  (re-exported)
 
 # ---------------------------------------------------------------------------
 # Observation store accessors
 # ---------------------------------------------------------------------------
-
-
-def iter_type(store: Dict[str, Any], observation_type: str) -> List[Dict[str, Any]]:
-    return [obs for obs in store.get("observations", []) if obs.get("type") == observation_type]
-
-
-def single(store: Dict[str, Any], observation_type: str) -> Optional[Dict[str, Any]]:
-    matches = iter_type(store, observation_type)
-    return matches[0] if matches else None
-
-
-def http_fetches(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "HTTP_FETCH")}
-
-
-def renders(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "RENDER")}
-
-
-def effective_pages(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    """URL -> {"html", "observation_id", "headers"}, preferring the RENDER lens
-    over raw HTTP_FETCH per page when a successful render exists and produced
-    non-empty HTML -- a time-sensitive claim or its date signal rendered only
-    client-side must not read as absent. Mirrors
-    entity-semantic-audit's effective_pages()."""
-    fetches = http_fetches(store)
-    render_map = renders(store)
-    pages: Dict[str, Dict[str, Any]] = {}
-    for url, fetch_obs in fetches.items():
-        headers = fetch_obs["value"].get("headers", {})
-        render_obs = render_map.get(url)
-        if render_obs and render_obs.get("value", {}).get("status") == "ok":
-            rendered_html = render_obs["value"].get("html", "")
-            if rendered_html:
-                pages[url] = {"html": rendered_html, "observation_id": render_obs["id"], "headers": headers}
-                continue
-        pages[url] = {"html": fetch_obs["value"].get("html", ""), "observation_id": fetch_obs["id"], "headers": headers}
-    return pages
-
-
-def page_classifications(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "PAGE_CLASSIFICATION")}
 
 
 def claim_corroborations(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
@@ -204,13 +166,29 @@ def has_nearby_citation(text: str, start: int, end: int, window: int = 80) -> bo
 
 
 # ---------------------------------------------------------------------------
-# Organizational signals
+# Organizational/accountability signals
 # ---------------------------------------------------------------------------
 
-_ABOUT_PATH_RE = re.compile(r"/about", re.IGNORECASE)
-_CONTACT_PATH_RE = re.compile(r"/contact", re.IGNORECASE)
-_CONTACT_TEXT_RE = re.compile(
-    r"\b\d{3}[\s.-]\d{3}[\s.-]\d{4}\b|[\w.+-]+@[\w-]+\.[a-z]{2,}", re.IGNORECASE
+_ABOUT_PATH_SEGMENTS = {"about", "about-us"}
+_CONTACT_PATH_SEGMENTS = {"contact", "contact-us"}
+_ACCOUNTABILITY_PAGE_TYPES = {"about", "about_page", "organization", "local_business", "team"}
+_CONTACT_PAGE_TYPES = {"contact", "contact_page"}
+_ORGANIZATION_TYPES = {
+    "Organization",
+    "Corporation",
+    "EducationalOrganization",
+    "GovernmentOrganization",
+    "LocalBusiness",
+    "NGO",
+    "NewsMediaOrganization",
+}
+_CONTACT_TYPES = {"ContactPoint", "PostalAddress"}
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", re.UNICODE)
+_PHONE_RE = re.compile(r"(?<!\w)\+?\d(?:[\s().-]*\d){6,}(?!\w)")
+_OPERATOR_DESCRIPTION_RE = re.compile(
+    r"\b(?:operated|owned|published|maintained|managed|run)\s+by\s+(?!unknown\b)\S+|"
+    r"\b(?:site\s+operator|publisher|copyright\s+holder)\s*[:\-]\s*\S+",
+    re.IGNORECASE,
 )
 _AUTHOR_BYLINE_RE = re.compile(r"\bby\s+([A-Z][a-zA-Z.'-]+(?:\s+[A-Z][a-zA-Z.'-]+){0,3})\b")
 
@@ -224,27 +202,202 @@ RETHRESHOLD_FRESHNESS_DOWN_ARCHETYPES = {"documentation", "personal-portfolio"}
 SUPPRESSED_OPACITY_ARCHETYPES = {"personal-portfolio"}
 
 
-def is_about_page(url: str) -> bool:
-    return bool(_ABOUT_PATH_RE.search(urlparse(url).path))
+def _page_type(classification: Optional[Dict[str, Any]]) -> str:
+    if not classification:
+        return ""
+    value = classification.get("value", classification)
+    return str((value or {}).get("page_type", "")).strip().lower().replace("-", "_")
 
 
-def is_contact_page(url: str) -> bool:
-    return bool(_CONTACT_PATH_RE.search(urlparse(url).path))
+def _path_segments(url: str) -> List[str]:
+    """Return decoded, exact path segments for weak role-name fallbacks.
+
+    Segment equality is deliberate: `/about` and `/about.html` are useful weak
+    hints, while `/about-face` and `/contact-lenses` are unrelated product
+    names and must not satisfy an accountability check merely by substring.
+    """
+    segments = []
+    for raw_segment in unquote(urlparse(url).path).split("/"):
+        segment = raw_segment.strip().lower()
+        if not segment:
+            continue
+        stem, dot, suffix = segment.rpartition(".")
+        if dot and suffix in {"html", "htm", "php", "asp", "aspx"}:
+            segment = stem
+        segments.append(segment)
+    return segments
+
+
+def is_about_page(url: str, classification: Optional[Dict[str, Any]] = None) -> bool:
+    """Whether explicit page-role evidence identifies an accountability page.
+
+    PAGE_CLASSIFICATION is the stronger signal. Exact conventional path
+    segments remain a deliberately weak fallback for stores without that
+    observation; arbitrary path substrings never count.
+    """
+    return _page_type(classification) in _ACCOUNTABILITY_PAGE_TYPES or bool(
+        set(_path_segments(url)) & _ABOUT_PATH_SEGMENTS
+    )
+
+
+def is_contact_page(url: str, classification: Optional[Dict[str, Any]] = None) -> bool:
+    return _page_type(classification) in _CONTACT_PAGE_TYPES or bool(
+        set(_path_segments(url)) & _CONTACT_PATH_SEGMENTS
+    )
+
+
+def _jsonld_nodes(html: str) -> List[Dict[str, Any]]:
+    """Flatten JSON-LD `@graph` containers returned by the common extractor.
+
+    The common helper owns parsing. This small traversal makes the trust skill
+    tolerant of both extractor shapes: roots that still contain `@graph`, and
+    roots already flattened by a newer common extractor.
+    """
+    from lib.common.extract import extract_jsonld
+
+    nodes: List[Dict[str, Any]] = []
+    seen: set = set()
+
+    def visit(value: Any) -> None:
+        if isinstance(value, list):
+            for item in value:
+                visit(item)
+            return
+        if not isinstance(value, dict):
+            return
+        marker = id(value)
+        if marker in seen:
+            return
+        seen.add(marker)
+        nodes.append(value)
+        visit(value.get("@graph"))
+
+    for root in extract_jsonld(html):
+        visit(root)
+    return nodes
+
+
+def _node_types(node: Dict[str, Any]) -> set:
+    from lib.common.extract import schema_type_names
+
+    return set(schema_type_names(node.get("@type")))
+
+
+def has_operator_identity(html: str, text: str = "") -> bool:
+    """Detect a named site operator without depending on an `/about` URL."""
+    nodes = _jsonld_nodes(html)
+    by_id = {str(node["@id"]): node for node in nodes if node.get("@id")}
+
+    if any(
+        _node_types(node) & _ORGANIZATION_TYPES
+        and bool(str(node.get("name") or node.get("legalName") or "").strip())
+        for node in nodes
+    ):
+        return True
+
+    # WebSite/CreativeWork operator relations can point to a graph node rather
+    # than embed the operator inline.
+    for node in nodes:
+        for key in ("publisher", "provider", "creator", "copyrightHolder"):
+            raw = node.get(key)
+            entries = raw if isinstance(raw, list) else [raw]
+            for entry in entries:
+                if isinstance(entry, str) and entry.strip() and not entry.startswith("#"):
+                    return True
+                if not isinstance(entry, dict):
+                    continue
+                resolved = by_id.get(str(entry.get("@id")), entry)
+                if str(resolved.get("name") or resolved.get("legalName") or "").strip():
+                    return True
+
+    return bool(_OPERATOR_DESCRIPTION_RE.search(text or ""))
 
 
 def has_contact_info(text: str) -> bool:
-    return bool(_CONTACT_TEXT_RE.search(text or ""))
+    phones = _PHONE_RE.finditer(text or "")
+    # A bare order number or year range is not a telephone channel.
+    return bool(_EMAIL_RE.search(text or "")) or any(
+        match.group().startswith("+") or re.search(r"[().]", match.group())
+        for match in phones
+    )
+
+
+def has_contact_method(html: str, text: str = "") -> bool:
+    """Detect an actionable electronic, form, structured, or postal contact."""
+    from bs4 import BeautifulSoup
+
+    if has_contact_info(text):
+        return True
+
+    soup = BeautifulSoup(html or "", "html.parser")
+    for link in soup.find_all(["a", "area"], href=True):
+        href = str(link.get("href") or "").strip().lower()
+        if href.startswith(("mailto:", "tel:")) and href.split(":", 1)[1].split("?", 1)[0].strip():
+            return True
+
+    for form in soup.find_all("form"):
+        action = str(form.get("action") or "").strip().lower()
+        if action.startswith("mailto:"):
+            return True
+        # A textarea provides a message channel. Requiring an accompanying
+        # identity/reply field avoids treating search, login, and newsletter
+        # signup forms as contact forms.
+        if form.find("textarea") is not None and form.find(
+            "input", attrs={"type": lambda value: value and value.lower() in {"email", "tel"}}
+        ) is not None:
+            return True
+
+    for node in _jsonld_nodes(html):
+        node_types = _node_types(node)
+        if node_types & _CONTACT_TYPES:
+            if any(node.get(key) for key in ("email", "telephone", "streetAddress", "addressLocality", "url")):
+                return True
+        if node_types & _ORGANIZATION_TYPES and any(
+            node.get(key) for key in ("contactPoint", "address", "email", "telephone")
+        ):
+            return True
+    return False
 
 
 def find_author_byline(html: str, text: str) -> Optional[str]:
-    from lib.common.extract import extract_jsonld
+    from bs4 import BeautifulSoup
 
-    for node in extract_jsonld(html):
+    nodes = _jsonld_nodes(html)
+    by_id = {str(node["@id"]): node for node in nodes if node.get("@id")}
+    for node in nodes:
         author = node.get("author")
-        if isinstance(author, dict) and author.get("name"):
-            return str(author["name"])
-        if isinstance(author, str) and author.strip():
-            return author.strip()
+        authors = author if isinstance(author, list) else [author]
+        for candidate in authors:
+            if isinstance(candidate, str) and candidate.strip():
+                return candidate.strip()
+            if not isinstance(candidate, dict):
+                continue
+            resolved = by_id.get(str(candidate.get("@id")), candidate)
+            name = resolved.get("name") or resolved.get("legalName")
+            if name and str(name).strip():
+                return str(name).strip()
+
+    soup = BeautifulSoup(html or "", "html.parser")
+    for meta in soup.find_all("meta"):
+        key = str(meta.get("name") or meta.get("property") or meta.get("itemprop") or "").strip().lower()
+        content = str(meta.get("content") or "").strip()
+        if key in {"author", "article:author", "byl"} and content:
+            return content
+
+    for tag in soup.find_all(attrs={"itemprop": lambda value: value and "author" in str(value).lower().split()}):
+        value = str(tag.get("content") or tag.get_text(" ", strip=True) or "").strip()
+        if value:
+            return value
+
+    for tag in soup.find_all(rel=lambda value: value and "author" in [str(item).lower() for item in (value if isinstance(value, list) else [value])]):
+        value = str(
+            tag.get_text(" ", strip=True)
+            or tag.get("aria-label")
+            or tag.get("title")
+            or ""
+        ).strip()
+        if value:
+            return value
 
     match = _AUTHOR_BYLINE_RE.search(text or "")
     return match.group(1) if match else None

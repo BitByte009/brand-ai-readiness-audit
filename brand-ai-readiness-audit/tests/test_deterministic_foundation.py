@@ -9,13 +9,21 @@ from lib.common.extract import (
     extract_links,
     extract_metadata,
     extract_text,
+    normalize_schema_type,
     page_inventory,
+    schema_type_matches,
 )
 from lib.common import http_client
 from lib.common.http_client import fetch_url, resolve_redirect_chain
 from lib.common.observations import ObservationStore, make_observation
 from lib.common.robots import fetch_robots, parse_robots, robots_allows
 from lib.site_observer.render import detect_capability, render_page
+
+
+def test_schema_type_normalization_does_not_conflate_foreign_vocabularies():
+    assert not schema_type_matches("https://example.org/Organization", "Organization")
+    assert not schema_type_matches("custom:Product", "Product")
+    assert schema_type_matches("https://schema.org/Product", "Product")
 
 
 class DummyResponse:
@@ -30,8 +38,7 @@ class DummyResponse:
 
 
 def test_fetch_url_collects_http_evidence(monkeypatch):
-    def fake_get(url, timeout=10, allow_redirects=True, headers=None):
-        assert headers == {"User-Agent": http_client.AUDIT_USER_AGENT}
+    def fake_get(url, timeout=10):
         return DummyResponse(
             url=url,
             status_code=200,
@@ -39,9 +46,12 @@ def test_fetch_url_collects_http_evidence(monkeypatch):
             headers={"content-type": "text/html; charset=utf-8"},
         )
 
-    monkeypatch.setattr("requests.get", fake_get)
+    monkeypatch.setattr(http_client, "request_once", fake_get)
 
-    result = fetch_url("https://example.com")
+    from lib.common.network_policy import RequestPolicy
+    policy = RequestPolicy("https://example.com")
+    policy.robots = {"status": "missing"}
+    result = fetch_url("https://example.com", policy=policy)
 
     assert result["status_code"] == 200
     assert result["final_url"] == "https://example.com"
@@ -65,8 +75,7 @@ def test_resolve_redirect_chain_handles_multiple_hops():
 
 
 def test_fetch_robots_parses_permissions(monkeypatch):
-    def fake_get(url, timeout=10, headers=None):
-        assert headers == {"User-Agent": http_client.AUDIT_USER_AGENT}
+    def fake_get(url, timeout=10):
         if url.endswith("/robots.txt"):
             return DummyResponse(
                 url=url,
@@ -75,7 +84,7 @@ def test_fetch_robots_parses_permissions(monkeypatch):
             )
         raise AssertionError("unexpected URL")
 
-    monkeypatch.setattr("requests.get", fake_get)
+    monkeypatch.setattr("lib.common.robots.request_once", fake_get)
 
     robots = fetch_robots("https://example.com")
 
@@ -130,6 +139,30 @@ def test_extract_canonical_metadata_jsonld_and_links():
     assert "Visible content text here." in text
 
 
+def test_extract_jsonld_flattens_containers_and_normalizes_type_uris():
+    html = """
+    <script type="Application/LD+JSON; charset=UTF-8">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {"@type": "https://schema.org/Organization", "name": "Northstar"},
+          {"@list": [
+            {"@type": ["schema:Product", "https://schema.org/Thing"], "name": "Compass"}
+          ]}
+        ]
+      }
+    </script>
+    <script type="application/javascript">{"@type": "Event"}</script>
+    """
+
+    nodes = extract_jsonld(html)
+
+    assert [node["name"] for node in nodes] == ["Northstar", "Compass"]
+    assert normalize_schema_type(nodes[0]["@type"]) == "Organization"
+    assert schema_type_matches(nodes[1]["@type"], "Product")
+    assert schema_type_matches(nodes[1]["@type"], "https://schema.org/Thing")
+
+
 def test_page_inventory_and_raw_rendered_comparison_include_evidence():
     raw_html = "<html><body><h1>Page</h1><a href='/a'>A</a><img src='/img.png'><script>var x = 1;</script></body></html>"
     rendered_html = "<html><body><h1>Page</h1><a href='/a'>A</a><img src='/img.png'></body></html>"
@@ -164,6 +197,25 @@ def test_observation_store_generates_stable_ids_and_resolves_evidence():
     assert store.resolve("OBS-HTTP-FETCH-0000000000000000") is None
 
 
+def test_observation_ids_include_type_and_source_url_in_identity():
+    value = {"status_code": 200, "html": "<p>Shared template</p>"}
+    first = make_observation("HTTP_FETCH", "https://example.com/one", value)
+    first_again = make_observation("HTTP_FETCH", "https://example.com/one", value)
+    second = make_observation("HTTP_FETCH", "https://example.com/two", value)
+    normalized_type_collision = make_observation("HTTP-FETCH", "https://example.com/one", value)
+
+    assert first["id"] == first_again["id"]
+    assert first["id"] != second["id"]
+    assert first["id"] != normalized_type_collision["id"]
+
+    store = ObservationStore()
+    store.add(first)
+    store.add(second)
+    assert len(store.all()) == 2
+    assert store.resolve(first["id"])["source_url"].endswith("/one")
+    assert store.resolve(second["id"])["source_url"].endswith("/two")
+
+
 def test_detect_capability_reports_unavailable_when_playwright_not_installed(monkeypatch):
     monkeypatch.setattr("lib.site_observer.render.importlib.util.find_spec", lambda name: None)
 
@@ -186,7 +238,7 @@ def test_render_page_records_coverage_gap_when_capability_unavailable():
 
 
 def test_render_page_returns_rendered_html_when_capability_available(monkeypatch):
-    def fake_render(url, timeout_ms):
+    def fake_render(url, timeout_ms, policy=None):
         return {
             "html": "<html><body><h1>Rendered</h1></body></html>",
             "final_url": "https://example.com/",
@@ -205,7 +257,7 @@ def test_render_page_returns_rendered_html_when_capability_available(monkeypatch
 
 
 def test_render_page_reports_error_without_raising_when_render_fails(monkeypatch):
-    def fake_render(url, timeout_ms):
+    def fake_render(url, timeout_ms, policy=None):
         raise TimeoutError("navigation timed out")
 
     monkeypatch.setattr("lib.site_observer.render._render_with_playwright", fake_render)

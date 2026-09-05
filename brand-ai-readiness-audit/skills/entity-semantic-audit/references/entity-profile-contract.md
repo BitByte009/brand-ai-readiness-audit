@@ -1,10 +1,9 @@
 # entity_profile contract
 
-`scripts/build_entity_profile.py`'s output. Consumed by `scripts/detect_entity.py`
-in this skill, and — per `SKILL.md` Outputs and `PHASE1B` Part 1.3 — by
-`trust-freshness-audit` and the orchestrator's proactive layer. Changing this shape
-changes three skills' inputs; treat it as a public contract, not an implementation
-detail.
+The profile builder's output is consumed by the entity detector and engagement
+detector. The optional trust corroboration recorder can consume it when supplied;
+the current trust detector and proactive layer do not receive it. Treat this as
+a shared public contract, not a private intermediate shape.
 
 ```
 {

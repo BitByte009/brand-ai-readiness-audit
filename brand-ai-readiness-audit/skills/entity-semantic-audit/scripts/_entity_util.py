@@ -22,6 +22,11 @@ for _path in (str(SCRIPTS_DIR), str(MARKETPLACE_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+# Shared mechanics, re-exported for the existing detector interfaces.
+from lib.common.observations import http_fetches, iter_type, page_classifications, probes, renders, single
+from lib.common.pages import effective_pages
+from lib.common.extract import title_segments, significant_words as _significant_words, containment_ratio as _containment_ratio
+
 from lib.common.findings import affected_block, make_finding  # noqa: F401  (re-exported)
 
 IDENTITY_NODE_TYPES = {"Organization", "LocalBusiness", "Person"}
@@ -58,7 +63,6 @@ _OFFERING_PATTERN_RE = re.compile(
     re.IGNORECASE,
 )
 _COPYRIGHT_RE = re.compile(r"©\s*\d{4}\s*[-–]?\s*(?:\d{4})?\s+([A-Z][\w&.,' -]{1,60})", re.UNICODE)
-_TITLE_SEPARATOR_RE = re.compile(r"\s*[|—:]\s*|\s+-\s+")
 
 SUPPRESSED_OFFERING_ARCHETYPES = {"documentation", "personal-portfolio", "institutional"}
 RETHRESHOLD_OFFERING_ARCHETYPES = {"publisher-editorial"}
@@ -76,10 +80,6 @@ RETHRESHOLD_TYPE_ARCHETYPES = {"personal-portfolio"}
 LEGAL_REGISTER_SOURCES = {"schema", "footer"}
 PUBLIC_FACING_SOURCES = {"title", "h1"}
 
-_STOPWORDS = {
-    "a", "an", "the", "and", "or", "but", "of", "to", "for", "in", "on", "at",
-    "is", "are", "was", "were", "with", "that", "this", "it", "as", "by", "be",
-}
 
 _ADDRESS_ABBREVIATIONS = {
     "street": "st", "avenue": "ave", "boulevard": "blvd", "drive": "dr",
@@ -91,50 +91,12 @@ _ADDRESS_ABBREVIATIONS = {
 }
 
 
-def title_segments(title: str) -> List[str]:
-    """Split a `<title>` on common brand/page separators ('Brand - Page',
-    'Page | Brand', 'Brand: Page', 'Brand — Page'). A title with no separator
-    returns `[title]` unchanged.
-
-    Real titles conventionally combine a per-page segment with a recurring
-    brand segment in either order. Treating the whole title as one name
-    candidate makes every subpage look like a different name from the
-    homepage ('Acme' vs. 'Acme - About'). Splitting into segments and letting
-    each recur as its own candidate lets the true brand segment win on
-    consistency (it recurs across pages) while page-specific segments
-    ('About', 'Contact') stay minority candidates that don't count against it."""
-    segments = [s.strip() for s in _TITLE_SEPARATOR_RE.split(title or "") if s.strip()]
-    return segments or ([title.strip()] if title and title.strip() else [])
-
-
 def normalize_name(name: str) -> str:
     """Strip legal suffixes and punctuation, lowercase -- the 'core' form used to
     decide whether two name candidates are the same entity name."""
     stripped = _LEGAL_SUFFIX_RE.sub("", name or "").strip()
     stripped = _PUNCT_RE.sub("", stripped).strip().lower()
     return re.sub(r"\s+", " ", stripped)
-
-
-_WORD_RE = re.compile(r"[a-z0-9]+")
-
-
-def _significant_words(text: str) -> set:
-    words = _WORD_RE.findall((text or "").lower())
-    return {w for w in words if len(w) >= 4 and w not in _STOPWORDS}
-
-
-def _containment_ratio(a: str, b: str) -> float:
-    """What fraction of the SHORTER text's significant words also appear in the
-    longer one. Asymmetric and length-insensitive by design: a short homepage
-    tagline that is a near-verbatim prefix of a longer, fully consistent
-    about-page blurb should not be scored as a conflict just because it is
-    short -- that is a character-count artifact of SequenceMatcher, not a
-    content disagreement."""
-    words_a, words_b = _significant_words(a), _significant_words(b)
-    if not words_a or not words_b:
-        return 0.0
-    shorter, longer = (words_a, words_b) if len(words_a) <= len(words_b) else (words_b, words_a)
-    return len(shorter & longer) / len(shorter)
 
 
 def text_similarity(a: str, b: str) -> float:
@@ -151,55 +113,6 @@ def normalize_address_part(value: Any) -> str:
     text = _PUNCT_RE.sub("", str(value or "")).lower().strip()
     words = [_ADDRESS_ABBREVIATIONS.get(w, w) for w in text.split()]
     return " ".join(words)
-
-
-def iter_type(store: Dict[str, Any], observation_type: str) -> List[Dict[str, Any]]:
-    return [obs for obs in store.get("observations", []) if obs.get("type") == observation_type]
-
-
-def single(store: Dict[str, Any], observation_type: str) -> Optional[Dict[str, Any]]:
-    matches = iter_type(store, observation_type)
-    return matches[0] if matches else None
-
-
-def http_fetches(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "HTTP_FETCH")}
-
-
-def renders(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "RENDER")}
-
-
-def effective_pages(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    """URL -> {"html", "observation_id"}, preferring the RENDER lens over raw
-    HTTP_FETCH when a successful render exists and produced non-empty HTML.
-
-    A JS-rendered site (React/Vue/Next.js and similar) may put its brand name,
-    type statement, offering, or address only in the client-rendered DOM. Every
-    field-builder in this skill reads through this map rather than HTTP_FETCH
-    directly, so it sees what a rendering reader would see, not just the raw
-    HTML shell -- the same two-lens principle crawl-render-audit applies to
-    D-RENDER, applied here to identity extraction."""
-    fetches = http_fetches(store)
-    render_map = renders(store)
-    pages: Dict[str, Dict[str, Any]] = {}
-    for url, fetch_obs in fetches.items():
-        render_obs = render_map.get(url)
-        if render_obs and render_obs.get("value", {}).get("status") == "ok":
-            rendered_html = render_obs["value"].get("html", "")
-            if rendered_html:
-                pages[url] = {"html": rendered_html, "observation_id": render_obs["id"]}
-                continue
-        pages[url] = {"html": fetch_obs["value"].get("html", ""), "observation_id": fetch_obs["id"]}
-    return pages
-
-
-def page_classifications(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "PAGE_CLASSIFICATION")}
-
-
-def probes(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "PROBE")}
 
 
 def identity_question(probe: Optional[Dict[str, Any]], question_id: str) -> Optional[Dict[str, Any]]:
@@ -276,13 +189,11 @@ def offering_pattern_match(text: str) -> Optional[str]:
 
 
 def jsonld_nodes_of_type(html: str, types) -> List[Dict[str, Any]]:
-    from lib.common.extract import extract_jsonld
+    from lib.common.extract import extract_jsonld, schema_type_matches
 
     wanted = {types} if isinstance(types, str) else set(types)
     nodes = []
     for node in extract_jsonld(html):
-        node_type = node.get("@type")
-        node_types = {node_type} if isinstance(node_type, str) else set(node_type or [])
-        if node_types & wanted:
+        if schema_type_matches(node.get("@type"), wanted):
             nodes.append(node)
     return nodes

@@ -48,7 +48,7 @@ demonstrated connection to AI-referred, deep-linked arrival specifically.
 | E-ANSWER-04 | A direct in-page anchor-nav link to the answer's section exists | never fires — a long page that jumps straight there isn't "buried" |
 | E-CONTINUE-01 | Site has `<2` crawled pages (a genuinely single-page site) | never fires — nowhere "deeper" to go, by design |
 | E-CONTINUE-01 | Page is a terminal/utility page (contact, thank-you, landing_page) | never fires — applicability excludes it entirely |
-| E-CONTINUE-01 | `>=1` outgoing content-area link classifies as internal content or a same-organization subdomain | never fires |
+| E-CONTINUE-01 | `>=1` outgoing content-area link reaches the audited host or its descendant subdomains | never fires |
 | E-CONTINUE-02 | Site has `<2` crawled pages | never fires |
 | E-CONTINUE-02 | Page is a terminal/utility page | never fires |
 | E-CONTINUE-02 | Global nav/header/footer links | never counted toward or against this check |

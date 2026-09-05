@@ -12,30 +12,28 @@ Where two skills legitimately fire on the same page from different lenses (for e
 D-ENTITY-02 machine-facing and E-ORIENT-01 human-facing), that co-occurrence is a real
 signal and is KEPT, with a `related_findings` cross-reference.
 
-Merge only when: **same `check_id`** (the narrowest, safest reading of "same
-check family, same mechanism" — two different check IDs are, by the marketplace's
-own partition-the-question-space design, never the same mechanism, so merging
-across check IDs is never attempted here regardless of how similar two titles
-look) **and** a substantially overlapping URL set (`source_urls ∪
-affected.sample_urls`, Jaccard similarity `>= 0.5`). Each skill already
+Merge only when the findings share **the same `check_id` and defect subtype**
+(`dedupe_key` when supplied, otherwise the stable mechanism text) and their
+`affected.sample_urls` overlap. Contextual `source_urls` are evidence, not
+proof that the same thing is affected. Overlap is joined transitively as a
+connected component, so input ordering and an arbitrary similarity cutoff
+cannot change the result. Each skill already
 aggregates internally to one finding per `(check_id, template_cluster)`
 (`PROJECT_CONTEXT.md` D-7), so a same-check_id collision in the pooled set
 should be rare; this pass exists as a defensive second aggregation over the
 *pooled* set, not the primary one.
 
 The surviving finding inherits, from the whole merged group: the union of
-`observation_ids` and `source_urls`, `affected.sample_urls` as the first 5 of
-that union, `affected.count` as the **size of that union** (never a sum —
-the merge criterion itself requires substantial URL overlap, so summing each
-source's count would double-count every URL the sources already agree is
-affected, inflating scope for the exact case merging exists to normalize
-away), the **max** of `affected.total_in_scope`, and the **highest**
+`observation_ids` and contextual `source_urls`, `affected.sample_urls` from
+the union of affected samples, `affected.count` as the greater of that sample
+union and the largest declared count (never a sum), the **max measured**
+`affected.total_in_scope` (or unknown when no detector measured it), and the **highest**
 `confidence` among the group (more independent evidence supporting the same
 defect is never weaker
 evidence than the single strongest report of it). All other fields (title,
 mechanism, impact, evidence text, suggested_action) are taken from whichever
 source finding in the group has the highest confidence, then the largest
-`affected.count`, as a deterministic tie-break.
+`affected.count`, then canonical sorted-key JSON as a stable final tie-break.
 
 ## Cross-skill relationship table
 

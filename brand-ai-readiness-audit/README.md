@@ -6,50 +6,29 @@ from an AI answer can orient, get what they came for, and continue.
 
 Read-only. The marketplace audits and reports. No skill in it ever modifies a live site.
 
-> **Status: feature-complete, pending fixture-corpus validation.** All four
-> audit skills — `crawl-render-audit` (D-CRAWL/D-RENDER/D-EXTRACT, 29
-> checks), `entity-semantic-audit` (D-ENTITY, 6 checks), `trust-freshness-audit`
-> (D-TRUST, 6 checks), and `engagement-audit` (E-ORIENT/E-ANSWER/E-CONTINUE, 11
-> checks) — are fully implemented and tested against synthetic observation
-> stores. `evidence-prioritization` (normalize, reject, dedupe, five-factor
-> severity scoring, distribution guard, rank) and `lib/site_observer`
-> (robots.txt-first single-pass collection: raw crawl, optional render
-> sampling, archetype classification, an honestly-unavailable corroboration
-> seam) are also fully implemented. `audit-orchestrator` — the marketplace's
-> one entrypoint — composes all of the above end to end: one collection
-> pass, the four detectors (each isolated so one skill's failure degrades to
-> a coverage gap rather than ending the audit), scoring, evidence-binding
-> validation, the proactive layer, and schema-enforced emission, always
-> producing a valid report even in degraded mode (unreachable host,
-> disallow-all robots.txt, budget exhaustion). 290 tests pass across the
-> marketplace. The fixture corpus (19 sites, 18 named site-condition
-> categories) and `tests/harness/run_corpus.py` are complete and green: 27
-> expected findings, 27 actual, 0 false positives, 0 false negatives, 34/34
-> on evidence/recommendation/severity quality. The corpus run itself found
-> and fixed two real defects the unit tests could not catch (a two-function
-> orchestrator wiring gap, and an extension-blind template-clustering bug);
-> see `PROJECT_CONTEXT.md`'s Day 7 entry for what was fixed and what was
-> deliberately left open. Not yet done: the CORROBORATION instrument behind
-> D-ENTITY-03/D-TRUST-05, blocked on an open model/search-integration
-> decision (OQ-3) — a documented gap, never silently papered over. This
-> README describes what the
-> marketplace *is built to do* and will be corrected before submission if
-> anything ships unimplemented — it must never claim a capability the code
-> does not have.
+> **Status: deterministic audit prototype with known coverage gaps.** Four
+> detector skills share one collection pass and evidence-prioritization pipeline.
+> Tests include a 19-site synthetic browser corpus, not an unseen-site benchmark.
+> Its scored check-presence results exclude documented untestable/known-missing
+> cases; its evidence/action/severity checks are structural proxies, not proof
+> of diagnostic correctness. External corroboration remains unavailable.
+> See [REDTEAM_FIXES.md](REDTEAM_FIXES.md) for fixes, regression tests, and
+> remaining safety, accuracy, schema, and packaging limitations.
 
 ## Design philosophy
 
     OBSERVATION -> EVIDENCE -> MECHANISM -> IMPACT -> FIX -> VALIDATION
 
-Deterministic scripts observe. The model interprets, diagnoses and recommends. The
-model is never the source of a fact about the site.
+The current implementation observes, detects and recommends deterministically.
+Future model instruments must not invent facts about the site; no model/search
+integration is currently wired into the audit.
 
 ## Architecture
 
     URL
      -> audit-orchestrator        scope, capabilities, budget
      -> lib/site_observer         ONE collection pass -> immutable observation store
-     -> four detectors            read the same store, in parallel, never re-fetch
+     -> four detectors            read the same store sequentially, never re-fetch
      -> evidence-prioritization   normalize, aggregate, dedupe, score, rank
      -> audit-orchestrator        bind-validate, schema-enforce, proactive layer, emit
 
@@ -78,8 +57,9 @@ single report.
 
 ## Evidence-first
 
-Every finding cites observation IDs. The orchestrator drops any finding whose IDs do not
-resolve in the store. Fabricated evidence is structurally impossible, not merely discouraged.
+Every finding cites observation IDs. The orchestrator drops findings whose IDs do not
+resolve in the store. ID resolution establishes provenance, not whether an observation
+actually supports the detector's interpretation.
 
 Three related commitments:
 - **A check that could not run never looks like a check that passed.** Unrunnable checks go
@@ -98,26 +78,54 @@ authenticated areas, no form submission. Writes only to a sandboxed working dire
 
 ## Usage
 
-    python skills/audit-orchestrator/scripts/run_audit.py --url https://example.com
+    python skills/audit-orchestrator/scripts/run_audit.py https://example.com
 
 Outputs `report.json` (schema at `schemas/report.schema.json`) and `report.md`.
-A schema-valid report is emitted under every failure mode, including unreachable hosts
-and total robots disallow.
+Expected collection failures are represented as coverage gaps. Unexpected lifecycle
+exceptions can still abort report emission; do not rely on an always-valid-report guarantee.
+
+The network policy permits credential-free, same-origin GET/HEAD requests only,
+with per-path robots checks, a shared 200-request safety cap, pacing, and no retries
+after HTTP 429/503. Raw redirects are checked hop by hop. Robots redirects and
+browser redirects are conservatively blocked; blocked browser resources invalidate
+the rendered lens and appear as coverage gaps. This can reduce coverage on sites
+using CDNs or alternate canonical origins. Playwright is optional (version 1.48+
+for WebSocket interception); no browser means explicit renderer-unavailable coverage.
+HTTP sockets are pinned to validated public addresses; private and mixed public/private
+DNS answers are rejected. Browser fetches cannot forward cookies or site-provided
+headers. Active background requests, forms, secondary navigation, workers and WebRTC
+are restricted. The sandboxed rendered lens runs only on successful sampled pages.
+HTTP bodies are capped at 2 MiB, robots policy at 512 KiB; compressed responses are
+conservatively excluded. Limits produce missing coverage, never proof of a site defect.
+Use an unprivileged host sandbox with no secrets and explicit process/CPU/memory limits:
+the CLI does not create that OS boundary or impose a hard whole-process deadline.
+Do not parallelize independent audits against the same origin to bypass per-run pacing.
+Full scope, residual risks, and adversarial tests: [SAFETY_AUDIT.md](SAFETY_AUDIT.md).
 
 ## Validation
+
+Runtime measurements, optimizations and remaining worst-case risks are documented
+in [PERFORMANCE_AUDIT.md](PERFORMANCE_AUDIT.md).
 
     python tests/validate_marketplace.py     # manifest, entrypoint, frontmatter, schemas, size
     python tests/harness/run_corpus.py       # adversarial fixture corpus, FP/FN rates
 
+Install `requirements-dev.txt` for validation/tests. If the official `skills-ref`
+tool is installed, use `python tests/validate_marketplace.py --official` to run
+both validators; this flag fails rather than silently skipping a missing tool.
+The pinned installation command is in `requirements-dev.txt`. The six-skill audit,
+fixes and validation scope are recorded in [SKILLS_COMPLIANCE.md](SKILLS_COMPLIANCE.md).
+
 ## Path convention
 
-`<marketplace-root>/` prefixes any path resolved from the marketplace root rather than
-from the file citing it. Unprefixed relative paths resolve from the citing file's own folder.
+SKILL.md resource links are relative to the skill root; its CLI examples run from
+that directory. Supporting Markdown links resolve relative to their containing
+file. Older design notes use `<marketplace-root>/` to denote the package root.
 
 ## Layout
 
     marketplace.json          manifest; exactly one entrypoint
-    schemas/                  report + observation schemas
+    schemas/                  report + observation + project marketplace schemas
     references/               shared: failure taxonomy, archetype applicability matrix
     lib/                      instrumentation (collection, probe, classification) - not a skill
     skills/                   six skills, each with SKILL.md + scripts/ + references/

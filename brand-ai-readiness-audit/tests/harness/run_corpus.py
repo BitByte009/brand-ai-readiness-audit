@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -46,6 +47,8 @@ for _path in (str(MARKETPLACE_ROOT), str(HARNESS_DIR), str(MARKETPLACE_ROOT / "s
 
 from fixture_server import FixtureServer  # noqa: E402
 from run_audit import run_audit  # noqa: E402
+from unittest.mock import patch
+from lib.common import public_transport
 
 
 def discover_fixtures() -> List[Path]:
@@ -103,7 +106,16 @@ def score_fixture(fixture_dir: Path) -> Dict[str, Any]:
 
     with FixtureServer(fixture_dir) as server:
         url = server.base_url() + "/"
-        report = run_audit(url)
+        started = time.perf_counter()
+        # Test-owned loopback only. The production CLI has no private-IP bypass.
+        original_resolver = public_transport.public_address
+        def fixture_address(host, port):
+            if host == "127.0.0.1" and port == int(url.split(":")[2].split("/")[0]):
+                return host
+            return original_resolver(host, port)
+        with patch.object(public_transport, "public_address", fixture_address):
+            report = run_audit(url)
+        elapsed_s = time.perf_counter() - started
 
     actual_findings = report.get("findings", [])
     actual_check_ids = set(_check_ids(actual_findings))
@@ -124,6 +136,7 @@ def score_fixture(fixture_dir: Path) -> Dict[str, Any]:
 
     return {
         "fixture": fixture_dir.name,
+        "elapsed_s": round(elapsed_s, 3),
         "description": expected.get("description", ""),
         "expected_findings": sorted(expected_findings),
         "actual_findings": sorted(actual_check_ids),
@@ -154,6 +167,20 @@ def score_fixture(fixture_dir: Path) -> Dict[str, Any]:
         "skill_failures": report.get("run", {}).get("skill_failures", []),
         "report": report,
     }
+
+
+def fixture_failed(result: Dict[str, Any]) -> bool:
+    """A diagnostic summary is not a passing test when regressions occurred."""
+    return bool(
+        any(result.get(key) for key in (
+            "false_positives", "false_negatives", "guardrail_violations",
+            "missing_expected_coverage", "skill_failures",
+        ))
+        or result.get("schema_valid") is not True
+        or any(result.get(key, {}).get("failing") for key in (
+            "evidence_quality", "recommendation_quality", "severity_quality",
+        ))
+    )
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -209,7 +236,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     out_path.write_text(json.dumps(results, indent=2, default=str), encoding="utf-8")
     print(f"\nFull results written to {out_path}")
 
-    return 0
+    return int(any(fixture_failed(result) for result in results))
 
 
 if __name__ == "__main__":

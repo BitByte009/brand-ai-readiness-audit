@@ -12,9 +12,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import html
+import re
+import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+MARKETPLACE_ROOT = Path(__file__).resolve().parents[3]
+if str(MARKETPLACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(MARKETPLACE_ROOT))
+from lib.common.schema import validate_report
+
 _SEVERITY_ORDER = ["critical", "high", "medium", "low"]
+
+
+def _text(value: Any) -> str:
+    """Treat fetched text as text, never as executable HTML or Markdown."""
+    value = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\u202a-\u202e\u2066-\u2069]",
+                   lambda match: f"\\u{ord(match.group()):04x}", str(value))
+    return re.sub(r"([\\`*_{\[\]}|~])", r"\\\1", html.escape(value)).replace("\n", " ").replace("\r", " ")
 
 
 def _findings_section(findings: List[Dict[str, Any]]) -> List[str]:
@@ -32,21 +48,36 @@ def _findings_section(findings: List[Dict[str, Any]]) -> List[str]:
             continue
         lines.append(f"\n### {tier.capitalize()} ({len(items)})")
         for finding in items:
-            lines.append(f"\n**{finding.get('id', '')} — {finding.get('title', '')}**")
-            lines.append(f"- Evidence: {finding.get('evidence', '')}")
+            lines.append(f"\n**{_text(finding.get('id', ''))} — {_text(finding.get('title', ''))}**")
+            lines.append("")
+            lines.append(f"- Confidence: {_text(finding.get('confidence', 'unknown'))}")
+            for label, key in [("Category", "category"), ("Why this happens", "mechanism"), ("Why it matters", "impact")]:
+                if finding.get(key):
+                    lines.append(f"- {label}: {_text(finding[key])}")
+            affected = finding.get("affected", {}) or {}
+            count, total = affected.get('count'), affected.get('total_in_scope')
+            scope = f"{count} of {total} in-scope items" if total is not None and count is not None else f"{count if count is not None else 'Unknown number of'} observed affected items; total scope not measured"
+            lines.append(f"- Affected scope: {scope}")
+            lines.append(f"- Evidence: {_text(finding.get('evidence', ''))}")
+            for label, key in [("Sources", "source_urls"), ("Observation references", "observation_ids"), ("Related findings", "related_findings")]:
+                if finding.get(key):
+                    lines.append(f"- {label}: " + "; ".join(_text(value) for value in finding[key]))
             action = finding.get("suggested_action", {}) or {}
             if action.get("summary"):
-                lines.append(f"- Suggested action: {action['summary']}")
+                lines.append(f"- Suggested action: {_text(action['summary'])}")
+            for label, key in [("How to fix", "how_to_fix"), ("Validation", "validation")]:
+                if action.get(key):
+                    lines.append(f"- {label}: {_text(action[key])}")
     return lines
 
 
 def _coverage_section(coverage: List[Dict[str, Any]]) -> List[str]:
     lines = ["\n## Coverage"]
     if not coverage:
-        lines.append("\nEvery check ran to completion.")
+        lines.append("\nNo coverage limitations were recorded. This is not proof that every possible check ran or that the site has no issues.")
         return lines
     for entry in coverage:
-        lines.append(f"- `{entry.get('reason', '')}` ({entry.get('status', '')}): {entry.get('detail', '')} — affects {entry.get('scope', '')}")
+        lines.append(f"\n- {_text(entry.get('reason', ''))} ({_text(entry.get('status', ''))}): {_text(entry.get('detail', ''))} — affects {_text(entry.get('scope', ''))}")
     return lines
 
 
@@ -56,20 +87,24 @@ def _proactive_section(opportunities: List[Dict[str, Any]]) -> List[str]:
         lines.append("\nNone identified.")
         return lines
     for item in opportunities:
-        lines.append(f"- **{item.get('title', '')}**: {item.get('opportunity', '')}")
+        lines.append(f"\n- **{_text(item.get('title', ''))}**: {_text(item.get('opportunity', ''))}")
     return lines
 
 
 def render_markdown(report: Dict[str, Any]) -> str:
     summary = report.get("summary", {}) or {}
     lines = [
-        f"# Audit report — {report.get('site', 'unknown site')}",
-        f"\nAudited at: {report.get('audited_at', '')}",
-        f"\n## Summary\nTotal findings: {summary.get('total_findings', 0)} "
+        f"# Audit report — {_text(report.get('site', 'unknown site'))}",
+        f"\nAudited at: {_text(report.get('audited_at', ''))}",
+        f"\n## Summary\n\nTotal findings: {summary.get('total_findings', 0)} "
         f"(critical: {summary.get('critical', 0)}, high: {summary.get('high', 0)}, "
         f"medium: {summary.get('medium', 0)}, low: {summary.get('low', 0)})",
         "",
+        "Findings are ordered by severity, then the audit's ranking within each tier. Severity describes impact; confidence describes strength of evidence, not a probability. Scope refers to observed items, not the entire website.",
+        "",
     ]
+    if report.get("coverage"):
+        lines.extend(["This audit has coverage limitations: see Coverage before treating missing findings as a pass.", ""])
     lines.extend(_findings_section(report.get("findings", [])))
     lines.extend(_coverage_section(report.get("coverage", [])))
     lines.extend(_proactive_section(report.get("proactive_opportunities", [])))
@@ -84,6 +119,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     with open(args.report, "r", encoding="utf-8") as handle:
         report = json.load(handle)
+    valid, errors = validate_report(report)
+    if not valid:
+        parser.exit(2, "Report validation failed: " + "; ".join(errors) + "\n")
 
     markdown = render_markdown(report)
     if args.out:

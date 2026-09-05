@@ -20,6 +20,8 @@ for _path in (str(SCRIPTS_DIR), str(MARKETPLACE_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+from lib.common.extract import url_depth
+
 SEVERITY_ORDER = ["low", "medium", "high", "critical"]
 CONFIDENCE_ORDER = ["low", "medium", "high"]
 
@@ -32,9 +34,10 @@ def confidence_index(confidence: str) -> int:
     return CONFIDENCE_ORDER.index(confidence)
 
 
-def url_depth(url: str) -> int:
-    return len([seg for seg in urlparse(url).path.split("/") if seg])
-
-
 def finding_url_set(finding: Dict[str, Any]) -> set:
     return set(finding.get("source_urls", []) or []) | set((finding.get("affected") or {}).get("sample_urls", []) or [])
+
+
+def affected_url_set(finding: Dict[str, Any]) -> set:
+    """URLs asserted to be affected, excluding contextual evidence URLs."""
+    return set((finding.get("affected") or {}).get("sample_urls", []) or [])

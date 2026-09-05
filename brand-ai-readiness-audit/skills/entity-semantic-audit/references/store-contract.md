@@ -10,7 +10,7 @@ states only the parts this skill actually reads.
 | Type | Cardinality | `value` shape (fields this skill reads) |
 |---|---|---|
 | `HTTP_FETCH` | one per crawled URL | `{status_code, final_url, headers, html}` — `lib.common.http_client.fetch_url()`'s shape. This skill parses `html` for name/type/offering/location candidates itself; it never requires collection to pre-extract them. |
-| `RENDER` | zero or one per *sampled* URL | `{url, status, final_url, html}` — `lib.site_observer.render.render_page()`'s shape. When a `status == "ok"` render with non-empty `html` exists for a URL, every field-builder reads that HTML instead of the raw `HTTP_FETCH` HTML (see `effective_pages()` in `scripts/_entity_util.py`). A JS-rendered site may put its brand name, type statement, offering, or address only in the client-rendered DOM; reading raw HTML only would misreport them as absent — the same two-lens principle `crawl-render-audit` applies to D-RENDER, applied here to identity extraction. |
+| `RENDER` | zero or one per sampled URL | `{url, status, status_code, final_url, html}` — prefer an ok render with 2xx HTTP status and nonempty HTML. Otherwise use valid 2xx raw HTML, never failed-page content. This preserves render-only identity facts without treating error pages as the brand. See shared [page selection](../../../lib/common/pages.py). |
 | `PAGE_CLASSIFICATION` | zero or one per URL | `{page_type}` — used only to interpret D-ENTITY-06's offering signal per page type, never to gate identity checks generally. |
 | `PROBE` | zero or one per URL | `{questions: [{id, category, answered, answer, evidence_span}], source_text_hash}`. This skill reads only `category == "identity"` questions **Q2** (entity type), **Q3** (offering), **Q4** (operating location) from `references/probe-questions.md`'s canonical numbering — never `factual` or `engagement` questions, which belong to `crawl-render-audit` and `engagement-audit` respectively. |
 | `CORROBORATION` | zero or one per candidate name, site-level | `{performed: bool, query, matches: [{name, source_url, category}], timestamp}`. New in this skill: the external-lookup record D-ENTITY-03 requires. Absent or `performed: false` means the check does not fire — never a fabricated "no collision found" (mirrors `trust-freshness-audit`'s D-TRUST-05 corroboration-honesty rule; OQ-3 in `PROJECT_CONTEXT.md` is still open, so this observation is expected to be absent in most stores today). |
@@ -51,6 +51,5 @@ observation exists for that page — never fabricated, never silently invented.
 
 ## Output: the entity profile
 
-See `entity-profile-contract.md` for the exact shape `build_entity_profile.py`
-produces and `detect_entity.py` / `trust-freshness-audit` / the proactive layer
-consume.
+See [entity-profile contract](entity-profile-contract.md) for the exact shape and
+its current detector, engagement and optional recorder consumers.

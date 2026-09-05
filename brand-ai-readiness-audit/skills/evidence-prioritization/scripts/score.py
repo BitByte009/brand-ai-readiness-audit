@@ -15,7 +15,7 @@ import argparse
 import json
 from typing import Any, Dict, List, Optional, Tuple
 
-from _prioritization_util import confidence_index, finding_url_set, severity_index, url_depth, SEVERITY_ORDER
+from _prioritization_util import affected_url_set, confidence_index, finding_url_set, severity_index, SEVERITY_ORDER
 from aggregate_dedupe import merge_duplicate_findings
 from normalize import normalize_findings
 
@@ -48,7 +48,9 @@ DISTRIBUTION_GUARD_MIN_FINDINGS = 5
 def _scope_modifier(finding: Dict[str, Any]) -> Tuple[int, Optional[str]]:
     affected = finding.get("affected") or {}
     count = affected.get("count", 1)
-    total = affected.get("total_in_scope", count) or count
+    total = affected.get("total_in_scope")
+    if not isinstance(total, (int, float)) or total <= 0:
+        return 0, None
     if total <= 1:
         # No real population to be broad or narrow across -- a check whose
         # target is inherently singular (one robots.txt, one homepage) isn't
@@ -63,10 +65,30 @@ def _scope_modifier(finding: Dict[str, Any]) -> Tuple[int, Optional[str]]:
     return 0, None
 
 
-def _importance_modifier(finding: Dict[str, Any]) -> Tuple[int, Optional[str]]:
-    urls = finding.get("source_urls", []) or []
-    if any(url_depth(u) <= 1 for u in urls):
-        return 1, "importance +1: a depth<=1 page is affected"
+def _url_identity(url: str) -> str:
+    from urllib.parse import urlsplit, urlunsplit
+
+    parsed = urlsplit(url if "://" in url else f"https://{url}")
+    host = (parsed.hostname or "").lower()
+    port = parsed.port
+    default_port = (parsed.scheme.lower() == "https" and port == 443) or (parsed.scheme.lower() == "http" and port == 80)
+    netloc = host if not port or default_port else f"{host}:{port}"
+    path = parsed.path or "/"
+    if path != "/":
+        path = path.rstrip("/")
+    return urlunsplit((parsed.scheme.lower() or "https", netloc, path, parsed.query, ""))
+
+
+def _importance_modifier(finding: Dict[str, Any], store: Optional[Dict[str, Any]] = None) -> Tuple[int, Optional[str]]:
+    if not store:
+        return 0, None
+    target = store.get("target", {}) or {}
+    requested = target.get("normalized_url") or target.get("requested_url")
+    if requested:
+        requested_id = _url_identity(str(requested))
+        urls = affected_url_set(finding)
+        if any(_url_identity(str(url)) == requested_id for url in urls):
+            return 1, "importance +1: the explicitly requested audit target is affected"
     return 0, None
 
 
@@ -76,7 +98,7 @@ def _confidence_modifier(finding: Dict[str, Any]) -> Tuple[int, Optional[str]]:
     return 0, None
 
 
-def score_finding(finding: Dict[str, Any]) -> Dict[str, Any]:
+def score_finding(finding: Dict[str, Any], store: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Apply the modifier cell table to one finding, enforce the critical cap,
     and record a scoring_trace -- never mutating the original evidence fields
     (title, mechanism, impact, observed_signal, evidence, observation_ids,
@@ -86,11 +108,15 @@ def score_finding(finding: Dict[str, Any]) -> Dict[str, Any]:
     index = severity_index(original_severity)
 
     trace: List[str] = []
-    for modifier_fn in (_scope_modifier, _importance_modifier, _confidence_modifier):
+    for modifier_fn in (_scope_modifier, _confidence_modifier):
         delta, note = modifier_fn(finding)
         if delta:
             index += delta
             trace.append(note)
+    delta, note = _importance_modifier(finding, store)
+    if delta:
+        index += delta
+        trace.append(note)
 
     index = max(0, min(index, len(SEVERITY_ORDER) - 1))
     final_severity = SEVERITY_ORDER[index]
@@ -147,21 +173,15 @@ def demote_low_confidence(findings: List[Dict[str, Any]]) -> Tuple[List[Dict[str
 # ---------------------------------------------------------------------------
 
 
-def _weakness_key(finding: Dict[str, Any]) -> Tuple[int, float]:
-    conf_rank = confidence_index(finding["confidence"])
-    affected = finding.get("affected") or {}
-    total = affected.get("total_in_scope", affected.get("count", 1)) or 1
-    ratio = affected.get("count", 1) / total
-    return (conf_rank, ratio)
-
-
 def apply_distribution_guard(
     findings: List[Dict[str, Any]], threshold: float = DISTRIBUTION_GUARD_THRESHOLD
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """severity-matrix.md: if more than `threshold` of findings are high or
-    critical, downgrade the weakest-evidence `high` findings (never
-    `critical` -- that allowlist is a floor too) to `medium`, one at a time,
-    until back at or under threshold. Every downgrade is logged."""
+    """Report an unusual severity distribution without rewriting evidence.
+
+    Adding unrelated findings must never change an existing finding's
+    severity.  The ratio remains useful diagnostic telemetry, so retain it as
+    a calibration warning rather than a quota.
+    """
     calibration_log: List[Dict[str, Any]] = []
     if len(findings) < DISTRIBUTION_GUARD_MIN_FINDINGS:
         return findings, calibration_log
@@ -172,17 +192,14 @@ def apply_distribution_guard(
     if high_critical_ratio(findings) <= threshold:
         return findings, calibration_log
 
-    candidates = sorted((f for f in findings if f["severity"] == "high"), key=_weakness_key)
-
-    for candidate in candidates:
-        if high_critical_ratio(findings) <= threshold:
-            break
-        candidate["severity"] = "medium"
-        candidate["suggested_action"]["priority"] = "medium"
-        candidate["scoring_trace"]["modifiers_applied"].append(
-            "distribution-guard: downgraded high->medium (severity distribution recalibration)"
-        )
-        calibration_log.append({"check_id": candidate["check_id"], "title": candidate["title"], "from": "high", "to": "medium"})
+    calibration_log.append(
+        {
+            "type": "severity_distribution_warning",
+            "high_critical_ratio": high_critical_ratio(findings),
+            "threshold": threshold,
+            "finding_count": len(findings),
+        }
+    )
 
     return findings, calibration_log
 
@@ -247,7 +264,7 @@ def prioritize_findings(pooled_findings: List[Any], store: Optional[Dict[str, An
     findings alone."""
     normalized, rejected = normalize_findings(pooled_findings)
     deduped, merge_log = merge_duplicate_findings(normalized)
-    scored = [score_finding(f) for f in deduped]
+    scored = [score_finding(f, store) for f in deduped]
     kept, demoted = demote_low_confidence(scored)
     kept, calibration_log = apply_distribution_guard(kept)
     ranked = rank_findings(kept)
@@ -267,13 +284,18 @@ def prioritize_findings(pooled_findings: List[Any], store: Optional[Dict[str, An
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Run the full evidence-prioritization pipeline over pooled findings.")
     parser.add_argument("--findings", required=True, help="Path to a JSON file containing a list of pooled findings from all detector skills.")
+    parser.add_argument("--store", help="Optional observation-store JSON for scope and importance metadata.")
     parser.add_argument("--out", help="Path to write the result JSON. Defaults to stdout.")
     args = parser.parse_args(argv)
 
     with open(args.findings, "r", encoding="utf-8") as handle:
         findings = json.load(handle)
 
-    result = prioritize_findings(findings)
+    store = None
+    if args.store:
+        with open(args.store, "r", encoding="utf-8") as handle:
+            store = json.load(handle)
+    result = prioritize_findings(findings, store)
     output = json.dumps(result, indent=2)
     if args.out:
         with open(args.out, "w", encoding="utf-8") as handle:

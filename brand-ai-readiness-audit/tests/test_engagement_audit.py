@@ -96,6 +96,27 @@ def page_html(title="Acme", logo_alt=None, jsonld=None, body_extra="", body_text
 ENTITY_PROFILE = {"fields": {"canonical_name": {"value": "Acme"}, "aliases": {"value": ""}}}
 
 
+@pytest.mark.parametrize("brand,unrelated", [("AI", "Training"), ("Arc", "Research"), ("One", "Someone")])
+def test_short_brands_do_not_match_inside_unrelated_words(brand, unrelated):
+    html = page_html(title=unrelated, logo_alt=unrelated, body_text=unrelated)
+    assert not any(eu.brand_token_positions(html, unrelated, [brand]).values())
+    assert eu.brand_token_positions(page_html(body_text=brand + " — welcome"), "", [brand])["body"]
+
+
+@pytest.mark.parametrize("base,target,expected", [
+    ("https://museum.co.uk/", "https://other.co.uk/tickets", "external"),
+    ("https://tenant.example.net/", "https://other.example.net/start", "external"),
+    ("https://museum.co.uk/", "https://tickets.museum.co.uk/start", "internal_content"),
+    ("https://www.museum.co.uk/", "https://museum.co.uk/visit", "internal_content"),
+])
+def test_continuation_host_scope_does_not_guess_registrable_domains(base, target, expected):
+    assert eu.classify_link({"href": target, "text": "Continue", "rel": []}, base) == expected
+
+
+def test_query_addressed_content_is_not_automatically_utility():
+    assert not eu.is_utility_path("https://example.com/read?id=42")
+
+
 def assert_finding_shape(finding):
     candidate = {"id": "F-001", **finding}
     jsonschema.validate(candidate, FINDING_SCHEMA)

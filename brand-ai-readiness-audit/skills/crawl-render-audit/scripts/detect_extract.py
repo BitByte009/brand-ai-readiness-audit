@@ -25,7 +25,15 @@ from _util import (
     probes,
 )
 
-from lib.common.extract import extract_jsonld, extract_links, extract_metadata, extract_text
+from lib.common.extract import (
+    extract_jsonld,
+    extract_links,
+    extract_metadata,
+    extract_text,
+    flatten_jsonld,
+    is_jsonld_mime_type,
+    schema_type_matches,
+)
 
 CATEGORY = "discoverability"
 
@@ -202,7 +210,7 @@ def check_d_extract_03(store: Dict[str, Any]) -> List[Dict[str, Any]]:
 
         html = fetch["value"].get("html", "")
         has_matching_type = any(
-            node.get("@type") == schema_type or schema_type in (node.get("@type") or [])
+            schema_type_matches(node.get("@type"), schema_type)
             for node in extract_jsonld(html)
         )
         if has_matching_type:
@@ -244,7 +252,9 @@ def _jsonld_blocks(html: str):
 
     soup = BeautifulSoup(html or "", "html.parser")
     blocks = []
-    for script in soup.find_all("script", type="application/ld+json"):
+    for script in soup.find_all("script"):
+        if not is_jsonld_mime_type(script.get("type")):
+            continue
         content = script.get_text(strip=True)
         if not content:
             continue
@@ -253,29 +263,43 @@ def _jsonld_blocks(html: str):
         except json.JSONDecodeError as exc:
             blocks.append({"error": str(exc), "raw": content})
             continue
-        items = parsed if isinstance(parsed, list) else [parsed]
-        for item in items:
-            if isinstance(item, dict):
-                blocks.append({"parsed": item})
+        for item in flatten_jsonld(parsed):
+            blocks.append({"parsed": item})
     return blocks
 
 
-def _get_path(obj: Any, dotted: str) -> Any:
-    value = obj
+def _get_path_values(obj: Any, dotted: str) -> List[Any]:
+    """Resolve a dotted path across every branch of list-valued properties."""
+    values = [obj]
     for part in dotted.split("."):
+        next_values: List[Any] = []
+        for value in values:
+            candidates = value if isinstance(value, list) else [value]
+            for candidate in candidates:
+                if isinstance(candidate, dict) and part in candidate:
+                    next_values.append(candidate[part])
+        values = next_values
+        if not values:
+            break
+
+    flattened: List[Any] = []
+    for value in values:
         if isinstance(value, list):
-            value = value[0] if value else None
-        if not isinstance(value, dict):
-            return None
-        value = value.get(part)
-    return value
+            flattened.extend(value)
+        else:
+            flattened.append(value)
+    return flattened
 
 
 def _prop_present(node: Dict[str, Any], requirement: Any) -> bool:
     """A requirement is either one dotted path, or a list of alternative dotted
     paths where any one satisfies it (e.g. offers.price OR offers.priceCurrency)."""
     paths = [requirement] if isinstance(requirement, str) else requirement
-    return any(_get_path(node, path) not in (None, "", []) for path in paths)
+    return any(
+        value not in (None, "", [])
+        for path in paths
+        for value in _get_path_values(node, path)
+    )
 
 
 def _requirement_label(requirement: Any) -> str:
@@ -314,12 +338,13 @@ def check_d_extract_04(store: Dict[str, Any]) -> List[Dict[str, Any]]:
                 continue
 
             node = block["parsed"]
-            node_type = node.get("@type")
-            node_type = node_type[0] if isinstance(node_type, list) else node_type
-            mapping = next((m for m in TYPE_SCHEMA_MAP.values() if m[0] == node_type), None)
+            mapping = next(
+                (m for m in TYPE_SCHEMA_MAP.values() if schema_type_matches(node.get("@type"), m[0])),
+                None,
+            )
             if not mapping:
                 continue
-            _, required = mapping
+            node_type, required = mapping
             missing = [
                 _requirement_label(req) for req in required if not _prop_present(node, req)
             ]

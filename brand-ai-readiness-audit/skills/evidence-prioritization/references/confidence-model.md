@@ -2,8 +2,8 @@
 
 | Tier | Meaning | Typical basis |
 |---|---|---|
-| high | Deterministic observation, reproducible by a third party | status codes, robots match, parse errors, ratios over >=3 samples |
-| medium | Deterministic trigger with model interpretation, or a single-sample deterministic result | probe misses, template-cluster n<3 |
+| high | Direct deterministic observation, reproducible by a third party | status codes, robots match, parse errors; one affected resource can be conclusive |
+| medium | Deterministic trigger with model interpretation, or a thin sample explicitly extrapolated to a wider population | probe misses, template-cluster sample n<3 |
 | low | Model judgement over text, both compared strings quoted | promise mismatch, materially-different descriptions |
 
 Rules:
@@ -11,13 +11,11 @@ Rules:
   detector already enforces this at the source (each skill's own reference docs
   state it); this skill does not need to re-detect an LLM-judged finding to apply
   it, since the constraint is already reflected in what arrives.
-- Confidence drops one tier when the supporting sample (`affected.total_in_scope`
-  on the finding itself, standing in for "the template cluster's size") is fewer
-  than 3 — applied uniformly here, in `scripts/normalize.py`, rather than inside
-  each detector, precisely so the rule can't drift into four different
-  implementations. A `high` confidence with `total_in_scope < 3` becomes
-  `medium`; `medium` and `low` are unaffected (there is nowhere lower to demote
-  a thin-sample `medium` to that isn't already `low`'s job).
+- Confidence drops one tier only when the detector marks
+  `affected.extrapolated: true` and fewer than 3 affected examples were observed.
+  A small count alone is not uncertainty: one fetched 404 or one malformed
+  JSON-LD block directly proves the defect on that resource. This keeps sample
+  confidence separate from deterministic evidence strength.
 - **The confidence floor is the `low` tier itself.** A finding whose confidence
   is `low` after the above adjustment is demoted into `demoted[]` — removed from
   `findings[]` entirely, its severity still computed and preserved, but never

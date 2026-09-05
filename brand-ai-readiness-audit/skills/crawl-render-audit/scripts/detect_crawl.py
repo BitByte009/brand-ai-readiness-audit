@@ -119,6 +119,9 @@ def _discovered_urls(store: Dict[str, Any]) -> List[str]:
     if sitemap:
         urls.update(entry["loc"] for entry in sitemap.get("value", {}).get("entries", []))
     urls.update(http_fetches(store).keys())
+    requested = store.get("target", {}).get("requested_url")
+    if requested:
+        urls.add(requested if "://" in requested else "https://" + requested)
     return sorted(urls)
 
 
@@ -129,7 +132,9 @@ def check_d_crawl_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     disallowed = [
         u for u in _discovered_urls(store)
-        if not is_utility_path(u) and not robots_allows(robots["value"], urlparse(u).path or "/")
+        if not is_utility_path(u) and not robots_allows(
+            robots["value"], (urlparse(u).path or "/") + ("?" + urlparse(u).query if urlparse(u).query else "")
+        )
     ]
     if not disallowed:
         return []
@@ -262,6 +267,8 @@ def check_d_crawl_04(store: Dict[str, Any]) -> List[Dict[str, Any]]:
             continue
         value = obs.get("value", {})
         status = value.get("status_code")
+        if value.get("evidence", {}).get("coverage_gap"):
+            continue
         html = value.get("html", "")
         is_dead = status is None or status >= 400
         is_soft_404 = (
@@ -378,7 +385,7 @@ def check_d_crawl_06(store: Dict[str, Any]) -> List[Dict[str, Any]]:
             continue  # target never crawled: applicability unmet
 
         target_value = target_obs.get("value", {})
-        broken = target_value.get("status_code", 0) >= 400
+        broken = (target_value.get("status_code") or 0) >= 400
         noindexed = _has_noindex(target_value.get("html", ""), target_value.get("headers", {}))
         if broken or noindexed:
             flagged.append((url, canonical, obs["id"], target_obs["id"]))

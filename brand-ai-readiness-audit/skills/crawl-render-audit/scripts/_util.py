@@ -21,6 +21,10 @@ for _path in (str(SCRIPTS_DIR), str(MARKETPLACE_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+# Shared mechanics, re-exported for the existing detector interfaces.
+from lib.common.observations import http_fetches, iter_type, page_classifications, probes, renders, single
+from lib.common.findings import affected_block, make_finding
+
 SHORT_PAGE_TEXT_FLOOR = 400
 
 # Structural, not brand/CMS/vertical-specific: generic path verbs and any query string.
@@ -47,8 +51,6 @@ def is_utility_path(url: str) -> bool:
     carrying a query string -- disallowing or excluding these is correct practice,
     never a discoverability defect (see fp-guardrails.md)."""
     parsed = urlparse(url)
-    if parsed.query:
-        return True
     path = parsed.path.lstrip("/")
     return bool(_UTILITY_SEGMENT_RE.match(path))
 
@@ -116,74 +118,3 @@ def group_by_cluster(store: Dict[str, Any], urls: Iterable[str]) -> Dict[str, Li
     for u in urls:
         grouped.setdefault(cluster_key(u), []).append(u)
     return grouped
-
-
-def iter_type(store: Dict[str, Any], observation_type: str) -> List[Dict[str, Any]]:
-    return [obs for obs in store.get("observations", []) if obs.get("type") == observation_type]
-
-
-def single(store: Dict[str, Any], observation_type: str) -> Optional[Dict[str, Any]]:
-    matches = iter_type(store, observation_type)
-    return matches[0] if matches else None
-
-
-def http_fetches(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    """Map requested URL -> HTTP_FETCH observation, most-recent-wins on duplicates."""
-    return {obs["source_url"]: obs for obs in iter_type(store, "HTTP_FETCH")}
-
-
-def renders(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "RENDER")}
-
-
-def page_classifications(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "PAGE_CLASSIFICATION")}
-
-
-def probes(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "PROBE")}
-
-
-def affected_block(urls: List[str], total_in_scope: Optional[int] = None) -> Dict[str, Any]:
-    unique = sorted(set(urls))
-    return {
-        "count": len(unique),
-        "sample_urls": unique[:5],
-        "total_in_scope": total_in_scope if total_in_scope is not None else len(unique),
-    }
-
-
-def make_finding(
-    *,
-    check_id: str,
-    category: str,
-    title: str,
-    severity: str,
-    confidence: str,
-    mechanism: str,
-    impact: str,
-    observed_signal: str,
-    evidence: str,
-    observation_ids: List[str],
-    source_urls: List[str],
-    affected: Dict[str, Any],
-    suggested_action: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Build one unscored finding. `severity` is a proposed base severity per the
-    taxonomy; final severity is `evidence-prioritization`'s job, never this skill's
-    (SKILL.md: 'Explicitly NOT this skill's job -- Assigning final severity')."""
-    return {
-        "check_id": check_id,
-        "category": category,
-        "title": title,
-        "severity": severity,
-        "confidence": confidence,
-        "mechanism": mechanism,
-        "impact": impact,
-        "observed_signal": observed_signal,
-        "evidence": evidence,
-        "observation_ids": sorted(set(observation_ids)),
-        "source_urls": sorted(set(source_urls)),
-        "affected": affected,
-        "suggested_action": suggested_action,
-    }

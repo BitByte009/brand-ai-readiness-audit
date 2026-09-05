@@ -21,6 +21,7 @@ from urllib.parse import urlparse
 
 from lib.common.extract import extract_links
 from lib.common.robots import robots_allows
+from lib.common.network_policy import unsafe_target
 
 _NUMERIC_SEGMENT_RE = re.compile(r"^\d+$")
 _HEX_ID_RE = re.compile(r"^[0-9a-f]{8,}$", re.IGNORECASE)
@@ -89,10 +90,16 @@ def crawl(
     pages: Dict[str, Dict[str, Any]] = {}
     link_graph: Dict[str, Set[str]] = {}
     skipped_robots: List[str] = []
+    skipped_safety: List[str] = []
 
     while queue and len(pages) < max_pages and time_left() > 0 and can_fetch_more():
         url = queue.popleft()
+        if unsafe_target(url):
+            skipped_safety.append(url)
+            continue
         path = urlparse(url).path or "/"
+        if urlparse(url).query:
+            path += "?" + urlparse(url).query
         if robots is not None and not robots_allows(robots, path):
             skipped_robots.append(url)
             continue
@@ -105,11 +112,18 @@ def crawl(
         if on_page_fetched:
             on_page_fetched(url, result)
 
+        status = result.get("status_code", 200)
+        if status is None or not 200 <= status < 300:
+            continue  # Do not explore authentication/error-page links.
+
         html = (result or {}).get("html", "")
         if not html:
             continue
-        for link in extract_links(html, base_url=url):
+        for link in extract_links(html, base_url=result.get("final_url") or url):
             href = link["href"]
+            if link.get("unsafe_action"):
+                skipped_safety.append(href)
+                continue
             parsed = urlparse(href)
             if parsed.scheme not in ("http", "https") or registrable_host(href) != host:
                 continue
@@ -128,6 +142,7 @@ def crawl(
         "link_graph": {url: sorted(sources) for url, sources in link_graph.items()},
         "clusters": {shape: sorted(urls) for shape, urls in clusters.items()},
         "skipped_robots": sorted(set(skipped_robots)),
+        "skipped_safety": sorted(set(skipped_safety)),
     }
 
 

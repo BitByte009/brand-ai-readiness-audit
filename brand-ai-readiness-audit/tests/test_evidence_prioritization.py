@@ -49,27 +49,58 @@ def make_finding(
     urls=None,
     title=None,
     observation_ids=None,
+    extrapolated=False,
+    mechanism="some mechanism",
+    affected_urls=None,
 ):
     urls = urls if urls is not None else ["https://example.com/deep/page"]
+    affected_urls = affected_urls if affected_urls is not None else urls
     return {
         "check_id": check_id,
         "category": category,
         "title": title or f"{check_id} finding",
         "severity": severity,
         "confidence": confidence,
-        "mechanism": "some mechanism",
+        "mechanism": mechanism,
         "impact": "some impact",
         "observed_signal": "some signal",
         "evidence": "some evidence text",
         "observation_ids": observation_ids if observation_ids is not None else ["OBS-X-1"],
         "source_urls": urls,
-        "affected": {"count": count, "sample_urls": urls[:5], "total_in_scope": total},
+        "affected": {
+            "count": count,
+            "sample_urls": affected_urls[:5],
+            "total_in_scope": total,
+            **({"extrapolated": True} if extrapolated else {}),
+        },
         "suggested_action": {"summary": "fix it", "priority": severity, "how_to_fix": "do x", "validation": "check y"},
     }
 
 
 def assert_finding_shape(finding):
     jsonschema.validate(finding, FINDING_SCHEMA)
+
+
+def test_context_url_does_not_promote_affected_page_importance():
+    target = "https://example.com/"
+    finding = make_finding(urls=[target, target + "article"], affected_urls=[target + "article"])
+    assert sc._importance_modifier(finding, {"target": {"requested_url": target}}) == (0, None)
+
+
+def test_unknown_population_does_not_infer_sitewide_scope():
+    from lib.common.findings import affected_block
+
+    urls = ["https://example.com/a", "https://example.com/b"]
+    assert affected_block(urls)["total_in_scope"] is None
+    finding = make_finding(count=2, total=None, urls=urls)
+    assert sc._scope_modifier(finding) == (0, None)
+    assert sc.score_finding(finding)["severity"] == "medium"
+
+
+def test_dedupe_is_permutation_invariant_for_equal_confidence():
+    first = make_finding(title="First", urls=["https://example.com/a"])
+    second = make_finding(title="Second", urls=["https://example.com/a", "https://example.com/b"])
+    assert ad.merge_duplicate_findings([first, second])[0] == ad.merge_duplicate_findings([second, first])[0]
 
 
 # ---------------------------------------------------------------------------
@@ -120,10 +151,16 @@ def test_normalize_rejects_non_dict_finding():
     assert all(r["reason"] == "not a finding object" for r in rejected)
 
 
-def test_normalize_drops_confidence_one_tier_on_thin_sample():
-    finding = make_finding(confidence="high", count=1, total=2)
+def test_normalize_drops_confidence_only_for_explicit_thin_extrapolation():
+    finding = make_finding(confidence="high", count=1, total=20, extrapolated=True)
     normalized, _ = nm.normalize_findings([finding])
     assert normalized[0]["confidence"] == "medium"
+
+
+def test_normalize_preserves_single_direct_observation_confidence():
+    finding = make_finding(check_id="D-EXTRACT-04", confidence="high", count=1, total=1)
+    normalized, _ = nm.normalize_findings([finding])
+    assert normalized[0]["confidence"] == "high"
 
 
 def test_normalize_never_touches_confidence_at_or_above_floor():
@@ -190,6 +227,32 @@ def test_dedupe_never_merges_non_overlapping_same_check():
     assert merge_log == []
 
 
+def test_dedupe_never_merges_distinct_subchecks_on_the_same_pages():
+    urls = ["https://example.com/a", "https://example.com/b"]
+    description = make_finding(check_id="D-ENTITY-04", urls=urls, mechanism="conflicting descriptions")
+    address = make_finding(check_id="D-ENTITY-04", urls=urls, mechanism="conflicting addresses")
+
+    merged, merge_log = ad.merge_duplicate_findings([description, address])
+
+    assert len(merged) == 2
+    assert merge_log == []
+
+
+def test_dedupe_uses_affected_urls_not_context_urls_for_scope():
+    a = make_finding(
+        check_id="D-CRAWL-04",
+        urls=["https://example.com/context", "https://example.com/a"],
+        affected_urls=["https://example.com/a"],
+    )
+    b = make_finding(
+        check_id="D-CRAWL-04",
+        urls=["https://example.com/context", "https://example.com/b"],
+        affected_urls=["https://example.com/b"],
+    )
+    merged, _ = ad.merge_duplicate_findings([a, b])
+    assert len(merged) == 2
+
+
 # ---------------------------------------------------------------------------
 # Unit tests -- score.py: severity modifiers and the critical cap
 # ---------------------------------------------------------------------------
@@ -209,11 +272,19 @@ def test_score_narrow_scope_lowers_severity():
     assert any("scope -1" in m for m in scored["scoring_trace"]["modifiers_applied"])
 
 
-def test_score_depth_zero_page_raises_severity():
+def test_score_explicitly_requested_deep_page_raises_severity():
+    target = "https://example.com/docs/deep/topic"
+    finding = make_finding(check_id="D-EXTRACT-05", severity="medium", confidence="high", urls=[target])
+    scored = sc.score_finding(finding, {"target": {"requested_url": target}})
+    assert scored["severity"] == "high"
+    assert any("requested audit target" in m for m in scored["scoring_trace"]["modifiers_applied"])
+
+
+def test_score_does_not_infer_importance_from_shallow_url_shape():
     finding = make_finding(check_id="D-EXTRACT-05", severity="medium", confidence="high", urls=["https://example.com/"])
     scored = sc.score_finding(finding)
-    assert scored["severity"] == "high"
-    assert any("importance +1" in m for m in scored["scoring_trace"]["modifiers_applied"])
+    assert scored["severity"] == "medium"
+    assert not any("importance" in m for m in scored["scoring_trace"]["modifiers_applied"])
 
 
 def test_score_low_confidence_lowers_severity():
@@ -226,9 +297,9 @@ def test_score_low_confidence_lowers_severity():
 
 
 def test_score_critical_capped_when_check_not_on_allowlist():
-    # base "high" + importance +1 (depth-0 page) would reach "critical"
+    # base "high" + importance +1 (explicit audit target) would reach "critical"
     finding = make_finding(check_id="D-CRAWL-06", severity="high", confidence="high", urls=["https://example.com/"])
-    scored = sc.score_finding(finding)
+    scored = sc.score_finding(finding, {"target": {"requested_url": "https://example.com/"}})
     assert scored["severity"] == "high"  # capped, never critical
     assert any("critical-cap" in m for m in scored["scoring_trace"]["modifiers_applied"])
 
@@ -279,7 +350,7 @@ def test_demote_moves_low_confidence_out_of_findings():
 # ---------------------------------------------------------------------------
 
 
-def test_distribution_guard_recalibrates_when_over_threshold():
+def test_distribution_guard_warns_but_preserves_evidence_backed_severities():
     # count=5/total=10 is scope-neutral (ratio 0.5, count != 1) so these three
     # score as "high" untouched, isolating the distribution guard itself.
     # Five total findings clears DISTRIBUTION_GUARD_MIN_FINDINGS so the guard
@@ -294,8 +365,25 @@ def test_distribution_guard_recalibrates_when_over_threshold():
 
     kept, calibration_log = sc.apply_distribution_guard(findings)
     ratio = sum(1 for f in kept if f["severity"] in ("high", "critical")) / len(kept)
-    assert ratio <= sc.DISTRIBUTION_GUARD_THRESHOLD
-    assert len(calibration_log) >= 1
+    assert ratio > sc.DISTRIBUTION_GUARD_THRESHOLD
+    assert [f["severity"] for f in kept[:3]] == ["high", "high", "high"]
+    assert calibration_log == [{
+        "type": "severity_distribution_warning",
+        "high_critical_ratio": ratio,
+        "threshold": sc.DISTRIBUTION_GUARD_THRESHOLD,
+        "finding_count": len(findings),
+    }]
+
+
+def test_finding_severity_is_invariant_to_unrelated_findings():
+    focal = sc.score_finding(make_finding(check_id="D-EXTRACT-01", severity="high", confidence="high", count=5, total=10))
+    baseline, _ = sc.apply_distribution_guard([focal])
+    expanded = [focal] + [
+        sc.score_finding(make_finding(check_id=f"D-X-{i}", severity="high", confidence="high", count=5, total=10))
+        for i in range(10)
+    ]
+    after, _ = sc.apply_distribution_guard(expanded)
+    assert baseline[0]["severity"] == after[0]["severity"] == "high"
 
 
 def test_distribution_guard_never_touches_critical():
@@ -591,7 +679,7 @@ def test_hostile_confidence_severity_disagreement_in_small_report():
     stand on its own evidence."""
     pooled = [
         make_finding(check_id="D-CRAWL-05", severity="low", confidence="high", urls=["https://example.com/x"], count=1, total=10),
-        make_finding(check_id="D-CRAWL-06", severity="high", confidence="medium", urls=["https://example.com/y"], count=1, total=10),
+        make_finding(check_id="D-CRAWL-06", severity="high", confidence="medium", urls=["https://example.com/y"], count=1, total=None),
     ]
     result = sc.prioritize_findings(pooled)
     severities = {f["check_id"]: f["severity"] for f in result["findings"]}

@@ -22,6 +22,12 @@ for _path in (str(SCRIPTS_DIR), str(MARKETPLACE_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+# Shared mechanics, re-exported for the existing detector interfaces.
+from lib.common.observations import http_fetches, iter_type, page_classifications, probes, renders, single
+from lib.common.pages import effective_pages
+from lib.common.extract import title_segments, significant_words, containment_ratio
+from lib.common.extract import url_depth
+
 from lib.common.findings import affected_block, make_finding  # noqa: F401  (re-exported)
 
 # ---------------------------------------------------------------------------
@@ -29,56 +35,11 @@ from lib.common.findings import affected_block, make_finding  # noqa: F401  (re-
 # ---------------------------------------------------------------------------
 
 
-def iter_type(store: Dict[str, Any], observation_type: str) -> List[Dict[str, Any]]:
-    return [obs for obs in store.get("observations", []) if obs.get("type") == observation_type]
-
-
-def single(store: Dict[str, Any], observation_type: str) -> Optional[Dict[str, Any]]:
-    matches = iter_type(store, observation_type)
-    return matches[0] if matches else None
-
-
-def http_fetches(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "HTTP_FETCH")}
-
-
-def renders(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "RENDER")}
-
-
-def effective_pages(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    """URL -> {"html", "observation_id", "rendered"}, preferring the RENDER
-    lens over raw HTTP_FETCH when a successful render exists and produced
-    non-empty HTML. `rendered` records whether THIS page's html actually came
-    from a render, so render-only checks (E-ANSWER-02/04) can require it
-    strictly rather than silently accepting a raw-HTML fallback."""
-    fetches = http_fetches(store)
-    render_map = renders(store)
-    pages: Dict[str, Dict[str, Any]] = {}
-    for url, fetch_obs in fetches.items():
-        render_obs = render_map.get(url)
-        if render_obs and render_obs.get("value", {}).get("status") == "ok":
-            rendered_html = render_obs["value"].get("html", "")
-            if rendered_html:
-                pages[url] = {"html": rendered_html, "observation_id": render_obs["id"], "rendered": True}
-                continue
-        pages[url] = {"html": fetch_obs["value"].get("html", ""), "observation_id": fetch_obs["id"], "rendered": False}
-    return pages
-
-
 def rendered_pages_only(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     """Subset of effective_pages() where a real render actually backs the
     page -- used by checks that must never approximate first-paint DOM state
     from raw HTML (E-ANSWER-02, E-ANSWER-03, E-ANSWER-04)."""
     return {url: page for url, page in effective_pages(store).items() if page["rendered"]}
-
-
-def page_classifications(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "PAGE_CLASSIFICATION")}
-
-
-def probes(store: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {obs["source_url"]: obs for obs in iter_type(store, "PROBE")}
 
 
 def engagement_question(probe: Optional[Dict[str, Any]], question_id: str) -> Optional[Dict[str, Any]]:
@@ -91,36 +52,8 @@ def engagement_question(probe: Optional[Dict[str, Any]], question_id: str) -> Op
 
 
 # ---------------------------------------------------------------------------
-# Title segmentation and word-containment overlap (same technique
-# entity-semantic-audit uses; reimplemented locally rather than imported
-# across a skill boundary, matching that skill's own pattern of
-# independent-per-skill utility duplication).
+# Title segmentation and word containment are shared through lib.common.extract.
 # ---------------------------------------------------------------------------
-
-_TITLE_SEPARATOR_RE = re.compile(r"\s*[|—:]\s*|\s+-\s+")
-_STOPWORDS = {
-    "a", "an", "the", "and", "or", "but", "of", "to", "for", "in", "on", "at",
-    "is", "are", "was", "were", "with", "that", "this", "it", "as", "by", "be",
-}
-_WORD_RE = re.compile(r"[a-z0-9]+")
-
-
-def title_segments(title: str) -> List[str]:
-    segments = [s.strip() for s in _TITLE_SEPARATOR_RE.split(title or "") if s.strip()]
-    return segments or ([title.strip()] if title and title.strip() else [])
-
-
-def significant_words(text: str) -> set:
-    words = _WORD_RE.findall((text or "").lower())
-    return {w for w in words if len(w) >= 4 and w not in _STOPWORDS}
-
-
-def containment_ratio(a: str, b: str) -> float:
-    words_a, words_b = significant_words(a), significant_words(b)
-    if not words_a or not words_b:
-        return 0.0
-    shorter, longer = (words_a, words_b) if len(words_a) <= len(words_b) else (words_b, words_a)
-    return len(shorter & longer) / len(shorter)
 
 
 # ---------------------------------------------------------------------------
@@ -139,8 +72,6 @@ _TERMINAL_PAGE_TYPES = {"contact", "thank_you", "confirmation", "landing_page"}
 
 def is_utility_path(url: str) -> bool:
     parsed = urlparse(url)
-    if parsed.query:
-        return True
     path = parsed.path.lstrip("/")
     return bool(_UTILITY_SEGMENT_RE.match(path))
 
@@ -151,10 +82,6 @@ def is_terminal_page(url: str, classification: Optional[Dict[str, Any]]) -> bool
         return True
     page_type = (classification or {}).get("value", {}).get("page_type")
     return page_type in _TERMINAL_PAGE_TYPES
-
-
-def url_depth(url: str) -> int:
-    return len([seg for seg in urlparse(url).path.split("/") if seg])
 
 
 # ---------------------------------------------------------------------------
@@ -199,17 +126,19 @@ def brand_token_positions(html: str, title: str, brand_tokens: List[str], first_
 
     soup = BeautifulSoup(html or "", "html.parser")
     body_text = main_text(html)[:first_screen_chars].lower()
-    body_hit = any(t in body_text for t in tokens)
+    # Match a named token, not a substring of an unrelated word (AI/training).
+    patterns = [re.compile(r"(?<!\w)" + re.escape(t) + r"(?!\w)", re.IGNORECASE) for t in tokens]
+    body_hit = any(pattern.search(body_text) for pattern in patterns)
 
     logo_hit = False
     for img in soup.find_all("img"):
         alt = (img.get("alt") or "").lower()
         aria = (img.get("aria-label") or "").lower()
-        if any(t in alt or t in aria for t in tokens):
+        if any(pattern.search(alt) or pattern.search(aria) for pattern in patterns):
             logo_hit = True
             break
 
-    title_hit = any(any(t in seg.lower() for t in tokens) for seg in title_segments(title))
+    title_hit = any(any(pattern.search(seg) for pattern in patterns) for seg in title_segments(title))
 
     return {"body": body_hit, "logo_alt": logo_hit, "title": title_hit}
 
@@ -435,15 +364,9 @@ def content_area_links(html: str, base_url: str) -> List[Dict[str, Any]]:
     return extract_links(content_html, base_url=base_url)
 
 
-def _registrable_domain(netloc: str) -> str:
-    """Best-effort same-organization comparison: last two dot-separated
-    labels, port stripped. Not a full public-suffix resolution -- sufficient
-    to recognize 'app.acme.com' and 'acme.com' as the same organization,
-    matching the same lightweight heuristic crawl-render-audit uses for
-    duplicate-host detection."""
-    host = netloc.lower().split(":")[0]
-    labels = host.split(".")
-    return ".".join(labels[-2:]) if len(labels) >= 2 else host
+def _site_host(url: str) -> str:
+    host = (urlparse(url).hostname or "").lower().rstrip(".")
+    return host[4:] if host.startswith("www.") else host
 
 
 def classify_link(link: Dict[str, Any], base_url: str) -> str:
@@ -454,11 +377,11 @@ def classify_link(link: Dict[str, Any], base_url: str) -> str:
     if href.startswith("mailto:") or _SOCIAL_SHARE_RE.search(" ".join(link.get("rel", [])) + " " + link.get("text", "")):
         return "social_or_mail"
     if parsed.netloc and parsed.netloc != base_parsed.netloc:
-        # A same-organization subdomain (app.acme.com from acme.com) is a
-        # genuine next step -- the marketing-site-to-app-subdomain CTA is a
-        # near-universal SaaS pattern and was previously misclassified
-        # "external" the same as an unrelated third-party site.
-        if _registrable_domain(parsed.netloc) == _registrable_domain(base_parsed.netloc):
+        # Accept the audited host and its descendants as site-local, without
+        # guessing ownership from the last two labels (e.g. unrelated co.uk
+        # domains or tenants of a shared hosting service).
+        base_host, link_host = _site_host(base_url), _site_host(href)
+        if base_host and (link_host == base_host or link_host.endswith("." + base_host)):
             return "internal_content"
         return "external"
     if parsed.path == base_parsed.path:

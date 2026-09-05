@@ -31,6 +31,7 @@ for _path in (str(MARKETPLACE_ROOT), str(SCRIPTS_DIR)):
         sys.path.insert(0, _path)
 
 from lib.common.budget import Budget  # noqa: E402
+from lib.common.extract import with_parse_cache  # noqa: E402
 from lib.common.schema import validate_report as validate_report_schema  # noqa: E402
 from lib.site_observer.collect import collect  # noqa: E402
 
@@ -142,6 +143,7 @@ def _summarize(findings: List[Dict[str, Any]]) -> Dict[str, int]:
     return {"total_findings": len(findings), **counts}
 
 
+@with_parse_cache
 def run_audit(
     url: str,
     options: Optional[Dict[str, Any]] = None,
@@ -185,6 +187,10 @@ def run_audit(
     prioritized = _prioritize(detector_result["pooled_findings"], store, skill_failures, coverage)
 
     kept_findings, dropped = validate_report_mod.bind_evidence(prioritized["findings"], store)
+    kept_ids = {finding["id"] for finding in kept_findings}
+    for finding in kept_findings:
+        if "related_findings" in finding:
+            finding["related_findings"] = [ref for ref in finding["related_findings"] if ref in kept_ids and ref != finding["id"]]
     if dropped:
         coverage.append(
             {
@@ -242,6 +248,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         options["budget"] = {"raw_crawl_max_pages": args.max_pages}
 
     report = run_audit(args.url, options)
+    valid, errors = validate_report_schema(report)
+    if not valid:
+        parser.exit(2, "Report validation failed; no report written: " + "; ".join(errors) + "\n")
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

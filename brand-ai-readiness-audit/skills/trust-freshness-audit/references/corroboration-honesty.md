@@ -23,7 +23,7 @@ unfalsifiable finding is to assert that a claim is uncorroborated without having
    facts about the world and the report must say which one occurred.
 7. `scripts/corroborate.py` never fetches the live web itself inside this
    implementation. It is a capability-detected recorder: given search results
-   (from the invoking agent's `WebSearch` tool, or injected for testing), it
+   (already obtained by an authorized caller, or injected for testing), it
    builds the `CLAIM_CORROBORATION` observation and runs the `entity_match`
    check deterministically. With no results supplied, it returns an honest
    `performed: false` record — the same graceful-degradation pattern
@@ -38,9 +38,9 @@ unfalsifiable finding is to assert that a claim is uncorroborated without having
    specifically because a hostile review found a disclaimer *warning about* a
    name collision being scored as *confirming* corroboration, which inverts
    this rule's entire purpose.
-9. Not every claim is worth an outbound lookup. Corroboration runs against a
-   shared, hard-capped budget (`orchestration-rules.md`: 45s for the whole
-   audit); only `entity_fact` claims and unattributed `superlative_stat`
+9. The 45-second corroboration allocation in the [orchestration rules](../../audit-orchestrator/references/orchestration-rules.md)
+   is a future integration allowance, not a wired search capability. Only
+   `entity_fact` claims and unattributed `superlative_stat`
    claims are things D-TRUST-05 can act on at all.
    `_trust_util.is_corroboration_worthy()` is the selection rule, and
    `corroborate.py`'s CLI warns (without blocking) when it's asked to record

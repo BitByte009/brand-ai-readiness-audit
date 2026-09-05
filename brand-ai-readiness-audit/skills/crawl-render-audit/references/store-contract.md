@@ -47,7 +47,8 @@ synthetic observations with no dependency on an unfinished crawler:
 
 A path is treated as a utility path — never a discoverability defect on its own —
 when its final segment structurally matches cart/search/checkout/login/account/
-wishlist/admin behaviour, or it carries any query string (facet/sort/filter
-parameters). This is a structural test on generic path *verbs*, not a brand, CMS, or
+wishlist/admin behaviour. A query string alone is not utility evidence: it may
+identify primary content, a language version, or attribution. This is a
+conservative role-name fallback on generic path *verbs*, not a brand, CMS, or
 vertical name, so it holds across unseen sites (`references/archetype-applicability.md`
 generalization rule).

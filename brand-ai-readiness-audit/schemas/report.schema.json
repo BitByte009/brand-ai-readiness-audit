@@ -4,7 +4,7 @@
   "type": "object",
   "required": ["site", "audited_at", "summary", "findings"],
   "properties": {
-    "site": { "type": "string" },
+    "site": { "$ref": "#/$defs/text" },
     "audited_at": { "type": "string", "format": "date-time" },
     "summary": {
       "type": "object",
@@ -26,19 +26,20 @@
     "run": { "type": "object", "description": "capabilities, budget consumed, skill versions" }
   },
   "$defs": {
+    "text": { "type": "string", "pattern": "\\S" },
     "finding": {
       "type": "object",
       "required": ["id", "title", "severity", "evidence", "suggested_action"],
       "properties": {
         "id": { "type": "string", "pattern": "^F-[0-9]{3,}$" },
-        "title": { "type": "string" },
+        "title": { "type": "string", "pattern": "\\S" },
         "severity": { "enum": ["critical", "high", "medium", "low"] },
-        "evidence": { "type": "string" },
+        "evidence": { "type": "string", "pattern": "\\S" },
         "suggested_action": {
           "type": "object",
           "required": ["summary", "priority"],
           "properties": {
-            "summary": { "type": "string" },
+            "summary": { "type": "string", "pattern": "\\S" },
             "priority": { "enum": ["critical", "high", "medium", "low"] },
             "how_to_fix": { "type": "string" },
             "validation": { "type": "string" }
@@ -51,10 +52,18 @@
         "mechanism": { "type": "string" },
         "impact": { "type": "string" },
         "observed_signal": { "type": "string" },
-        "source_urls": { "type": "array", "items": { "type": "string" } },
-        "observation_ids": { "type": "array", "items": { "type": "string" } },
-        "affected": { "type": "object" },
-        "related_findings": { "type": "array", "items": { "type": "string" } }
+        "source_urls": { "type": "array", "uniqueItems": true, "items": { "type": "string", "format": "uri", "pattern": "^https?://" } },
+        "observation_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "\\S" } },
+        "affected": {
+          "type": "object",
+          "description": "Finding scope; counts describe observed items, not an estimate of the whole site.",
+          "properties": {
+            "count": { "type": "integer", "minimum": 0 },
+            "total_in_scope": { "type": ["integer", "null"], "minimum": 0 },
+            "sample_urls": { "type": "array", "uniqueItems": true, "description": "Observed URLs or robots path patterns; patterns are not fetched URLs.", "items": { "type": "string", "pattern": "\\S" } }
+          }
+        },
+        "related_findings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^F-[0-9]{3,}$" } }
       }
     }
   }

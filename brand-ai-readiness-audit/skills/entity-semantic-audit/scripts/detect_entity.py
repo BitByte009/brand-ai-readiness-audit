@@ -395,6 +395,8 @@ def check_d_entity_06(store: Dict[str, Any], profile: Dict[str, Any]) -> List[Di
 def detect_entity(store: Dict[str, Any], profile: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     if profile is None:
         profile = build_entity_profile(store)
+    if not profile.get("pages_considered"):
+        return []
 
     findings: List[Dict[str, Any]] = []
     d01 = check_d_entity_01(store, profile)

@@ -24,7 +24,7 @@ Finding unit is `(check_id, template_cluster)`; `affected` always carries
 - **Evidence required:** `OBS-ROBOTS-*`, the matching `disallow` line, the disallowed
   URL(s).
 - **False-positive rules:** never fires on a utility path (cart, search, checkout,
-  login, account, wishlist, admin, or any URL carrying a query string) — disallowing
+  login, account, wishlist, admin; not merely a query string) — disallowing
   those is correct practice. Never fires if `ROBOTS.status != "ok"` (that is
   D-CRAWL-15's concern, not this check's).
 - **False-negative risks:** a robots rule scoped to a sub-path we never discovered a

@@ -22,7 +22,10 @@ def affected_block(urls: List[str], total_in_scope: Optional[int] = None) -> Dic
     return {
         "count": len(unique),
         "sample_urls": unique[:5],
-        "total_in_scope": total_in_scope if total_in_scope is not None else len(unique),
+        # Absence of a measured denominator is materially different from
+        # "every item in scope was affected".  Consumers must not manufacture
+        # site-wide scope from the handful of URLs carried as evidence.
+        "total_in_scope": total_in_scope,
     }
 
 

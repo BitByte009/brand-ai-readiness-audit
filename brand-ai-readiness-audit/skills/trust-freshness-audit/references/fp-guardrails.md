@@ -30,7 +30,7 @@ cross-reference. This is the marketplace's highest-FP-risk skill
 | D-TRUST-01 | Archetype is `documentation` or `personal-portfolio` | re-thresholded down |
 | D-TRUST-01 | Archetype is `publisher-editorial` | re-thresholded up |
 | D-TRUST-02 | Forward-framing pattern without an extractable date, or vice versa | never fires — both required |
-| D-TRUST-02 | A more recent date signal exists alongside a stale copyright year | never fires (copyright sub-trigger only) |
+| D-TRUST-02 | Only a copyright year is old, with no expired forward-framed claim | never fires |
 | D-TRUST-02 | Historical/archival page with no forward-framing language | never fires — old is not itself stale |
 | D-TRUST-02 | The page's own date inventory has a date on or before the claim's extracted date | never fires — the claim was true when the page was published (a hostile review confirmed this on archival news/blog content) |
 | D-TRUST-03 | Claim is price, spec, phone, or any per-product/plan/department fact | **never extracted as a comparable claim at all** — structurally out of scope, not merely suppressed (phone was removed after a hostile review found sales-vs-support lines flagged as contradictions) |

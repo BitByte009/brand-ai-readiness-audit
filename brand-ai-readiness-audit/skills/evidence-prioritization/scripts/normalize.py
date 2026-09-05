@@ -73,15 +73,17 @@ def normalize_findings(findings: List[Any]) -> Tuple[List[Dict[str, Any]], List[
         clone["confidence"] = str(clone["confidence"]).lower()
         clone["suggested_action"] = dict(clone["suggested_action"])
 
-        # confidence-model.md: a thin supporting sample (< 3 in scope) drops
-        # confidence one tier -- applied uniformly here so it can't drift into
-        # four different per-skill implementations.
+        # A small number of *direct observations* is not weak evidence: one
+        # fetched 404 or one malformed JSON-LD block is conclusive for that
+        # resource.  Only findings that explicitly extrapolate from a sample
+        # to an unobserved population receive the thin-sample adjustment.
         affected = clone["affected"]
-        total_in_scope = affected.get("total_in_scope", affected.get("count", 1)) or 1
-        if total_in_scope < THIN_SAMPLE_FLOOR and clone["confidence"] == "high":
+        sample_count = affected.get("count", 0) or 0
+        extrapolated = affected.get("extrapolated") is True
+        if extrapolated and sample_count < THIN_SAMPLE_FLOOR and clone["confidence"] == "high":
             clone["confidence"] = "medium"
             clone["_normalization_notes"] = clone.get("_normalization_notes", []) + [
-                f"confidence -1 tier: supporting sample ({total_in_scope}) below the thin-sample floor ({THIN_SAMPLE_FLOOR})"
+                f"confidence -1 tier: extrapolated sample ({sample_count}) below the thin-sample floor ({THIN_SAMPLE_FLOOR})"
             ]
 
         normalized.append(clone)
