@@ -46,6 +46,48 @@ The CPU-only workload injects responses: its 30 page observations are **not** 30
 network requests. The browser workload uses real loopback HTTP. Browser and fixture
 startup dependencies are required only for the latter commands.
 
+## Release-candidate review (second pass)
+
+No performance regression was found and no product code was changed. One test
+harness was repaired.
+
+**Timings in the table above are machine-specific and are not comparable across
+machines.** They were taken on arm64 / Python 3.12; a re-run on x86_64 /
+Python 3.13 measured 8.7-9.2 s for the CPU-only workload with an *identical*
+358 HTML parses. Parse count, request count, render count and finding sets are
+the portable figures; wall-clock is not.
+
+Regression check, same machine and same moment, reverting `lib/` and `skills/`
+to the previous revision: 8.7-9.2 s before, 8.7-10.1 s after, 358 parses in
+both. The difference is noise; the entity-authority, alias, crawl-identity and
+navigation changes did not measurably cost CPU.
+
+Worst-case stress workload (61 pages x 64 KB, 200 navigation links, 150
+faceted query links, 50 JSON-LD blocks and 120-level nesting per page):
+**6.97 s wall, 46 MB peak RSS**, 30 pages fetched, 31 requests, 0 model calls,
+`BUDGET_EXHAUSTED` recorded. Page and request caps held; memory stayed flat.
+
+Browser lifecycle re-verified against real Chromium: one browser process per
+collection pass with a fresh context per page, and no leaked processes
+(55 chromium processes before the run, 55 after).
+
+Redirect handling re-verified: a redirect chain stops at the 10-hop limit and a
+redirect loop is detected on the first repeat, both degrading to an error
+record rather than looping.
+
+### Harness defect found and fixed
+
+`benchmark_runtime.py --fixture ...` -- a reproduction command published in this
+document -- could not reach its own loopback fixture server. The transport pins
+sockets to validated public addresses, and unlike `run_corpus.py` and
+`run_safety.py` the benchmark never injected the test-owned resolver. It did not
+fail loudly: it reported a robots failure, `pages_crawled: 0` and a sub-second
+`elapsed_s`, which reads like a very fast run. The resolver injection is now
+present (identical to the other two harnesses, still with no private-address
+bypass in the production CLI), and a zero-page result now prints a warning and
+exits non-zero. The restored run reproduces the recorded scope exactly: 374
+parses, 30 pages, 8 renders, 39 requests.
+
 ## Cost and risk assessment
 
 | Area | Actual behavior | Risk / decision |

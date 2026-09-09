@@ -34,9 +34,17 @@ Each check declares one of: APPLIES / SUPPRESSED / RETHRESHOLDED per archetype.
 | E-CONTINUE-02 dead end | APPLIES | APPLIES | APPLIES | APPLIES | RETHR | SUPPRESSED | APPLIES | SUPPRESSED |
 | E-CONTINUE-03 route to hub | APPLIES | APPLIES | APPLIES | APPLIES | RETHR | SUPPRESSED | APPLIES | SUPPRESSED |
 | E-CONTINUE-04 broken internal links | APPLIES | APPLIES | APPLIES | APPLIES | APPLIES | APPLIES | APPLIES | APPLIES |
-| ... | | | | | | | | |
 
-TODO Day 1: complete every row. A check with no row does not run.
+**Scope of this matrix.** It covers the 24 checks whose applicability genuinely
+varies by archetype: `D-ENTITY`, `D-TRUST` and the `E-*` engagement families.
+The `D-CRAWL`, `D-RENDER` and `D-EXTRACT` families are deliberately absent, and
+their absence does not disable them: they are mechanism/gate checks (can a
+machine reach the page, read it, pull a fact out of it) that apply uniformly to
+every archetype, so 29 near-identical "APPLIES" rows would carry no information.
+Their applicability preconditions live with the checks themselves, in
+`skills/crawl-render-audit/references/`. Every one of them runs -- `D-CRAWL-01`,
+`D-CRAWL-04`, `D-EXTRACT-02`, `D-EXTRACT-04` and `D-RENDER-01` among others fire
+end to end in the fixture corpus.
 
 ## Minimum-corpus rule
 Below 3 crawled pages, all cross-page consistency checks disable and the coverage

@@ -1,7 +1,7 @@
 [
   {
     "fixture": "ambiguous-entity",
-    "elapsed_s": 3.479,
+    "elapsed_s": 4.179,
     "description": "Exactly 2 of 4 pages call the brand 'BrightPath Analytics', the other 2 call it 'Vertex Data Group' (title AND h1 both vary together, no schema anchor either way, no majority >=70%). No page states an offering-verb sentence, and no JSON-LD anywhere.",
     "expected_findings": [
       "D-ENTITY-01",
@@ -53,8 +53,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:35565",
-      "audited_at": "2026-09-05T22:56:30.821984+00:00",
+      "site": "127.0.0.1:34305",
+      "audited_at": "2026-09-09T18:16:38.660001+00:00",
       "summary": {
         "total_findings": 3,
         "critical": 0,
@@ -74,24 +74,24 @@
           "observed_signal": "6 distinct name forms, no single form >=70% share",
           "evidence": "Competing name forms: \"BrightPath Analytics\" (4/12), \"Vertex Data Group\" (4/12), \"Home\" (1/12), \"Platform\" (1/12), \"Team\" (1/12), \"Contact\" (1/12)",
           "observation_ids": [
-            "OBS-RENDER-28a43f5d72923365",
-            "OBS-RENDER-ddb80642df4c75d4",
-            "OBS-RENDER-efe7ce2e4efbce7c",
-            "OBS-RENDER-fa1392c6494675dc"
+            "OBS-RENDER-3efaefcb802bc9e6",
+            "OBS-RENDER-56f9864f08381cc5",
+            "OBS-RENDER-95872a06b5a77991",
+            "OBS-RENDER-d6ffc4689ac82e00"
           ],
           "source_urls": [
-            "http://127.0.0.1:35565/",
-            "http://127.0.0.1:35565/contact.html",
-            "http://127.0.0.1:35565/platform.html",
-            "http://127.0.0.1:35565/team.html"
+            "http://127.0.0.1:34305/",
+            "http://127.0.0.1:34305/contact.html",
+            "http://127.0.0.1:34305/platform.html",
+            "http://127.0.0.1:34305/team.html"
           ],
           "affected": {
             "count": 4,
             "sample_urls": [
-              "http://127.0.0.1:35565/",
-              "http://127.0.0.1:35565/contact.html",
-              "http://127.0.0.1:35565/platform.html",
-              "http://127.0.0.1:35565/team.html"
+              "http://127.0.0.1:34305/",
+              "http://127.0.0.1:34305/contact.html",
+              "http://127.0.0.1:34305/platform.html",
+              "http://127.0.0.1:34305/team.html"
             ],
             "total_in_scope": null
           },
@@ -129,18 +129,18 @@
           "evidence": "No identity anchor found on any sampled page",
           "observation_ids": [],
           "source_urls": [
-            "http://127.0.0.1:35565/",
-            "http://127.0.0.1:35565/contact.html",
-            "http://127.0.0.1:35565/platform.html",
-            "http://127.0.0.1:35565/team.html"
+            "http://127.0.0.1:34305/",
+            "http://127.0.0.1:34305/contact.html",
+            "http://127.0.0.1:34305/platform.html",
+            "http://127.0.0.1:34305/team.html"
           ],
           "affected": {
             "count": 4,
             "sample_urls": [
-              "http://127.0.0.1:35565/",
-              "http://127.0.0.1:35565/contact.html",
-              "http://127.0.0.1:35565/platform.html",
-              "http://127.0.0.1:35565/team.html"
+              "http://127.0.0.1:34305/",
+              "http://127.0.0.1:34305/contact.html",
+              "http://127.0.0.1:34305/platform.html",
+              "http://127.0.0.1:34305/team.html"
             ],
             "total_in_scope": null
           },
@@ -174,21 +174,21 @@
           "mechanism": "An assistant asked what this entity does needs a plain answer; marketing abstraction with no concrete statement of the offering produces no quotable answer.",
           "impact": "Machines cannot determine what this entity sells, builds, or does.",
           "observed_signal": "no offering statement found on the homepage or its 3 depth-1 page(s)",
-          "evidence": "Checked: http://127.0.0.1:35565/, http://127.0.0.1:35565/contact.html, http://127.0.0.1:35565/platform.html, http://127.0.0.1:35565/team.html",
+          "evidence": "Checked: http://127.0.0.1:34305/, http://127.0.0.1:34305/contact.html, http://127.0.0.1:34305/platform.html, http://127.0.0.1:34305/team.html",
           "observation_ids": [],
           "source_urls": [
-            "http://127.0.0.1:35565/",
-            "http://127.0.0.1:35565/contact.html",
-            "http://127.0.0.1:35565/platform.html",
-            "http://127.0.0.1:35565/team.html"
+            "http://127.0.0.1:34305/",
+            "http://127.0.0.1:34305/contact.html",
+            "http://127.0.0.1:34305/platform.html",
+            "http://127.0.0.1:34305/team.html"
           ],
           "affected": {
             "count": 4,
             "sample_urls": [
-              "http://127.0.0.1:35565/",
-              "http://127.0.0.1:35565/contact.html",
-              "http://127.0.0.1:35565/platform.html",
-              "http://127.0.0.1:35565/team.html"
+              "http://127.0.0.1:34305/",
+              "http://127.0.0.1:34305/contact.html",
+              "http://127.0.0.1:34305/platform.html",
+              "http://127.0.0.1:34305/team.html"
             ],
             "total_in_scope": null
           },
@@ -291,7 +291,7 @@
   },
   {
     "fixture": "both-strong",
-    "elapsed_s": 4.881,
+    "elapsed_s": 6.028,
     "description": "A deep (3-level: /docs/getting-started/connect.html), well-built site: consistent brand everywhere, explicit breadcrumbs on every depth>=2 doc page, working continuation links, unique titles/descriptions, contact info, offering stated, clean robots.",
     "expected_findings": [],
     "actual_findings": [],
@@ -333,8 +333,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:39379",
-      "audited_at": "2026-09-05T22:56:36.098292+00:00",
+      "site": "127.0.0.1:41511",
+      "audited_at": "2026-09-09T18:16:44.954119+00:00",
       "summary": {
         "total_findings": 0,
         "critical": 0,
@@ -391,16 +391,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:39379/ parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:41511/ parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:39379/"
+            "http://127.0.0.1:41511/"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-a77df4a346475e81"
+            "OBS-HTTP-FETCH-80ce7bb50bb1ca38"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -438,7 +438,7 @@
   },
   {
     "fixture": "both-weak",
-    "elapsed_s": 2.611,
+    "elapsed_s": 3.444,
     "description": "robots.txt blocks the /catalog/ path that the homepage links to (D-CRAWL-01). widget.html/gadget.html (both at root, reachable) share an identical title AND description (a real D-EXTRACT-02 pattern, but see confirmed_false_negative), neither states a brand consistently with the homepage, and no page has contact info -- deliberately unpolished on every axis, unlike the other fixtures which isolate one mechanism. Homepage has a time-sensitive 'currently' claim with no date signal anywhere (D-TRUST-01), a blocking modal visible by default (E-ANSWER-02), and every content page is a dead end with no continuation link (E-CONTINUE-02).",
     "expected_findings": [
       "D-CRAWL-01",
@@ -501,8 +501,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:41453",
-      "audited_at": "2026-09-05T22:56:39.144874+00:00",
+      "site": "127.0.0.1:36275",
+      "audited_at": "2026-09-09T18:16:48.711108+00:00",
       "summary": {
         "total_findings": 9,
         "critical": 1,
@@ -520,17 +520,17 @@
           "mechanism": "A disallowed path is never fetched by a compliant crawler; the content behind it does not exist for that system at all.",
           "impact": "Pages in this template are structurally unreachable to any robots-respecting citation pipeline.",
           "observed_signal": "1 non-utility URL(s) disallowed by robots.txt",
-          "evidence": "robots.txt disallows: http://127.0.0.1:41453/catalog/",
+          "evidence": "robots.txt disallows: http://127.0.0.1:36275/catalog/",
           "observation_ids": [
-            "OBS-ROBOTS-1f32b9a04ede7a9b"
+            "OBS-ROBOTS-2790b5b9428e4fd4"
           ],
           "source_urls": [
-            "http://127.0.0.1:41453/catalog/"
+            "http://127.0.0.1:36275/catalog/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:41453/catalog/"
+              "http://127.0.0.1:36275/catalog/"
             ],
             "total_in_scope": null
           },
@@ -561,21 +561,21 @@
           "observed_signal": "5 distinct name forms, no single form >=70% share",
           "evidence": "Competing name forms: \"Shop\" (2/7), \"Shop Glenmark Supply\" (2/7), \"Glenmark Supply\" (1/7), \"Widget\" (1/7), \"Gadget\" (1/7)",
           "observation_ids": [
-            "OBS-RENDER-15af96cbb9bfd384",
-            "OBS-RENDER-65b927296aaba1a5",
-            "OBS-RENDER-d3862439183f5196"
+            "OBS-RENDER-027371142503e3f4",
+            "OBS-RENDER-bb2260515b37edf4",
+            "OBS-RENDER-bc3069398c869d60"
           ],
           "source_urls": [
-            "http://127.0.0.1:41453/",
-            "http://127.0.0.1:41453/gadget.html",
-            "http://127.0.0.1:41453/widget.html"
+            "http://127.0.0.1:36275/",
+            "http://127.0.0.1:36275/gadget.html",
+            "http://127.0.0.1:36275/widget.html"
           ],
           "affected": {
             "count": 3,
             "sample_urls": [
-              "http://127.0.0.1:41453/",
-              "http://127.0.0.1:41453/gadget.html",
-              "http://127.0.0.1:41453/widget.html"
+              "http://127.0.0.1:36275/",
+              "http://127.0.0.1:36275/gadget.html",
+              "http://127.0.0.1:36275/widget.html"
             ],
             "total_in_scope": null
           },
@@ -618,16 +618,16 @@
           "evidence": "No identity anchor found on any sampled page",
           "observation_ids": [],
           "source_urls": [
-            "http://127.0.0.1:41453/",
-            "http://127.0.0.1:41453/gadget.html",
-            "http://127.0.0.1:41453/widget.html"
+            "http://127.0.0.1:36275/",
+            "http://127.0.0.1:36275/gadget.html",
+            "http://127.0.0.1:36275/widget.html"
           ],
           "affected": {
             "count": 3,
             "sample_urls": [
-              "http://127.0.0.1:41453/",
-              "http://127.0.0.1:41453/gadget.html",
-              "http://127.0.0.1:41453/widget.html"
+              "http://127.0.0.1:36275/",
+              "http://127.0.0.1:36275/gadget.html",
+              "http://127.0.0.1:36275/widget.html"
             ],
             "total_in_scope": null
           },
@@ -669,16 +669,16 @@
           "evidence": "No classified accountability role, named operator, contact method, or exact role-path fallback found on any sampled page",
           "observation_ids": [],
           "source_urls": [
-            "http://127.0.0.1:41453/",
-            "http://127.0.0.1:41453/gadget.html",
-            "http://127.0.0.1:41453/widget.html"
+            "http://127.0.0.1:36275/",
+            "http://127.0.0.1:36275/gadget.html",
+            "http://127.0.0.1:36275/widget.html"
           ],
           "affected": {
             "count": 3,
             "sample_urls": [
-              "http://127.0.0.1:41453/",
-              "http://127.0.0.1:41453/gadget.html",
-              "http://127.0.0.1:41453/widget.html"
+              "http://127.0.0.1:36275/",
+              "http://127.0.0.1:36275/gadget.html",
+              "http://127.0.0.1:36275/widget.html"
             ],
             "total_in_scope": null
           },
@@ -711,7 +711,7 @@
         {
           "check_id": "D-TRUST-01",
           "category": "trust",
-          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:41453/",
+          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:36275/",
           "severity": "high",
           "confidence": "high",
           "mechanism": "A citation pipeline repeating a time-framed claim with no way to judge its currency risks repeating something already false.",
@@ -719,22 +719,22 @@
           "observed_signal": "1 time-sensitive phrase(s), 0 date signals on this page",
           "evidence": "Time-sensitive text: \"talog Widget Gadget Shop Our pricing is currently the best in the industry. Browse the ca\"",
           "observation_ids": [
-            "OBS-RENDER-65b927296aaba1a5"
+            "OBS-RENDER-027371142503e3f4"
           ],
           "source_urls": [
-            "http://127.0.0.1:41453/"
+            "http://127.0.0.1:36275/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:41453/"
+              "http://127.0.0.1:36275/"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add a visible 'last updated' date or dateModified schema near the claim.",
             "priority": "high",
-            "how_to_fix": "State when the claim on http://127.0.0.1:41453/ was last verified or updated.",
+            "how_to_fix": "State when the claim on http://127.0.0.1:36275/ was last verified or updated.",
             "validation": "Re-fetch the page; a date signal is now present."
           },
           "scoring_trace": {
@@ -758,30 +758,30 @@
         {
           "check_id": "E-ANSWER-02",
           "category": "engagement",
-          "title": "Entry-blocking interstitial on http://127.0.0.1:41453/",
+          "title": "Entry-blocking interstitial on http://127.0.0.1:36275/",
           "severity": "high",
           "confidence": "high",
           "mechanism": "A visitor arriving expecting a specific answer, met instead with a blocking overlay, cannot see that answer without first dismissing something they didn't ask for.",
           "impact": "Content is not visible to an arriving visitor without dismissing this element first.",
           "observed_signal": "visible-by-default div (role='dialog', class='modal-overlay')",
-          "evidence": "Blocking element found on http://127.0.0.1:41453/: {'tag': 'div', 'class': 'modal-overlay', 'id': '', 'role': 'dialog'}",
+          "evidence": "Blocking element found on http://127.0.0.1:36275/: {'tag': 'div', 'class': 'modal-overlay', 'id': '', 'role': 'dialog'}",
           "observation_ids": [
-            "OBS-RENDER-65b927296aaba1a5"
+            "OBS-RENDER-027371142503e3f4"
           ],
           "source_urls": [
-            "http://127.0.0.1:41453/"
+            "http://127.0.0.1:36275/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:41453/"
+              "http://127.0.0.1:36275/"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Defer the overlay until after the visitor has seen the primary content.",
             "priority": "high",
-            "how_to_fix": "Make the overlay on http://127.0.0.1:41453/ dismissible without obscuring the answer, or delay it.",
+            "how_to_fix": "Make the overlay on http://127.0.0.1:36275/ dismissible without obscuring the answer, or delay it.",
             "validation": "Re-render; no blocking dialog/modal is present-and-visible at first paint."
           },
           "scoring_trace": {
@@ -812,19 +812,19 @@
           "mechanism": "An assistant asked what this entity does needs a plain answer; marketing abstraction with no concrete statement of the offering produces no quotable answer.",
           "impact": "Machines cannot determine what this entity sells, builds, or does.",
           "observed_signal": "no offering statement found on the homepage or its 2 depth-1 page(s)",
-          "evidence": "Checked: http://127.0.0.1:41453/, http://127.0.0.1:41453/gadget.html, http://127.0.0.1:41453/widget.html",
+          "evidence": "Checked: http://127.0.0.1:36275/, http://127.0.0.1:36275/gadget.html, http://127.0.0.1:36275/widget.html",
           "observation_ids": [],
           "source_urls": [
-            "http://127.0.0.1:41453/",
-            "http://127.0.0.1:41453/gadget.html",
-            "http://127.0.0.1:41453/widget.html"
+            "http://127.0.0.1:36275/",
+            "http://127.0.0.1:36275/gadget.html",
+            "http://127.0.0.1:36275/widget.html"
           ],
           "affected": {
             "count": 3,
             "sample_urls": [
-              "http://127.0.0.1:41453/",
-              "http://127.0.0.1:41453/gadget.html",
-              "http://127.0.0.1:41453/widget.html"
+              "http://127.0.0.1:36275/",
+              "http://127.0.0.1:36275/gadget.html",
+              "http://127.0.0.1:36275/widget.html"
             ],
             "total_in_scope": null
           },
@@ -858,30 +858,30 @@
         {
           "check_id": "E-CONTINUE-02",
           "category": "engagement",
-          "title": "Dead end at http://127.0.0.1:41453/gadget.html",
+          "title": "Dead end at http://127.0.0.1:36275/gadget.html",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "There is structurally nothing to click that leads deeper into the site, either from this page's own content or from its navigation.",
           "impact": "A visitor has no way to continue browsing from this page.",
           "observed_signal": "no in-content internal links and fewer than 2 internal destination(s) in site navigation",
-          "evidence": "Outgoing content-area link kinds on http://127.0.0.1:41453/gadget.html: []; internal navigation destinations: []",
+          "evidence": "Outgoing content-area link kinds on http://127.0.0.1:36275/gadget.html: []; internal navigation destinations: []",
           "observation_ids": [
-            "OBS-RENDER-d3862439183f5196"
+            "OBS-RENDER-bc3069398c869d60"
           ],
           "source_urls": [
-            "http://127.0.0.1:41453/gadget.html"
+            "http://127.0.0.1:36275/gadget.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:41453/gadget.html"
+              "http://127.0.0.1:36275/gadget.html"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add at least one in-content link to related material.",
             "priority": "medium",
-            "how_to_fix": "Add a content-region link on http://127.0.0.1:41453/gadget.html.",
+            "how_to_fix": "Add a content-region link on http://127.0.0.1:36275/gadget.html.",
             "validation": "Re-fetch; content-region out-degree is >=1."
           },
           "scoring_trace": {
@@ -902,30 +902,30 @@
         {
           "check_id": "E-CONTINUE-02",
           "category": "engagement",
-          "title": "Dead end at http://127.0.0.1:41453/widget.html",
+          "title": "Dead end at http://127.0.0.1:36275/widget.html",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "There is structurally nothing to click that leads deeper into the site, either from this page's own content or from its navigation.",
           "impact": "A visitor has no way to continue browsing from this page.",
           "observed_signal": "no in-content internal links and fewer than 2 internal destination(s) in site navigation",
-          "evidence": "Outgoing content-area link kinds on http://127.0.0.1:41453/widget.html: []; internal navigation destinations: []",
+          "evidence": "Outgoing content-area link kinds on http://127.0.0.1:36275/widget.html: []; internal navigation destinations: []",
           "observation_ids": [
-            "OBS-RENDER-15af96cbb9bfd384"
+            "OBS-RENDER-bb2260515b37edf4"
           ],
           "source_urls": [
-            "http://127.0.0.1:41453/widget.html"
+            "http://127.0.0.1:36275/widget.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:41453/widget.html"
+              "http://127.0.0.1:36275/widget.html"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add at least one in-content link to related material.",
             "priority": "medium",
-            "how_to_fix": "Add a content-region link on http://127.0.0.1:41453/widget.html.",
+            "how_to_fix": "Add a content-region link on http://127.0.0.1:36275/widget.html.",
             "validation": "Re-fetch; content-region out-degree is >=1."
           },
           "scoring_trace": {
@@ -1034,7 +1034,7 @@
   },
   {
     "fixture": "clean-static",
-    "elapsed_s": 3.396,
+    "elapsed_s": 4.177,
     "description": "Strong static site: consistent brand H1/title everywhere, stated type/offering, contact info, clean robots/canonical, no schema defects, working continuation links.",
     "expected_findings": [],
     "actual_findings": [],
@@ -1076,8 +1076,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:36411",
-      "audited_at": "2026-09-05T22:56:42.939427+00:00",
+      "site": "127.0.0.1:42003",
+      "audited_at": "2026-09-09T18:16:53.203928+00:00",
       "summary": {
         "total_findings": 0,
         "critical": 0,
@@ -1162,7 +1162,7 @@
   },
   {
     "fixture": "conflicting-content",
-    "elapsed_s": 3.409,
+    "elapsed_s": 4.259,
     "description": "history.html claims 'Founded in 2008'; careers.html claims 'Since our founding in 2015' -- same entity_fact key (founded_year), different values (D-TRUST-03). Two Organization JSON-LD nodes carry the same org name (not distinguishing branch labels) but genuinely different addresses (D-ENTITY-04).",
     "expected_findings": [
       "D-ENTITY-04",
@@ -1210,8 +1210,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:34573",
-      "audited_at": "2026-09-05T22:56:46.753579+00:00",
+      "site": "127.0.0.1:36709",
+      "audited_at": "2026-09-09T18:16:57.706619+00:00",
       "summary": {
         "total_findings": 2,
         "critical": 0,
@@ -1228,21 +1228,21 @@
           "confidence": "high",
           "mechanism": "Conflicting addresses for one undifferentiated entity give a citation pipeline no reliable location to repeat.",
           "impact": "A machine cannot determine one authoritative address for this entity.",
-          "observed_signal": "conflicting address fields between http://127.0.0.1:34573/history.html and http://127.0.0.1:34573/careers.html",
-          "evidence": "\"100 Main St, Boulder, CO, 80301\" (http://127.0.0.1:34573/history.html) vs. \"500 Oak Ave, Denver, CO, 80202\" (http://127.0.0.1:34573/careers.html)",
+          "observed_signal": "conflicting address fields between http://127.0.0.1:36709/history.html and http://127.0.0.1:36709/careers.html",
+          "evidence": "\"100 Main St, Boulder, CO, 80301\" (http://127.0.0.1:36709/history.html) vs. \"500 Oak Ave, Denver, CO, 80202\" (http://127.0.0.1:36709/careers.html)",
           "observation_ids": [
-            "OBS-RENDER-7ba63f64cdfab5d0",
-            "OBS-RENDER-9812335ef6e3b9f3"
+            "OBS-RENDER-454a5cf99c64f573",
+            "OBS-RENDER-d262eca44a6139ff"
           ],
           "source_urls": [
-            "http://127.0.0.1:34573/careers.html",
-            "http://127.0.0.1:34573/history.html"
+            "http://127.0.0.1:36709/careers.html",
+            "http://127.0.0.1:36709/history.html"
           ],
           "affected": {
             "count": 2,
             "sample_urls": [
-              "http://127.0.0.1:34573/careers.html",
-              "http://127.0.0.1:34573/history.html"
+              "http://127.0.0.1:36709/careers.html",
+              "http://127.0.0.1:36709/history.html"
             ],
             "total_in_scope": null
           },
@@ -1273,20 +1273,20 @@
           "mechanism": "Conflicting asserted values give a citation pipeline no reliable single fact to repeat, and may cause it to prefer a stale or wrong version.",
           "impact": "Machines cannot determine one authoritative value for 'founded_year'.",
           "observed_signal": "'founded_year' differs: \"2008\" vs. \"2015\"",
-          "evidence": "\"Founded in 2008\" (http://127.0.0.1:34573/history.html) vs. \"operating since 2015\" (http://127.0.0.1:34573/careers.html)",
+          "evidence": "\"Founded in 2008\" (http://127.0.0.1:36709/history.html) vs. \"operating since 2015\" (http://127.0.0.1:36709/careers.html)",
           "observation_ids": [
-            "OBS-RENDER-7ba63f64cdfab5d0",
-            "OBS-RENDER-9812335ef6e3b9f3"
+            "OBS-RENDER-454a5cf99c64f573",
+            "OBS-RENDER-d262eca44a6139ff"
           ],
           "source_urls": [
-            "http://127.0.0.1:34573/careers.html",
-            "http://127.0.0.1:34573/history.html"
+            "http://127.0.0.1:36709/careers.html",
+            "http://127.0.0.1:36709/history.html"
           ],
           "affected": {
             "count": 2,
             "sample_urls": [
-              "http://127.0.0.1:34573/careers.html",
-              "http://127.0.0.1:34573/history.html"
+              "http://127.0.0.1:36709/careers.html",
+              "http://127.0.0.1:36709/history.html"
             ],
             "total_in_scope": null
           },
@@ -1357,16 +1357,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:34573/history.html parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:36709/history.html parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:34573/history.html"
+            "http://127.0.0.1:36709/history.html"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-066843d8f09de416"
+            "OBS-HTTP-FETCH-4e3d57b9ad8454bc"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -1404,13 +1404,15 @@
   },
   {
     "fixture": "deep-page-no-orientation",
-    "elapsed_s": 4.206,
+    "elapsed_s": 4.761,
     "description": "rate-limits.html (depth 3) has no nav, no brand name anywhere (title/h1/body/img-alt), no breadcrumb, and a same-page fragment link to #see-also that has no matching id anywhere on the page. The rest of the site (depth 0-2) is well-connected, brand-clear, and offers a working continuation link back to the guides hub.",
     "expected_findings": [
+      "E-ORIENT-01",
       "E-ORIENT-03",
       "E-ORIENT-04"
     ],
     "actual_findings": [
+      "E-ORIENT-01",
       "E-ORIENT-03",
       "E-ORIENT-04"
     ],
@@ -1418,30 +1420,27 @@
     "false_negatives": [],
     "guardrail_violations": [],
     "structurally_untestable": [],
-    "confirmed_false_negative": {
-      "check": "E-ORIENT-01 (no brand identification on arrival)",
-      "why": "Same confirmed root cause as strong-disc-weak-engage: rate-limits.html's own title ('Rate Limit Configuration') is harvested as a name candidate sitewide, lands in entity_profile.fields.aliases (every non-dominant candidate, unfiltered), and detect_engagement.py::_brand_tokens() feeds it back into this exact page's own brand-token search -- the page's title trivially self-matches as its own 'alias', so E-ORIENT-01 never fires despite the page genuinely stating no brand anywhere."
-    },
+    "confirmed_false_negative": null,
     "missing_expected_coverage": [],
     "evidence_quality": {
-      "n": 3,
-      "ok": 3,
+      "n": 4,
+      "ok": 4,
       "failing": []
     },
     "recommendation_quality": {
-      "n": 3,
-      "ok": 3,
+      "n": 4,
+      "ok": 4,
       "failing": []
     },
     "severity_quality": {
-      "n": 3,
-      "ok": 3,
+      "n": 4,
+      "ok": 4,
       "failing": []
     },
     "summary": {
-      "total_findings": 3,
+      "total_findings": 4,
       "critical": 0,
-      "high": 0,
+      "high": 1,
       "medium": 3,
       "low": 0
     },
@@ -1455,82 +1454,85 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:43867",
-      "audited_at": "2026-09-05T22:56:51.372469+00:00",
+      "site": "127.0.0.1:43799",
+      "audited_at": "2026-09-09T18:17:02.801882+00:00",
       "summary": {
-        "total_findings": 3,
+        "total_findings": 4,
         "critical": 0,
-        "high": 0,
+        "high": 1,
         "medium": 3,
         "low": 0
       },
       "findings": [
         {
-          "check_id": "E-ORIENT-03",
+          "check_id": "E-ORIENT-01",
           "category": "engagement",
-          "title": "No path context on http://127.0.0.1:43867/docs/guides/",
-          "severity": "medium",
+          "title": "No brand identification on arrival at http://127.0.0.1:43799/docs/guides/rate-limits.html",
+          "severity": "high",
           "confidence": "high",
-          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
-          "impact": "A visitor cannot tell where this page sits in the wider site.",
-          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
-          "evidence": "No path-context signal found on http://127.0.0.1:43867/docs/guides/",
+          "mechanism": "An AI-referred visitor arrives with no homepage context and no navigation history; if the first screen doesn't say whose page this is, they cannot evaluate trust.",
+          "impact": "A cold arrival on this page cannot tell whose site it landed on.",
+          "observed_signal": "brand token absent from early body text, logo alt, and title",
+          "evidence": "Checked title \"Rate Limit Configuration\", logo alt text, and first-screen body text on http://127.0.0.1:43799/docs/guides/rate-limits.html",
           "observation_ids": [
-            "OBS-RENDER-a6e755c1eda414c1"
+            "OBS-RENDER-78b56283a52058ba"
           ],
           "source_urls": [
-            "http://127.0.0.1:43867/docs/guides/"
+            "http://127.0.0.1:43799/docs/guides/rate-limits.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:43867/docs/guides/"
+              "http://127.0.0.1:43799/docs/guides/rate-limits.html"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
-            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
-            "priority": "medium",
-            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:43867/docs/guides/.",
-            "validation": "Re-fetch; a path-context signal is now present."
+            "summary": "Put the brand name in the title, accessible header text, or the logo's alt text.",
+            "priority": "high",
+            "how_to_fix": "Add the brand name to one of the three positions on http://127.0.0.1:43799/docs/guides/rate-limits.html.",
+            "validation": "Re-fetch the page cold; the brand token is present in >=1 of the three positions."
           },
           "scoring_trace": {
-            "original_severity": "medium",
+            "original_severity": "high",
             "original_confidence": "high",
-            "final_severity": "medium",
+            "final_severity": "high",
             "final_confidence": "high",
             "modifiers_applied": []
           },
           "id": "F-001",
-          "related_findings": []
+          "related_findings": [
+            "F-003",
+            "F-004"
+          ]
         },
         {
           "check_id": "E-ORIENT-03",
           "category": "engagement",
-          "title": "No path context on http://127.0.0.1:43867/docs/guides/rate-limits.html",
+          "title": "No path context on http://127.0.0.1:43799/docs/guides/",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
           "impact": "A visitor cannot tell where this page sits in the wider site.",
           "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
-          "evidence": "No path-context signal found on http://127.0.0.1:43867/docs/guides/rate-limits.html",
+          "evidence": "No path-context signal found on http://127.0.0.1:43799/docs/guides/",
           "observation_ids": [
-            "OBS-RENDER-9cf6ceb6ddc538bc"
+            "OBS-RENDER-9dc537d4d0d13371"
           ],
           "source_urls": [
-            "http://127.0.0.1:43867/docs/guides/rate-limits.html"
+            "http://127.0.0.1:43799/docs/guides/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:43867/docs/guides/rate-limits.html"
+              "http://127.0.0.1:43799/docs/guides/"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
             "priority": "medium",
-            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:43867/docs/guides/rate-limits.html.",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:43799/docs/guides/.",
             "validation": "Re-fetch; a path-context signal is now present."
           },
           "scoring_trace": {
@@ -1541,30 +1543,70 @@
             "modifiers_applied": []
           },
           "id": "F-002",
+          "related_findings": []
+        },
+        {
+          "check_id": "E-ORIENT-03",
+          "category": "engagement",
+          "title": "No path context on http://127.0.0.1:43799/docs/guides/rate-limits.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
+          "impact": "A visitor cannot tell where this page sits in the wider site.",
+          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
+          "evidence": "No path-context signal found on http://127.0.0.1:43799/docs/guides/rate-limits.html",
+          "observation_ids": [
+            "OBS-RENDER-78b56283a52058ba"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:43799/docs/guides/rate-limits.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:43799/docs/guides/rate-limits.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
+            "priority": "medium",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:43799/docs/guides/rate-limits.html.",
+            "validation": "Re-fetch; a path-context signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-003",
           "related_findings": [
-            "F-003"
+            "F-001",
+            "F-004"
           ]
         },
         {
           "check_id": "E-ORIENT-04",
           "category": "engagement",
-          "title": "Fragment links don't resolve from http://127.0.0.1:43867/docs/guides/rate-limits.html",
+          "title": "Fragment links don't resolve from http://127.0.0.1:43799/docs/guides/rate-limits.html",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "A visitor following a deep-linked anchor lands on the target page with no way to reach the specific content the fragment promised.",
           "impact": "These deep links do not resolve to any content on their target page.",
           "observed_signal": "1 fragment link(s) with no matching target id",
-          "evidence": "http://127.0.0.1:43867/docs/guides/rate-limits.html#see-also -> http://127.0.0.1:43867/docs/guides/rate-limits.html (no #see-also)",
+          "evidence": "http://127.0.0.1:43799/docs/guides/rate-limits.html#see-also -> http://127.0.0.1:43799/docs/guides/rate-limits.html (no #see-also)",
           "observation_ids": [
-            "OBS-RENDER-9cf6ceb6ddc538bc"
+            "OBS-RENDER-78b56283a52058ba"
           ],
           "source_urls": [
-            "http://127.0.0.1:43867/docs/guides/rate-limits.html"
+            "http://127.0.0.1:43799/docs/guides/rate-limits.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:43867/docs/guides/rate-limits.html"
+              "http://127.0.0.1:43799/docs/guides/rate-limits.html"
             ],
             "total_in_scope": null
           },
@@ -1581,9 +1623,10 @@
             "final_confidence": "high",
             "modifiers_applied": []
           },
-          "id": "F-003",
+          "id": "F-004",
           "related_findings": [
-            "F-002"
+            "F-001",
+            "F-003"
           ]
         }
       ],
@@ -1635,16 +1678,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:43867/ parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:43799/ parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:43867/"
+            "http://127.0.0.1:43799/"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-eb3a01eed5fa84c1"
+            "OBS-HTTP-FETCH-adae138bd8df894a"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -1682,7 +1725,7 @@
   },
   {
     "fixture": "facts-render-only",
-    "elapsed_s": 3.416,
+    "elapsed_s": 3.847,
     "description": "rates.html has substantial raw prose (ratio stays above the 0.30 D-RENDER-01 threshold) but the one load-bearing fact -- the actual rate -- exists only in a client-side script.",
     "expected_findings": [],
     "actual_findings": [],
@@ -1724,8 +1767,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:33031",
-      "audited_at": "2026-09-05T22:56:55.174374+00:00",
+      "site": "127.0.0.1:32813",
+      "audited_at": "2026-09-09T18:17:06.981782+00:00",
       "summary": {
         "total_findings": 0,
         "critical": 0,
@@ -1782,16 +1825,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:33031/ parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:32813/ parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:33031/"
+            "http://127.0.0.1:32813/"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-d5f11b8d047b4500"
+            "OBS-HTTP-FETCH-05bfe3c340a61d81"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -1829,7 +1872,7 @@
   },
   {
     "fixture": "fp-trap-composite",
-    "elapsed_s": 4.97,
+    "elapsed_s": 5.682,
     "description": "Nine simultaneous false-positive traps: (1) archival news post dated 2019-05-01 discussing a forward-framed 'upcoming' event on 2019-05-20 -- the page's own date precedes the event, so not actually stale; (2) regional pricing $49/EUR59 on two pages -- price is never extracted as an entity_fact; (3) sales vs support phone numbers on different pages -- phone is never extracted as an entity_fact; (4) two LocalBusiness nodes with distinct branch names ('- Downtown' / '- Airport') and genuinely different addresses -- legitimate multi-location, not a conflict; (5) title/h1 always 'Cobalt Field Services' with no legal-suffix variant, so no D-ENTITY-01 risk; (6) documentation archetype (>=30% /docs/ paths) with no offering-verb sentence -- D-ENTITY-06 is archetype-suppressed for documentation; (7) no sitemap.xml on a small, fully-interlinked site with zero orphans; (8) an old (c) 2019 footer year paired with a fresh 'Updated: January 15, 2026' freshness-labeled date on the same page -- a real date signal suppresses the copyright-only staleness path; (9) contact info present so D-TRUST-06 stays silent despite the documentation archetype.",
     "expected_findings": [],
     "actual_findings": [],
@@ -1871,8 +1914,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:38643",
-      "audited_at": "2026-09-05T22:57:00.527217+00:00",
+      "site": "127.0.0.1:43199",
+      "audited_at": "2026-09-09T18:17:12.890632+00:00",
       "summary": {
         "total_findings": 0,
         "critical": 0,
@@ -1929,16 +1972,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:38643/locations.html parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:43199/locations.html parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:38643/locations.html"
+            "http://127.0.0.1:43199/locations.html"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-969703c177cf8352"
+            "OBS-HTTP-FETCH-4d1358b93222d83b"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -1976,7 +2019,7 @@
   },
   {
     "fixture": "image-locked-facts",
-    "elapsed_s": 2.849,
+    "elapsed_s": 3.493,
     "description": "hours.html states store hours only inside an <img> with empty alt text; no surrounding prose states the hours in machine-readable text.",
     "expected_findings": [],
     "actual_findings": [],
@@ -2018,8 +2061,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:38305",
-      "audited_at": "2026-09-05T22:57:03.813985+00:00",
+      "site": "127.0.0.1:42049",
+      "audited_at": "2026-09-09T18:17:16.760273+00:00",
       "summary": {
         "total_findings": 0,
         "critical": 0,
@@ -2076,16 +2119,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:38305/ parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:42049/ parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:38305/"
+            "http://127.0.0.1:42049/"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-068aaaaf01211e6f"
+            "OBS-HTTP-FETCH-aaf7140400fc8e08"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -2123,7 +2166,7 @@
   },
   {
     "fixture": "invalid-structured-data",
-    "elapsed_s": 3.405,
+    "elapsed_s": 3.991,
     "description": "product-a.html has syntactically broken JSON-LD (trailing comma + missing colon). product-b.html has valid JSON but a Product node missing the required offers.price/priceCurrency. Verified by calling detect_extract.check_d_extract_04() directly on this fixture's real collected store: it correctly returns both findings (the JSONDecodeError branch and the required-property branch).",
     "expected_findings": [
       "D-EXTRACT-04"
@@ -2169,8 +2212,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:40395",
-      "audited_at": "2026-09-05T22:57:07.632756+00:00",
+      "site": "127.0.0.1:46475",
+      "audited_at": "2026-09-09T18:17:21.099449+00:00",
       "summary": {
         "total_findings": 2,
         "critical": 0,
@@ -2182,7 +2225,7 @@
         {
           "check_id": "D-EXTRACT-04",
           "category": "discoverability",
-          "title": "Structured data fails to parse on http://127.0.0.1:40395/product-a.html",
+          "title": "Structured data fails to parse on http://127.0.0.1:46475/product-a.html",
           "severity": "high",
           "confidence": "high",
           "mechanism": "A machine that trusts structured data discards the whole block on a parse failure.",
@@ -2190,15 +2233,15 @@
           "observed_signal": "JSON-LD parse error: Expecting property name enclosed in double quotes: line 1 column 80 (char 79)",
           "evidence": "{\"@context\": \"https://schema.org\", \"@type\": \"Product\", \"name\": \"Cast Iron Pan\",, \"offers\": {\"@type\": \"Offer\" \"price\": \"39.00\"}}",
           "observation_ids": [
-            "OBS-HTTP-FETCH-124717338bc40d02"
+            "OBS-HTTP-FETCH-5212a0da1452b31c"
           ],
           "source_urls": [
-            "http://127.0.0.1:40395/product-a.html"
+            "http://127.0.0.1:46475/product-a.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:40395/product-a.html"
+              "http://127.0.0.1:46475/product-a.html"
             ],
             "total_in_scope": null
           },
@@ -2221,7 +2264,7 @@
         {
           "check_id": "D-EXTRACT-04",
           "category": "discoverability",
-          "title": "Product structured data missing required properties on http://127.0.0.1:40395/product-b.html",
+          "title": "Product structured data missing required properties on http://127.0.0.1:46475/product-b.html",
           "severity": "high",
           "confidence": "high",
           "mechanism": "A machine that trusts structured data over prose picks up an incomplete fact.",
@@ -2229,15 +2272,15 @@
           "observed_signal": "missing required property: offers.price/offers.priceCurrency",
           "evidence": "{\"@context\": \"https://schema.org\", \"@type\": \"Product\", \"name\": \"Chef Knife\"}",
           "observation_ids": [
-            "OBS-HTTP-FETCH-6fa509e403dd7bf4"
+            "OBS-HTTP-FETCH-153628dfcd309f2e"
           ],
           "source_urls": [
-            "http://127.0.0.1:40395/product-b.html"
+            "http://127.0.0.1:46475/product-b.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:40395/product-b.html"
+              "http://127.0.0.1:46475/product-b.html"
             ],
             "total_in_scope": null
           },
@@ -2334,7 +2377,7 @@
   },
   {
     "fixture": "js-render-gap",
-    "elapsed_s": 3.395,
+    "elapsed_s": 3.785,
     "description": "JS-heavy site: index/platform pages render almost all body text client-side via a DOMContentLoaded script; raw HTML is a near-empty shell. This is textbook D-RENDER-01 (raw-vs-rendered text ratio <0.30).",
     "expected_findings": [
       "D-RENDER-01"
@@ -2382,8 +2425,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:45803",
-      "audited_at": "2026-09-05T22:57:11.436926+00:00",
+      "site": "127.0.0.1:33875",
+      "audited_at": "2026-09-09T18:17:25.228715+00:00",
       "summary": {
         "total_findings": 2,
         "critical": 0,
@@ -2400,19 +2443,19 @@
           "confidence": "medium",
           "mechanism": "A fetcher that does not execute JavaScript receives a shell; the page looks complete to a person and empty to the machine.",
           "impact": "Non-rendering readers cannot read, quote, or cite this content.",
-          "observed_signal": "http://127.0.0.1:45803/: raw 75/rendered 441 chars (ratio 0.17)",
+          "observed_signal": "http://127.0.0.1:33875/: raw 75/rendered 441 chars (ratio 0.17)",
           "evidence": "Present rendered, absent raw, e.g.: \"We\"",
           "observation_ids": [
-            "OBS-HTTP-FETCH-cae5ae4609f26c9f",
-            "OBS-RENDER-71df9013fcfbf276"
+            "OBS-HTTP-FETCH-4db4ceb424199f0a",
+            "OBS-RENDER-2ae97f8c7baede02"
           ],
           "source_urls": [
-            "http://127.0.0.1:45803/"
+            "http://127.0.0.1:33875/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:45803/"
+              "http://127.0.0.1:33875/"
             ],
             "total_in_scope": null
           },
@@ -2443,19 +2486,19 @@
           "confidence": "medium",
           "mechanism": "A fetcher that does not execute JavaScript receives a shell; the page looks complete to a person and empty to the machine.",
           "impact": "Non-rendering readers cannot read, quote, or cite this content.",
-          "observed_signal": "http://127.0.0.1:45803/platform.html: raw 75/rendered 441 chars (ratio 0.17)",
+          "observed_signal": "http://127.0.0.1:33875/platform.html: raw 75/rendered 441 chars (ratio 0.17)",
           "evidence": "Present rendered, absent raw, e.g.: \"We\"",
           "observation_ids": [
-            "OBS-HTTP-FETCH-4de198e24d49ef2b",
-            "OBS-RENDER-ecea9d20e287b699"
+            "OBS-HTTP-FETCH-1d1e7bc7046d1fbe",
+            "OBS-RENDER-f8730344d765ff2a"
           ],
           "source_urls": [
-            "http://127.0.0.1:45803/platform.html"
+            "http://127.0.0.1:33875/platform.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:45803/platform.html"
+              "http://127.0.0.1:33875/platform.html"
             ],
             "total_in_scope": null
           },
@@ -2524,16 +2567,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:45803/ parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:33875/ parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:45803/"
+            "http://127.0.0.1:33875/"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-cae5ae4609f26c9f"
+            "OBS-HTTP-FETCH-4db4ceb424199f0a"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -2571,7 +2614,7 @@
   },
   {
     "fixture": "large-site",
-    "elapsed_s": 11.128,
+    "elapsed_s": 11.667,
     "description": "45 templated /product/N.html pages, all sharing a byte-identical title and meta description (a realistic templating mistake), linked from one catalog.html hub which also carries several ?sort= facet-parameter links. Default crawl budget is 30 pages; BFS order (home, about, catalog, then the ?sort= facet links, then products 1..N) means the crawl exhausts its budget partway through the product list.",
     "expected_findings": [
       "D-EXTRACT-02"
@@ -2619,8 +2662,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:38891",
-      "audited_at": "2026-09-05T22:57:22.754401+00:00",
+      "site": "127.0.0.1:44019",
+      "audited_at": "2026-09-09T18:17:36.922581+00:00",
       "summary": {
         "total_findings": 2,
         "critical": 0,
@@ -2638,65 +2681,65 @@
           "mechanism": "Duplicated titles collapse distinct pages into one signal.",
           "impact": "A reader cannot distinguish these pages by title alone.",
           "observed_signal": "23 page(s) share the title \"Product | Northwind Supply\"",
-          "evidence": "Duplicate title \"Product | Northwind Supply\" on: http://127.0.0.1:38891/product/1.html, http://127.0.0.1:38891/product/10.html, http://127.0.0.1:38891/product/11.html, http://127.0.0.1:38891/product/12.html, http://127.0.0.1:38891/product/13.html",
+          "evidence": "Duplicate title \"Product | Northwind Supply\" on: http://127.0.0.1:44019/product/1.html, http://127.0.0.1:44019/product/10.html, http://127.0.0.1:44019/product/11.html, http://127.0.0.1:44019/product/12.html, http://127.0.0.1:44019/product/13.html",
           "observation_ids": [
-            "OBS-HTTP-FETCH-0876a2d5279bd554",
-            "OBS-HTTP-FETCH-091f01159ce1f106",
-            "OBS-HTTP-FETCH-149b432ed5bf6546",
-            "OBS-HTTP-FETCH-2c18e26b1cb8544e",
-            "OBS-HTTP-FETCH-2d0ed9a6a27da816",
-            "OBS-HTTP-FETCH-550a1d4b2f5fe35b",
-            "OBS-HTTP-FETCH-5e25bbdf2ba52a2d",
-            "OBS-HTTP-FETCH-64a7790f40793374",
-            "OBS-HTTP-FETCH-667989cd19706f74",
-            "OBS-HTTP-FETCH-6b58d7a9d0d85c90",
-            "OBS-HTTP-FETCH-7e5da6a23d2b58d0",
-            "OBS-HTTP-FETCH-886a59df90d2aa7c",
-            "OBS-HTTP-FETCH-9629cbc84a2bd78f",
-            "OBS-HTTP-FETCH-a33d934be3a21aac",
-            "OBS-HTTP-FETCH-bb60ac22dc56cf09",
-            "OBS-HTTP-FETCH-bc8096ab430e8178",
-            "OBS-HTTP-FETCH-c41de7aebdc274cb",
-            "OBS-HTTP-FETCH-dd3822bfdb319b13",
-            "OBS-HTTP-FETCH-df24eabf95ea4e0a",
-            "OBS-HTTP-FETCH-eb92a38c6aeec7b5",
-            "OBS-HTTP-FETCH-ef495865c1679227",
-            "OBS-HTTP-FETCH-f436696d07c06444",
-            "OBS-HTTP-FETCH-f65b6cb8fe663619"
+            "OBS-HTTP-FETCH-0e069b08e7e2dc63",
+            "OBS-HTTP-FETCH-126628d9f2332772",
+            "OBS-HTTP-FETCH-147d8366f36708f7",
+            "OBS-HTTP-FETCH-302085d54be7fe7a",
+            "OBS-HTTP-FETCH-4a423f95c3035f88",
+            "OBS-HTTP-FETCH-4cd9c6515c00ebe2",
+            "OBS-HTTP-FETCH-549ea0185b19d4a1",
+            "OBS-HTTP-FETCH-69ec51b9f53b693a",
+            "OBS-HTTP-FETCH-74c81592b5424278",
+            "OBS-HTTP-FETCH-7646903dac90682f",
+            "OBS-HTTP-FETCH-9449e15323f0b052",
+            "OBS-HTTP-FETCH-9573ef30bd136075",
+            "OBS-HTTP-FETCH-963457b6d6e56755",
+            "OBS-HTTP-FETCH-980434edc8644aea",
+            "OBS-HTTP-FETCH-9a67d6725e841474",
+            "OBS-HTTP-FETCH-a38f3dfdf2ef71f5",
+            "OBS-HTTP-FETCH-ad9c1041a90ca8d6",
+            "OBS-HTTP-FETCH-c7969cda14398d02",
+            "OBS-HTTP-FETCH-ca4250009c7b5abd",
+            "OBS-HTTP-FETCH-d98c71dc21b85363",
+            "OBS-HTTP-FETCH-daa026f0118e5fff",
+            "OBS-HTTP-FETCH-f3a53627513765f4",
+            "OBS-HTTP-FETCH-f9f4e7eb342db7d7"
           ],
           "source_urls": [
-            "http://127.0.0.1:38891/product/1.html",
-            "http://127.0.0.1:38891/product/10.html",
-            "http://127.0.0.1:38891/product/11.html",
-            "http://127.0.0.1:38891/product/12.html",
-            "http://127.0.0.1:38891/product/13.html",
-            "http://127.0.0.1:38891/product/14.html",
-            "http://127.0.0.1:38891/product/15.html",
-            "http://127.0.0.1:38891/product/16.html",
-            "http://127.0.0.1:38891/product/17.html",
-            "http://127.0.0.1:38891/product/18.html",
-            "http://127.0.0.1:38891/product/19.html",
-            "http://127.0.0.1:38891/product/2.html",
-            "http://127.0.0.1:38891/product/20.html",
-            "http://127.0.0.1:38891/product/21.html",
-            "http://127.0.0.1:38891/product/22.html",
-            "http://127.0.0.1:38891/product/23.html",
-            "http://127.0.0.1:38891/product/3.html",
-            "http://127.0.0.1:38891/product/4.html",
-            "http://127.0.0.1:38891/product/5.html",
-            "http://127.0.0.1:38891/product/6.html",
-            "http://127.0.0.1:38891/product/7.html",
-            "http://127.0.0.1:38891/product/8.html",
-            "http://127.0.0.1:38891/product/9.html"
+            "http://127.0.0.1:44019/product/1.html",
+            "http://127.0.0.1:44019/product/10.html",
+            "http://127.0.0.1:44019/product/11.html",
+            "http://127.0.0.1:44019/product/12.html",
+            "http://127.0.0.1:44019/product/13.html",
+            "http://127.0.0.1:44019/product/14.html",
+            "http://127.0.0.1:44019/product/15.html",
+            "http://127.0.0.1:44019/product/16.html",
+            "http://127.0.0.1:44019/product/17.html",
+            "http://127.0.0.1:44019/product/18.html",
+            "http://127.0.0.1:44019/product/19.html",
+            "http://127.0.0.1:44019/product/2.html",
+            "http://127.0.0.1:44019/product/20.html",
+            "http://127.0.0.1:44019/product/21.html",
+            "http://127.0.0.1:44019/product/22.html",
+            "http://127.0.0.1:44019/product/23.html",
+            "http://127.0.0.1:44019/product/3.html",
+            "http://127.0.0.1:44019/product/4.html",
+            "http://127.0.0.1:44019/product/5.html",
+            "http://127.0.0.1:44019/product/6.html",
+            "http://127.0.0.1:44019/product/7.html",
+            "http://127.0.0.1:44019/product/8.html",
+            "http://127.0.0.1:44019/product/9.html"
           ],
           "affected": {
             "count": 23,
             "sample_urls": [
-              "http://127.0.0.1:38891/product/1.html",
-              "http://127.0.0.1:38891/product/10.html",
-              "http://127.0.0.1:38891/product/11.html",
-              "http://127.0.0.1:38891/product/12.html",
-              "http://127.0.0.1:38891/product/13.html"
+              "http://127.0.0.1:44019/product/1.html",
+              "http://127.0.0.1:44019/product/10.html",
+              "http://127.0.0.1:44019/product/11.html",
+              "http://127.0.0.1:44019/product/12.html",
+              "http://127.0.0.1:44019/product/13.html"
             ],
             "total_in_scope": null
           },
@@ -2725,29 +2768,29 @@
           "mechanism": "Duplicated titles collapse distinct pages into one signal.",
           "impact": "A reader cannot distinguish these pages by title alone.",
           "observed_signal": "5 page(s) share the title \"Catalog | Northwind Supply\"",
-          "evidence": "Duplicate title \"Catalog | Northwind Supply\" on: http://127.0.0.1:38891/catalog.html, http://127.0.0.1:38891/catalog.html?sort=name, http://127.0.0.1:38891/catalog.html?sort=newest, http://127.0.0.1:38891/catalog.html?sort=price, http://127.0.0.1:38891/catalog.html?sort=rating",
+          "evidence": "Duplicate title \"Catalog | Northwind Supply\" on: http://127.0.0.1:44019/catalog.html, http://127.0.0.1:44019/catalog.html?sort=name, http://127.0.0.1:44019/catalog.html?sort=newest, http://127.0.0.1:44019/catalog.html?sort=price, http://127.0.0.1:44019/catalog.html?sort=rating",
           "observation_ids": [
-            "OBS-HTTP-FETCH-10be0cc39f5bbb5f",
-            "OBS-HTTP-FETCH-71348b0af58b718e",
-            "OBS-HTTP-FETCH-aab442e1e028e828",
-            "OBS-HTTP-FETCH-ac990fa3cde0f7e7",
-            "OBS-HTTP-FETCH-f973d113aa58b43a"
+            "OBS-HTTP-FETCH-3231f183c37a41ce",
+            "OBS-HTTP-FETCH-3f08ef065be29967",
+            "OBS-HTTP-FETCH-54b35d49207692e8",
+            "OBS-HTTP-FETCH-851c8e721c3f449f",
+            "OBS-HTTP-FETCH-c67b8ee8fa0040cd"
           ],
           "source_urls": [
-            "http://127.0.0.1:38891/catalog.html",
-            "http://127.0.0.1:38891/catalog.html?sort=name",
-            "http://127.0.0.1:38891/catalog.html?sort=newest",
-            "http://127.0.0.1:38891/catalog.html?sort=price",
-            "http://127.0.0.1:38891/catalog.html?sort=rating"
+            "http://127.0.0.1:44019/catalog.html",
+            "http://127.0.0.1:44019/catalog.html?sort=name",
+            "http://127.0.0.1:44019/catalog.html?sort=newest",
+            "http://127.0.0.1:44019/catalog.html?sort=price",
+            "http://127.0.0.1:44019/catalog.html?sort=rating"
           ],
           "affected": {
             "count": 5,
             "sample_urls": [
-              "http://127.0.0.1:38891/catalog.html",
-              "http://127.0.0.1:38891/catalog.html?sort=name",
-              "http://127.0.0.1:38891/catalog.html?sort=newest",
-              "http://127.0.0.1:38891/catalog.html?sort=price",
-              "http://127.0.0.1:38891/catalog.html?sort=rating"
+              "http://127.0.0.1:44019/catalog.html",
+              "http://127.0.0.1:44019/catalog.html?sort=name",
+              "http://127.0.0.1:44019/catalog.html?sort=newest",
+              "http://127.0.0.1:44019/catalog.html?sort=price",
+              "http://127.0.0.1:44019/catalog.html?sort=rating"
             ],
             "total_in_scope": null
           },
@@ -2851,7 +2894,7 @@
   },
   {
     "fixture": "no-structured-data-ok",
-    "elapsed_s": 3.393,
+    "elapsed_s": 3.807,
     "description": "No JSON-LD anywhere on the site. Identity (name/type/offering) is stated clearly in prose instead. Structured data is absent, not wrong -- absence alone must never be a finding.",
     "expected_findings": [],
     "actual_findings": [],
@@ -2893,8 +2936,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:44773",
-      "audited_at": "2026-09-05T22:57:26.569675+00:00",
+      "site": "127.0.0.1:35055",
+      "audited_at": "2026-09-09T18:17:41.081997+00:00",
       "summary": {
         "total_findings": 0,
         "critical": 0,
@@ -2979,7 +3022,7 @@
   },
   {
     "fixture": "robots-5xx",
-    "elapsed_s": 0.326,
+    "elapsed_s": 0.605,
     "description": "robots.txt itself returns HTTP 500. The crawl must stop before fetching anything, per lib/site_observer/collect.py's _robots_degradation.",
     "expected_findings": [
       "D-CRAWL-15"
@@ -3025,8 +3068,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:44141",
-      "audited_at": "2026-09-05T22:57:27.341664+00:00",
+      "site": "127.0.0.1:41277",
+      "audited_at": "2026-09-09T18:17:42.095266+00:00",
       "summary": {
         "total_findings": 1,
         "critical": 1,
@@ -3046,15 +3089,15 @@
           "observed_signal": "robots.txt status: error",
           "evidence": "robots.txt fetch status: error",
           "observation_ids": [
-            "OBS-ROBOTS-ead2cb7dc50d8615"
+            "OBS-ROBOTS-8263cf0657aa934d"
           ],
           "source_urls": [
-            "http://127.0.0.1:44141/robots.txt"
+            "http://127.0.0.1:41277/robots.txt"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:44141/robots.txt"
+              "http://127.0.0.1:41277/robots.txt"
             ],
             "total_in_scope": null
           },
@@ -3158,7 +3201,7 @@
   },
   {
     "fixture": "single-page-site",
-    "elapsed_s": 1.122,
+    "elapsed_s": 1.372,
     "description": "A genuinely single-page site with no internal links at all.",
     "expected_findings": [],
     "actual_findings": [],
@@ -3200,8 +3243,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:46217",
-      "audited_at": "2026-09-05T22:57:28.628438+00:00",
+      "site": "127.0.0.1:42517",
+      "audited_at": "2026-09-09T18:17:43.877104+00:00",
       "summary": {
         "total_findings": 0,
         "critical": 0,
@@ -3265,16 +3308,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:46217/ parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:42517/ parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:46217/"
+            "http://127.0.0.1:42517/"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-94704c966f4ff5bb"
+            "OBS-HTTP-FETCH-92deb7de64ef002e"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -3312,7 +3355,7 @@
   },
   {
     "fixture": "stale-content",
-    "elapsed_s": 3.447,
+    "elapsed_s": 3.768,
     "description": "pricing.html: 'currently' with no date signal anywhere on the page (D-TRUST-01). events.html: a forward-framed event dated March 3, 2024 (already past at any real audit time) with no page-level date at/before it, PLUS a bare (c) 2022 footer with no other date signal on that page (D-TRUST-02a and D-TRUST-02c both on the same page).",
     "expected_findings": [
       "D-TRUST-01",
@@ -3360,8 +3403,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:39375",
-      "audited_at": "2026-09-05T22:57:32.480432+00:00",
+      "site": "127.0.0.1:39111",
+      "audited_at": "2026-09-09T18:17:47.981770+00:00",
       "summary": {
         "total_findings": 3,
         "critical": 0,
@@ -3373,30 +3416,30 @@
         {
           "check_id": "D-TRUST-02",
           "category": "trust",
-          "title": "Stale dated event on http://127.0.0.1:39375/events.html",
+          "title": "Stale dated event on http://127.0.0.1:39111/events.html",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "A stale forward-framed claim is actively misleading if repeated, not merely uninformative.",
           "impact": "Repeating this claim would assert something that has already lapsed.",
-          "observed_signal": "date 2024-03-03 is before the audit date 2026-09-05",
+          "observed_signal": "date 2024-03-03 is before the audit date 2026-09-09",
           "evidence": "Join us for our upcoming product launch event on March 3, 2024",
           "observation_ids": [
-            "OBS-RENDER-4fa7f007cb9c8a07"
+            "OBS-RENDER-d1a82cb4c30230f3"
           ],
           "source_urls": [
-            "http://127.0.0.1:39375/events.html"
+            "http://127.0.0.1:39111/events.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:39375/events.html"
+              "http://127.0.0.1:39111/events.html"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Update or remove the stale date-bound claim, offer, or event.",
             "priority": "medium",
-            "how_to_fix": "Refresh or remove the claim on http://127.0.0.1:39375/events.html.",
+            "how_to_fix": "Refresh or remove the claim on http://127.0.0.1:39111/events.html.",
             "validation": "Re-fetch; the extracted date is no longer past relative to its framing."
           },
           "scoring_trace": {
@@ -3414,7 +3457,7 @@
         {
           "check_id": "D-TRUST-01",
           "category": "trust",
-          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:39375/events.html",
+          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:39111/events.html",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "A citation pipeline repeating a time-framed claim with no way to judge its currency risks repeating something already false.",
@@ -3422,22 +3465,22 @@
           "observed_signal": "1 time-sensitive phrase(s), 0 date signals on this page",
           "evidence": "Time-sensitive text: \"ontact Aurora Retail Co Join us for our upcoming product launch event on March 3, 2024.\"",
           "observation_ids": [
-            "OBS-RENDER-4fa7f007cb9c8a07"
+            "OBS-RENDER-d1a82cb4c30230f3"
           ],
           "source_urls": [
-            "http://127.0.0.1:39375/events.html"
+            "http://127.0.0.1:39111/events.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:39375/events.html"
+              "http://127.0.0.1:39111/events.html"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add a visible 'last updated' date or dateModified schema near the claim.",
             "priority": "medium",
-            "how_to_fix": "State when the claim on http://127.0.0.1:39375/events.html was last verified or updated.",
+            "how_to_fix": "State when the claim on http://127.0.0.1:39111/events.html was last verified or updated.",
             "validation": "Re-fetch the page; a date signal is now present."
           },
           "scoring_trace": {
@@ -3455,7 +3498,7 @@
         {
           "check_id": "D-TRUST-01",
           "category": "trust",
-          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:39375/pricing.html",
+          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:39111/pricing.html",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "A citation pipeline repeating a time-framed claim with no way to judge its currency risks repeating something already false.",
@@ -3463,22 +3506,22 @@
           "observed_signal": "1 time-sensitive phrase(s), 0 date signals on this page",
           "evidence": "Time-sensitive text: \"Contact Aurora Retail Co Our pricing is currently the best value in the industry. See our\"",
           "observation_ids": [
-            "OBS-RENDER-43e3d763786281dc"
+            "OBS-RENDER-e6edddd33ac5ecbd"
           ],
           "source_urls": [
-            "http://127.0.0.1:39375/pricing.html"
+            "http://127.0.0.1:39111/pricing.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:39375/pricing.html"
+              "http://127.0.0.1:39111/pricing.html"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add a visible 'last updated' date or dateModified schema near the claim.",
             "priority": "medium",
-            "how_to_fix": "State when the claim on http://127.0.0.1:39375/pricing.html was last verified or updated.",
+            "how_to_fix": "State when the claim on http://127.0.0.1:39111/pricing.html was last verified or updated.",
             "validation": "Re-fetch the page; a date signal is now present."
           },
           "scoring_trace": {
@@ -3568,42 +3611,41 @@
   },
   {
     "fixture": "strong-disc-weak-engage",
-    "elapsed_s": 4.921,
+    "elapsed_s": 5.594,
     "description": "Homepage/about/contact (depth 0-1) are brand-clear and well-formed (clean D-CRAWL/D-ENTITY/D-TRUST). The catalog hierarchy (depth 1-3) is discoverable and well-linked (strong 'discoverability') but its category and product pages (depth>=2) state no brand anywhere in title/h1/body-first-800/img-alt, and the site has no breadcrumb anywhere despite a sitewide max depth of 3 (weak 'engagement' -- orientation specifically).",
     "expected_findings": [
+      "E-ORIENT-01",
       "E-ORIENT-03"
     ],
     "actual_findings": [
+      "E-ORIENT-01",
       "E-ORIENT-03"
     ],
     "false_positives": [],
     "false_negatives": [],
     "guardrail_violations": [],
     "structurally_untestable": [],
-    "confirmed_false_negative": {
-      "check": "E-ORIENT-01 (no brand identification on arrival)",
-      "why": "This fixture was built to trigger E-ORIENT-01 (deep pages state no brand anywhere) and does not. Root cause confirmed by direct inspection: entity-semantic-audit's _aliases_field() (build_entity_profile.py) dumps EVERY name candidate that isn't the dominant brand name -- i.e. every other page's own title/h1 text sitewide, with no relevance filtering -- into entity_profile.fields.aliases. detect_engagement.py::_brand_tokens() then feeds those aliases back into E-ORIENT-01's own brand-token search. Since a page's own title is always harvested as a name candidate, and any non-dominant candidate becomes a searchable 'alias', a deep page's own distinctive title always self-matches as one of its own 'brand aliases' -- title_hit is trivially True on nearly every page with a real, non-empty <title> that isn't itself the brand name. In practice this makes E-ORIENT-01 unable to fire on any realistically-titled deep page across the whole corpus; it can only fire on a page with no title and no h1 at all, which is a degenerate case distinct from what the check is meant to catch."
-    },
+    "confirmed_false_negative": null,
     "missing_expected_coverage": [],
     "evidence_quality": {
-      "n": 2,
-      "ok": 2,
+      "n": 4,
+      "ok": 4,
       "failing": []
     },
     "recommendation_quality": {
-      "n": 2,
-      "ok": 2,
+      "n": 4,
+      "ok": 4,
       "failing": []
     },
     "severity_quality": {
-      "n": 2,
-      "ok": 2,
+      "n": 4,
+      "ok": 4,
       "failing": []
     },
     "summary": {
-      "total_findings": 2,
+      "total_findings": 4,
       "critical": 0,
-      "high": 0,
+      "high": 2,
       "medium": 2,
       "low": 0
     },
@@ -3617,82 +3659,125 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:33655",
-      "audited_at": "2026-09-05T22:57:37.798424+00:00",
+      "site": "127.0.0.1:42869",
+      "audited_at": "2026-09-09T18:17:53.852093+00:00",
       "summary": {
-        "total_findings": 2,
+        "total_findings": 4,
         "critical": 0,
-        "high": 0,
+        "high": 2,
         "medium": 2,
         "low": 0
       },
       "findings": [
         {
-          "check_id": "E-ORIENT-03",
+          "check_id": "E-ORIENT-01",
           "category": "engagement",
-          "title": "No path context on http://127.0.0.1:33655/catalog/bearings/",
-          "severity": "medium",
+          "title": "No brand identification on arrival at http://127.0.0.1:42869/catalog/bearings/",
+          "severity": "high",
           "confidence": "high",
-          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
-          "impact": "A visitor cannot tell where this page sits in the wider site.",
-          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
-          "evidence": "No path-context signal found on http://127.0.0.1:33655/catalog/bearings/",
+          "mechanism": "An AI-referred visitor arrives with no homepage context and no navigation history; if the first screen doesn't say whose page this is, they cannot evaluate trust.",
+          "impact": "A cold arrival on this page cannot tell whose site it landed on.",
+          "observed_signal": "brand token absent from early body text, logo alt, and title",
+          "evidence": "Checked title \"Bearings Category\", logo alt text, and first-screen body text on http://127.0.0.1:42869/catalog/bearings/",
           "observation_ids": [
-            "OBS-RENDER-963457394b9afe64"
+            "OBS-RENDER-0e59a7c710547112"
           ],
           "source_urls": [
-            "http://127.0.0.1:33655/catalog/bearings/"
+            "http://127.0.0.1:42869/catalog/bearings/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:33655/catalog/bearings/"
+              "http://127.0.0.1:42869/catalog/bearings/"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
-            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
-            "priority": "medium",
-            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:33655/catalog/bearings/.",
-            "validation": "Re-fetch; a path-context signal is now present."
+            "summary": "Put the brand name in the title, accessible header text, or the logo's alt text.",
+            "priority": "high",
+            "how_to_fix": "Add the brand name to one of the three positions on http://127.0.0.1:42869/catalog/bearings/.",
+            "validation": "Re-fetch the page cold; the brand token is present in >=1 of the three positions."
           },
           "scoring_trace": {
-            "original_severity": "medium",
+            "original_severity": "high",
             "original_confidence": "high",
-            "final_severity": "medium",
+            "final_severity": "high",
             "final_confidence": "high",
             "modifiers_applied": []
           },
           "id": "F-001",
-          "related_findings": []
+          "related_findings": [
+            "F-003"
+          ]
+        },
+        {
+          "check_id": "E-ORIENT-01",
+          "category": "engagement",
+          "title": "No brand identification on arrival at http://127.0.0.1:42869/catalog/bearings/b-3000.html",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "An AI-referred visitor arrives with no homepage context and no navigation history; if the first screen doesn't say whose page this is, they cannot evaluate trust.",
+          "impact": "A cold arrival on this page cannot tell whose site it landed on.",
+          "observed_signal": "brand token absent from early body text, logo alt, and title",
+          "evidence": "Checked title \"B-3000 Spec Sheet\", logo alt text, and first-screen body text on http://127.0.0.1:42869/catalog/bearings/b-3000.html",
+          "observation_ids": [
+            "OBS-RENDER-b57b18777b9021a5"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:42869/catalog/bearings/b-3000.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:42869/catalog/bearings/b-3000.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Put the brand name in the title, accessible header text, or the logo's alt text.",
+            "priority": "high",
+            "how_to_fix": "Add the brand name to one of the three positions on http://127.0.0.1:42869/catalog/bearings/b-3000.html.",
+            "validation": "Re-fetch the page cold; the brand token is present in >=1 of the three positions."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": [
+            "F-004"
+          ]
         },
         {
           "check_id": "E-ORIENT-03",
           "category": "engagement",
-          "title": "No path context on http://127.0.0.1:33655/catalog/bearings/b-3000.html",
+          "title": "No path context on http://127.0.0.1:42869/catalog/bearings/",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
           "impact": "A visitor cannot tell where this page sits in the wider site.",
           "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
-          "evidence": "No path-context signal found on http://127.0.0.1:33655/catalog/bearings/b-3000.html",
+          "evidence": "No path-context signal found on http://127.0.0.1:42869/catalog/bearings/",
           "observation_ids": [
-            "OBS-RENDER-e5b070d55f0dcc9b"
+            "OBS-RENDER-0e59a7c710547112"
           ],
           "source_urls": [
-            "http://127.0.0.1:33655/catalog/bearings/b-3000.html"
+            "http://127.0.0.1:42869/catalog/bearings/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:33655/catalog/bearings/b-3000.html"
+              "http://127.0.0.1:42869/catalog/bearings/"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
             "priority": "medium",
-            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:33655/catalog/bearings/b-3000.html.",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:42869/catalog/bearings/.",
             "validation": "Re-fetch; a path-context signal is now present."
           },
           "scoring_trace": {
@@ -3702,8 +3787,51 @@
             "final_confidence": "high",
             "modifiers_applied": []
           },
-          "id": "F-002",
-          "related_findings": []
+          "id": "F-003",
+          "related_findings": [
+            "F-001"
+          ]
+        },
+        {
+          "check_id": "E-ORIENT-03",
+          "category": "engagement",
+          "title": "No path context on http://127.0.0.1:42869/catalog/bearings/b-3000.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
+          "impact": "A visitor cannot tell where this page sits in the wider site.",
+          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
+          "evidence": "No path-context signal found on http://127.0.0.1:42869/catalog/bearings/b-3000.html",
+          "observation_ids": [
+            "OBS-RENDER-b57b18777b9021a5"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:42869/catalog/bearings/b-3000.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:42869/catalog/bearings/b-3000.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
+            "priority": "medium",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:42869/catalog/bearings/b-3000.html.",
+            "validation": "Re-fetch; a path-context signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-004",
+          "related_findings": [
+            "F-002"
+          ]
         }
       ],
       "scope": {
@@ -3754,16 +3882,16 @@
         {
           "source": "identity_anchor_gap",
           "title": "No sameAs links from the entity's structured data",
-          "evidence": "The Organization/Person markup on http://127.0.0.1:33655/ parses and identifies the entity, but carries no `sameAs` array.",
+          "evidence": "The Organization/Person markup on http://127.0.0.1:42869/ parses and identifies the entity, but carries no `sameAs` array.",
           "why_it_matters": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
           "suggested_action": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "validation": "Re-fetch the page and confirm the JSON-LD contains `sameAs` and that each URL resolves to a profile naming this entity.",
           "confidence": "high",
           "source_urls": [
-            "http://127.0.0.1:33655/"
+            "http://127.0.0.1:42869/"
           ],
           "observation_ids": [
-            "OBS-HTTP-FETCH-549fd46e47adf892"
+            "OBS-HTTP-FETCH-04b883e415c4d89e"
           ],
           "opportunity": "Add a `sameAs` array to the existing Organization/Person node listing the entity's authoritative profiles -- official social accounts, a Wikidata or Wikipedia entry, or a company-registry page. List only profiles the entity actually controls.",
           "expected_mechanism": "The markup is valid, so nothing is wrong. But `sameAs` is what lets a citation pipeline tie this site to the same entity described elsewhere, which is how an assistant avoids confusing it with a similarly named one.",
@@ -3801,7 +3929,7 @@
   },
   {
     "fixture": "unusual-site-structure",
-    "elapsed_s": 7.862,
+    "elapsed_s": 8.58,
     "description": "Numeric-ID article URLs (/article/101.html etc, should cluster as /article/# per template_shape). /old-page.html -> /new-page.html is a single-hop redirect (must NOT fire D-CRAWL-05). /a.html -> /b.html -> /c.html -> /d.html is a 3-hop chain (must fire D-CRAWL-05). /en/pricing.html and /fr/pricing.html are locale variants with no hreflang tag anywhere (D-CRAWL-11). /gone.html returns HTTP 200 with a short soft-404 phrase (D-CRAWL-04).",
     "expected_findings": [
       "D-CRAWL-04",
@@ -3853,8 +3981,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:33751",
-      "audited_at": "2026-09-05T22:57:46.020301+00:00",
+      "site": "127.0.0.1:43575",
+      "audited_at": "2026-09-09T18:18:02.656400+00:00",
       "summary": {
         "total_findings": 4,
         "critical": 0,
@@ -3872,17 +4000,17 @@
           "mechanism": "A dead page cannot be read regardless of what a sitemap or internal link claims.",
           "impact": "Links and sitemap entries pointing here lead nowhere.",
           "observed_signal": "1 page(s) dead or soft-404",
-          "evidence": "Broken: http://127.0.0.1:33751/gone.html",
+          "evidence": "Broken: http://127.0.0.1:43575/gone.html",
           "observation_ids": [
-            "OBS-HTTP-FETCH-d0427a6262ea9e98"
+            "OBS-HTTP-FETCH-9f50d4b699755457"
           ],
           "source_urls": [
-            "http://127.0.0.1:33751/gone.html"
+            "http://127.0.0.1:43575/gone.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:33751/gone.html"
+              "http://127.0.0.1:43575/gone.html"
             ],
             "total_in_scope": null
           },
@@ -3913,20 +4041,20 @@
           "mechanism": "Ambiguous locale signals split citation authority across duplicates and risk serving the wrong-language version to a crawler.",
           "impact": "These locale variants compete instead of consolidating signal.",
           "observed_signal": "2 locale variant(s), none carry hreflang",
-          "evidence": "Variants: http://127.0.0.1:33751/en/pricing.html, http://127.0.0.1:33751/fr/pricing.html",
+          "evidence": "Variants: http://127.0.0.1:43575/en/pricing.html, http://127.0.0.1:43575/fr/pricing.html",
           "observation_ids": [
-            "OBS-HTTP-FETCH-b8da66507c7c391a",
-            "OBS-HTTP-FETCH-f510fbd1d977fbd7"
+            "OBS-HTTP-FETCH-0e1007eaacb0b166",
+            "OBS-HTTP-FETCH-279cfa808701e7d0"
           ],
           "source_urls": [
-            "http://127.0.0.1:33751/en/pricing.html",
-            "http://127.0.0.1:33751/fr/pricing.html"
+            "http://127.0.0.1:43575/en/pricing.html",
+            "http://127.0.0.1:43575/fr/pricing.html"
           ],
           "affected": {
             "count": 2,
             "sample_urls": [
-              "http://127.0.0.1:33751/en/pricing.html",
-              "http://127.0.0.1:33751/fr/pricing.html"
+              "http://127.0.0.1:43575/en/pricing.html",
+              "http://127.0.0.1:43575/fr/pricing.html"
             ],
             "total_in_scope": null
           },
@@ -3955,17 +4083,17 @@
           "mechanism": "Each hop is a chance for a crawler to give up, and adds latency against the crawl-budget ceiling every citation pipeline has.",
           "impact": "Slower, less reliable discovery of these URLs.",
           "observed_signal": "1 URL(s) with >=3 hops or a loop",
-          "evidence": "Long/looping chains: http://127.0.0.1:33751/a.html",
+          "evidence": "Long/looping chains: http://127.0.0.1:43575/a.html",
           "observation_ids": [
-            "OBS-HTTP-FETCH-0b7dc3acd333dc27"
+            "OBS-HTTP-FETCH-3d0cb9f019ccf8b2"
           ],
           "source_urls": [
-            "http://127.0.0.1:33751/a.html"
+            "http://127.0.0.1:43575/a.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:33751/a.html"
+              "http://127.0.0.1:43575/a.html"
             ],
             "total_in_scope": null
           },
@@ -3988,30 +4116,30 @@
         {
           "check_id": "E-CONTINUE-02",
           "category": "engagement",
-          "title": "Dead end at http://127.0.0.1:33751/gone.html",
+          "title": "Dead end at http://127.0.0.1:43575/gone.html",
           "severity": "medium",
           "confidence": "high",
           "mechanism": "There is structurally nothing to click that leads deeper into the site, either from this page's own content or from its navigation.",
           "impact": "A visitor has no way to continue browsing from this page.",
           "observed_signal": "no in-content internal links and fewer than 2 internal destination(s) in site navigation",
-          "evidence": "Outgoing content-area link kinds on http://127.0.0.1:33751/gone.html: []; internal navigation destinations: []",
+          "evidence": "Outgoing content-area link kinds on http://127.0.0.1:43575/gone.html: []; internal navigation destinations: []",
           "observation_ids": [
-            "OBS-RENDER-cca991efc9e24cc4"
+            "OBS-RENDER-971c1a24b7f1804d"
           ],
           "source_urls": [
-            "http://127.0.0.1:33751/gone.html"
+            "http://127.0.0.1:43575/gone.html"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:33751/gone.html"
+              "http://127.0.0.1:43575/gone.html"
             ],
             "total_in_scope": null
           },
           "suggested_action": {
             "summary": "Add at least one in-content link to related material.",
             "priority": "medium",
-            "how_to_fix": "Add a content-region link on http://127.0.0.1:33751/gone.html.",
+            "how_to_fix": "Add a content-region link on http://127.0.0.1:43575/gone.html.",
             "validation": "Re-fetch; content-region out-degree is >=1."
           },
           "scoring_trace": {
@@ -4103,7 +4231,7 @@
   },
   {
     "fixture": "weak-disc-strong-engage",
-    "elapsed_s": 2.643,
+    "elapsed_s": 3.075,
     "description": "robots.txt disallows /catalog/, which the homepage still links to (a real, linked-but-blocked path). The 3 reachable pages (home/about/contact, all depth<=1) are brand-clear, well-connected and terminal-appropriate.",
     "expected_findings": [
       "D-CRAWL-01"
@@ -4149,8 +4277,8 @@
     "schema_valid": true,
     "skill_failures": [],
     "report": {
-      "site": "127.0.0.1:42813",
-      "audited_at": "2026-09-05T22:57:49.092798+00:00",
+      "site": "127.0.0.1:44849",
+      "audited_at": "2026-09-09T18:18:06.119897+00:00",
       "summary": {
         "total_findings": 1,
         "critical": 1,
@@ -4168,17 +4296,17 @@
           "mechanism": "A disallowed path is never fetched by a compliant crawler; the content behind it does not exist for that system at all.",
           "impact": "Pages in this template are structurally unreachable to any robots-respecting citation pipeline.",
           "observed_signal": "1 non-utility URL(s) disallowed by robots.txt",
-          "evidence": "robots.txt disallows: http://127.0.0.1:42813/catalog/",
+          "evidence": "robots.txt disallows: http://127.0.0.1:44849/catalog/",
           "observation_ids": [
-            "OBS-ROBOTS-5663e673f11198d4"
+            "OBS-ROBOTS-0d3f269a73505c47"
           ],
           "source_urls": [
-            "http://127.0.0.1:42813/catalog/"
+            "http://127.0.0.1:44849/catalog/"
           ],
           "affected": {
             "count": 1,
             "sample_urls": [
-              "http://127.0.0.1:42813/catalog/"
+              "http://127.0.0.1:44849/catalog/"
             ],
             "total_in_scope": null
           },

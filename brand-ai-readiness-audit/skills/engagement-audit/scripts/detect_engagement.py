@@ -49,27 +49,49 @@ from lib.common.extract import extract_metadata
 CATEGORY = "engagement"
 
 
-def _brand_tokens(entity_profile: Optional[Dict[str, Any]]) -> List[str]:
+def _brand_tokens(entity_profile: Optional[Dict[str, Any]], for_url: Optional[str] = None) -> List[str]:
+    """Names that would identify the operator to a visitor on this page.
+
+    `for_url` drops alias tokens whose only evidence is this very page. A page
+    cannot identify its owner by repeating its own title: if /docs/rate-limits
+    is titled "Rate Limit Configuration", finding that string on that page says
+    nothing about whose site it is. Excluding it is what lets E-ORIENT-01 see a
+    genuinely unbranded deep page instead of being satisfied by circular
+    evidence. The canonical name is never dropped -- when a page's title *is*
+    the brand name, that is real identification.
+    """
     if not entity_profile:
         return []
     fields = entity_profile.get("fields", {})
     canonical = (fields.get("canonical_name") or {}).get("value")
     if not canonical:
         return []
-    aliases = (fields.get("aliases") or {}).get("value") or ""
-    tokens = [canonical] + [a.strip() for a in aliases.split(",") if a.strip()]
+
+    alias_field = fields.get("aliases") or {}
+    page_local = set()
+    if for_url:
+        by_value: Dict[str, set] = {}
+        for candidate in alias_field.get("candidates", []) or []:
+            by_value.setdefault(str(candidate.get("value", "")).strip(), set()).add(candidate.get("source_url"))
+        page_local = {value for value, urls in by_value.items() if urls == {for_url}}
+
+    aliases = alias_field.get("value") or ""
+    tokens = [canonical] + [
+        alias.strip() for alias in aliases.split(",")
+        if alias.strip() and alias.strip() not in page_local
+    ]
     return tokens
 
 
 def check_e_orient_01(store: Dict[str, Any], entity_profile: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    tokens = _brand_tokens(entity_profile)
-    if not tokens:
+    if not _brand_tokens(entity_profile):
         return []  # no determined canonical name -- that gap is D-ENTITY-01's, not this skill's
 
     findings = []
     for url, page in effective_pages(store).items():
         if url_depth(url) < 2:
             continue
+        tokens = _brand_tokens(entity_profile, for_url=url)
         title = extract_metadata(page["html"])["title"]
         positions = brand_token_positions(page["html"], title, tokens)
         if any(positions.values()):
@@ -377,6 +399,11 @@ def _outgoing_classifications(url: str, page: Dict[str, Any]) -> List[str]:
     return [classify_link(link, url) for link in links]
 
 
+# Two destinations, because one is satisfied by a bare "Home" link, which
+# returns the visitor to the start rather than letting them continue.
+MIN_NAVIGATION_DESTINATIONS = 2
+
+
 def check_e_continue_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
     pages = effective_pages(store)
     if len(pages) < 2:
@@ -393,6 +420,15 @@ def check_e_continue_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
         if not kinds:
             continue  # E-CONTINUE-02's case
         if any(k == "internal_content" for k in kinds):
+            continue
+
+        # This check asserts the visitor has "no way to go deeper or sideways
+        # without returning to search". Standing navigation that reaches real
+        # internal destinations falsifies exactly that claim, so the same
+        # evidence that clears E-CONTINUE-02 has to clear this one. What remains
+        # reportable is narrower than E-CONTINUE-02's: a page whose own content
+        # points only off-site *and* which offers no navigation to come back to.
+        if len(navigation_destinations(page["html"], url)) >= MIN_NAVIGATION_DESTINATIONS:
             continue
 
         probe = probe_map.get(url)
@@ -428,10 +464,6 @@ def check_e_continue_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
         )
     return findings
 
-
-# Two destinations, because one is satisfied by a bare "Home" link, which
-# returns the visitor to the start rather than letting them continue.
-MIN_NAVIGATION_DESTINATIONS = 2
 
 def check_e_continue_02(store: Dict[str, Any]) -> List[Dict[str, Any]]:
     pages = effective_pages(store)

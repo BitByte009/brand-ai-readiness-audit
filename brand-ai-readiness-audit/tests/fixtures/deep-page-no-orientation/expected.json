@@ -1,6 +1,7 @@
 {
   "description": "rate-limits.html (depth 3) has no nav, no brand name anywhere (title/h1/body/img-alt), no breadcrumb, and a same-page fragment link to #see-also that has no matching id anywhere on the page. The rest of the site (depth 0-2) is well-connected, brand-clear, and offers a working continuation link back to the guides hub.",
   "expected_findings": [
+    "E-ORIENT-01",
     "E-ORIENT-03",
     "E-ORIENT-04"
   ],
@@ -11,9 +12,9 @@
     "E-CONTINUE-02",
     "E-CONTINUE-03"
   ],
-  "confirmed_false_negative": {
+  "notes": "Isolates the orientation mechanism on a single page rather than strong-disc-weak-engage's broader multi-page pattern; also includes E-ORIENT-04 (broken internal fragment), not exercised elsewhere in the corpus.",
+  "resolved_false_negative": {
     "check": "E-ORIENT-01 (no brand identification on arrival)",
-    "why": "Same confirmed root cause as strong-disc-weak-engage: rate-limits.html's own title ('Rate Limit Configuration') is harvested as a name candidate sitewide, lands in entity_profile.fields.aliases (every non-dominant candidate, unfiltered), and detect_engagement.py::_brand_tokens() feeds it back into this exact page's own brand-token search -- the page's title trivially self-matches as its own 'alias', so E-ORIENT-01 never fires despite the page genuinely stating no brand anywhere."
-  },
-  "notes": "Isolates the orientation mechanism on a single page rather than strong-disc-weak-engage's broader multi-page pattern; also includes E-ORIENT-04 (broken internal fragment), not exercised elsewhere in the corpus."
+    "why": "RESOLVED. This was a confirmed false negative caused by alias pollution: _aliases_field() admitted every non-dominant name candidate -- including each page's own title -- as a sitewide alias, and _brand_tokens() fed it back into this page's own brand-token search, so the page self-identified with its own title. Aliases now require repeated evidence across >= MIN_ALIAS_PAGES pages or an explicit structured/footer declaration, and _brand_tokens(for_url=...) additionally drops alias tokens whose only evidence is the page being judged. E-ORIENT-01 now fires here, as originally intended."
+  }
 }

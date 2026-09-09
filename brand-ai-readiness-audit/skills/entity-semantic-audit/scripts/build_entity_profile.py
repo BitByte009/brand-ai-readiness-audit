@@ -89,7 +89,97 @@ def _collect_name_candidates(pages: Dict[str, Dict[str, Any]]) -> List[Dict[str,
     return candidates
 
 
-def _canonical_name_field(candidates: List[Dict[str, Any]]) -> Dict[str, Any]:
+# A page title is a *document* label; an Organization/Person node's `name` is an
+# *entity* declaration. Counting them as equal-weight votes conflates the two,
+# so a site with correct per-page titles ("Support - Acme", "Pricing - Acme")
+# looks like a site that cannot decide what it is called. When the site states
+# its identity in machine-readable form, and that statement passes the tests
+# below, it is the better evidence and inferred candidates do not outvote it --
+# it is self-declared, typed, and exactly the field AI systems read for entity
+# resolution.
+#
+# Authority is earned, never assumed. All five conditions must hold:
+#   1. typed as an identity node and carrying a non-empty name (F);
+#   2. exactly one distinct name across the whole site (E: competing
+#      organizations mean the site has not made a single claim);
+#   3. repeated -- present on at least MIN_STRUCTURED_IDENTITY_PAGES pages and
+#      on at least half the pages considered (C: markup on one page of many is
+#      a page-level assertion, not a sitewide one);
+#   4. not pointing somewhere else -- a declared `url` must belong to this site,
+#      which is what keeps an embedded third-party node (a vendor, a payment
+#      provider, a review platform) from being adopted as the operator;
+#   5. corroborated by something a human can see -- the name must appear in a
+#      page title or visible text (B: markup that contradicts the visible site
+#      is exactly the conflict D-ENTITY-01 exists to report, so it must not be
+#      able to silence itself).
+MIN_STRUCTURED_IDENTITY_PAGES = 2
+
+
+def _structured_identity(pages: Dict[str, Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """The site's machine-readable identity, if it earns authority. Else None."""
+    nodes = []
+    for url, page in pages.items():
+        for node in jsonld_nodes_of_type(page["html"], IDENTITY_NODE_TYPES):
+            name = str(node.get("name") or "").strip()
+            if name:
+                nodes.append((url, page["observation_id"], node, name))
+    if not nodes:
+        return None
+
+    names = {normalize_name(name) for _, _, _, name in nodes}
+    if len(names) != 1:
+        return None  # condition 2
+
+    pages_with_identity = {url for url, _, _, _ in nodes}
+    if len(pages_with_identity) < MIN_STRUCTURED_IDENTITY_PAGES:
+        return None  # condition 3
+    if len(pages_with_identity) * 2 < len(pages):
+        return None  # condition 3
+
+    # "www." is a presentation prefix, not a different site: a node declaring
+    # https://example.com while the audit runs against https://www.example.com
+    # is the same operator, and rejecting it there would break the single most
+    # common real-world spelling.
+    def bare_host(value: str) -> str:
+        host = (urlparse(value).hostname or "").lower().rstrip(".")
+        return host[4:] if host.startswith("www.") else host
+
+    site_hosts = {bare_host(url) for url in pages}
+    site_hosts.discard("")
+    for _, _, node, _ in nodes:
+        declared = str(node.get("url") or "").strip()
+        if not declared:
+            continue
+        host = bare_host(declared)
+        if host and host not in site_hosts and not any(host.endswith("." + h) for h in site_hosts):
+            return None  # condition 4
+
+    name = nodes[0][3]
+    normalized = normalize_name(name)
+    visible = any(
+        normalized in normalize_name(extract_metadata(page["html"])["title"] + " " + extract_text(page["html"]))
+        for page in pages.values()
+    )
+    if not visible:
+        return None  # condition 5
+
+    descriptions = {str(node.get("description") or "").strip() for _, _, node, _ in nodes}
+    descriptions.discard("")
+    return {
+        "name": name,
+        "description": descriptions.pop() if len(descriptions) == 1 else None,
+        "pages": sorted(pages_with_identity),
+        "observation_ids": sorted({oid for _, oid, _, _ in nodes}),
+    }
+
+
+def _canonical_name_field(candidates: List[Dict[str, Any]],
+                          identity: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    if identity is not None:
+        # Candidates are kept verbatim: authority changes which name wins,
+        # never what was observed, so the evidence trail stays complete.
+        return {"value": identity["name"], "candidates": candidates,
+                "consistent": True, "determined_by": "structured_identity"}
     if not candidates:
         return {"value": None, "candidates": [], "consistent": False, "determined_by": "none"}
 
@@ -162,6 +252,12 @@ def _entity_type_field(store: Dict[str, Any], pages: Dict[str, Dict[str, Any]]) 
     return {"value": None, "candidates": [], "consistent": False, "determined_by": "none"}
 
 
+def _is_entity_subject_page(url: str) -> bool:
+    """A page whose subject is the entity, not one of its topics."""
+    path = (urlparse(url).path or "/").lower()
+    return path in ("/", "") or "about" in path
+
+
 def _is_entity_level_page(url: str, html: str) -> bool:
     path = (urlparse(url).path or "/").lower()
     if path == "/" or "about" in path:
@@ -169,16 +265,35 @@ def _is_entity_level_page(url: str, html: str) -> bool:
     return bool(jsonld_nodes_of_type(html, {"Organization", "LocalBusiness"}))
 
 
-def _description_field(pages: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+def _description_field(pages: Dict[str, Dict[str, Any]],
+                       identity: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Candidate self-descriptions of the *entity*.
+
+    `<meta name="description">` describes the page it sits on -- distinct
+    per-page descriptions are correct practice, not a contradiction -- so it is
+    read as an entity description only on a page whose subject is the entity
+    itself (home or about). An Organization node's `description` property is
+    entity-scoped wherever it appears, so it is always eligible. Without that
+    split, sitewide Organization markup made every page "entity-level" and every
+    correct per-page description a conflicting claim about the company.
+    """
+    # When the site has declared an authoritative entity description in
+    # machine-readable form, that is its self-description. A page's
+    # `<meta name="description">` is a per-page snippet written to a different
+    # length budget for a different purpose; differing wording between the two
+    # is not the site contradicting itself, which is what D-ENTITY-04 asserts.
+    authoritative_description = (identity or {}).get("description")
+
     candidates = []
     for url, page in pages.items():
         html = page["html"]
         if not _is_entity_level_page(url, html):
             continue
 
-        description = extract_metadata(html)["description"].strip()
-        if description:
-            candidates.append({"value": description, "source": "meta", "source_url": url, "observation_id": page["observation_id"]})
+        if _is_entity_subject_page(url) and not authoritative_description:
+            description = extract_metadata(html)["description"].strip()
+            if description:
+                candidates.append({"value": description, "source": "meta", "source_url": url, "observation_id": page["observation_id"]})
 
         for node in jsonld_nodes_of_type(html, {"Organization", "LocalBusiness"}):
             if node.get("description"):
@@ -291,9 +406,33 @@ def _identity_anchor(pages: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+# An alias is an alternate name for the *entity*. One page's title is a name for
+# that page, and admitting it sitewide let a deep page satisfy its own brand
+# identification with its own title -- which is what disabled E-ORIENT-01.
+# A candidate therefore has to look like a real alternate identity: either the
+# site repeats it across pages, or the site declares it structurally (a schema
+# name, a footer legal name), which is an explicit claim rather than an
+# inference from a document label.
+MIN_ALIAS_PAGES = 2
+
+
 def _aliases_field(candidates: List[Dict[str, Any]], canonical_field: Dict[str, Any]) -> Dict[str, Any]:
     dominant_norm = normalize_name(canonical_field["value"]) if canonical_field.get("value") else None
-    alias_candidates = [c for c in candidates if normalize_name(c["value"]) != dominant_norm]
+
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for candidate in candidates:
+        normalized = normalize_name(candidate["value"])
+        if normalized == dominant_norm:
+            continue
+        groups.setdefault(normalized, []).append(candidate)
+
+    alias_candidates = []
+    for group in groups.values():
+        pages = {c.get("source_url") for c in group}
+        declared = any(c.get("source") in LEGAL_REGISTER_SOURCES for c in group)
+        if len(pages) >= MIN_ALIAS_PAGES or declared:
+            alias_candidates.extend(group)
+
     values = sorted({c["value"] for c in alias_candidates})
     return {
         "value": ", ".join(values) if values else None,
@@ -320,9 +459,10 @@ def build_entity_profile(store: Dict[str, Any]) -> Dict[str, Any]:
     pages = effective_pages(store)
 
     name_candidates = _collect_name_candidates(pages)
-    canonical_name_field = _canonical_name_field(name_candidates)
+    structured_identity = _structured_identity(pages)
+    canonical_name_field = _canonical_name_field(name_candidates, structured_identity)
     entity_type_field = _entity_type_field(store, pages)
-    description_field = _description_field(pages)
+    description_field = _description_field(pages, structured_identity)
     offering_field = _offering_field(store, pages)
     location_field = _location_field(store, pages)
     identity_anchor = _identity_anchor(pages)

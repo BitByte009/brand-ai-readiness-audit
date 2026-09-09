@@ -7,5 +7,6 @@ beautifulsoup4>=4.12    # HTML parsing, via the stdlib html.parser backend only
 jsonschema>=4.21        # report + observation schema enforcement
 
 # Optional capability. Absent => render lens disabled, render-dependent checks
-# become coverage gaps (never silent passes). See references/degraded-mode.md.
+# become coverage gaps (never silent passes).
+# See skills/audit-orchestrator/references/degraded-mode.md.
 # playwright>=1.48

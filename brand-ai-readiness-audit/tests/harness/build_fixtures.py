@@ -122,12 +122,16 @@ PROBE_GAP = (
     "Requires a PROBE observation. lib/site_observer/probe.py::detect_capability() is "
     "hardcoded to always return {'available': False, 'reason': 'MODEL_UNAVAILABLE'} -- "
     "not environment-detected, unconditional -- so PROBE observations never exist through "
-    "the real pipeline regardless of fixture content. This check is dead code in every real run."
+    "the real pipeline regardless of fixture content. This check is dead code in every real run. The audit reports this explicitly: run_audit emits an "
+    "X-COV-01 coverage entry with reason UNAVAILABLE_INSTRUMENT naming this check, so it reads "
+    "as not-evaluable rather than as evaluated-and-passed."
 )
 CORROBORATION_GAP = (
     "Requires a CORROBORATION/CLAIM_CORROBORATION observation with performed=true from an "
     "outbound-search instrument that is never wired into this environment (OQ-3, still open). "
-    "Dead code in every real run; only exercisable by hand-injecting the observation into the "
+    "Dead code in every real run; only exercisable by hand-injecting the observation into the  The audit reports this explicitly: run_audit emits an "
+    "X-COV-01 coverage entry with reason UNAVAILABLE_INSTRUMENT naming this check, so it reads "
+    "as not-evaluable rather than as evaluated-and-passed."
     "store JSON, bypassing the HTTP pipeline entirely."
 )
 
@@ -690,11 +694,11 @@ def build_strong_disc_weak_engage() -> None:
     }
     expected = {
         "description": "Homepage/about/contact (depth 0-1) are brand-clear and well-formed (clean D-CRAWL/D-ENTITY/D-TRUST). The catalog hierarchy (depth 1-3) is discoverable and well-linked (strong 'discoverability') but its category and product pages (depth>=2) state no brand anywhere in title/h1/body-first-800/img-alt, and the site has no breadcrumb anywhere despite a sitewide max depth of 3 (weak 'engagement' -- orientation specifically).",
-        "expected_findings": ["E-ORIENT-03"],
+        "expected_findings": ["E-ORIENT-01", "E-ORIENT-03"],
         "expected_non_findings": ["D-ENTITY-01", "D-ENTITY-02", "D-ENTITY-04", "D-CRAWL-01", "D-TRUST-06", "E-CONTINUE-01", "E-CONTINUE-02", "E-CONTINUE-03"],
-        "confirmed_false_negative": {
+        "resolved_false_negative": {
             "check": "E-ORIENT-01 (no brand identification on arrival)",
-            "why": "This fixture was built to trigger E-ORIENT-01 (deep pages state no brand anywhere) and does not. Root cause confirmed by direct inspection: entity-semantic-audit's _aliases_field() (build_entity_profile.py) dumps EVERY name candidate that isn't the dominant brand name -- i.e. every other page's own title/h1 text sitewide, with no relevance filtering -- into entity_profile.fields.aliases. detect_engagement.py::_brand_tokens() then feeds those aliases back into E-ORIENT-01's own brand-token search. Since a page's own title is always harvested as a name candidate, and any non-dominant candidate becomes a searchable 'alias', a deep page's own distinctive title always self-matches as one of its own 'brand aliases' -- title_hit is trivially True on nearly every page with a real, non-empty <title> that isn't itself the brand name. In practice this makes E-ORIENT-01 unable to fire on any realistically-titled deep page across the whole corpus; it can only fire on a page with no title and no h1 at all, which is a degenerate case distinct from what the check is meant to catch.",
+            "why": "RESOLVED. This was a confirmed false negative caused by alias pollution: _aliases_field() admitted every non-dominant name candidate -- including each page's own title -- as a sitewide alias, and _brand_tokens() fed it back into this page's own brand-token search, so the page self-identified with its own title. Aliases now require repeated evidence across >= MIN_ALIAS_PAGES pages or an explicit structured/footer declaration, and _brand_tokens(for_url=...) additionally drops alias tokens whose only evidence is the page being judged. E-ORIENT-01 now fires here, as originally intended.",
         },
         "notes": "Brand identity for D-ENTITY-01 purposes is carried via JSON-LD (which E-ORIENT-01 never reads) plus the home/about/contact pages -- isolating 'a machine can identify this entity' (clean) from 'a cold human visitor lands on a deep page and cannot tell whose site it is' (the actual defect under test).",
     }
@@ -922,11 +926,11 @@ def build_deep_page_no_orientation() -> None:
     }
     expected = {
         "description": "rate-limits.html (depth 3) has no nav, no brand name anywhere (title/h1/body/img-alt), no breadcrumb, and a same-page fragment link to #see-also that has no matching id anywhere on the page. The rest of the site (depth 0-2) is well-connected, brand-clear, and offers a working continuation link back to the guides hub.",
-        "expected_findings": ["E-ORIENT-03", "E-ORIENT-04"],
+        "expected_findings": ["E-ORIENT-01", "E-ORIENT-03", "E-ORIENT-04"],
         "expected_non_findings": ["D-ENTITY-01", "D-ENTITY-04", "D-TRUST-06", "E-CONTINUE-02", "E-CONTINUE-03"],
-        "confirmed_false_negative": {
+        "resolved_false_negative": {
             "check": "E-ORIENT-01 (no brand identification on arrival)",
-            "why": "Same confirmed root cause as strong-disc-weak-engage: rate-limits.html's own title ('Rate Limit Configuration') is harvested as a name candidate sitewide, lands in entity_profile.fields.aliases (every non-dominant candidate, unfiltered), and detect_engagement.py::_brand_tokens() feeds it back into this exact page's own brand-token search -- the page's title trivially self-matches as its own 'alias', so E-ORIENT-01 never fires despite the page genuinely stating no brand anywhere.",
+            "why": "RESOLVED. This was a confirmed false negative caused by alias pollution: _aliases_field() admitted every non-dominant name candidate -- including each page's own title -- as a sitewide alias, and _brand_tokens() fed it back into this page's own brand-token search, so the page self-identified with its own title. Aliases now require repeated evidence across >= MIN_ALIAS_PAGES pages or an explicit structured/footer declaration, and _brand_tokens(for_url=...) additionally drops alias tokens whose only evidence is the page being judged. E-ORIENT-01 now fires here, as originally intended.",
         },
         "notes": "Isolates the orientation mechanism on a single page rather than strong-disc-weak-engage's broader multi-page pattern; also includes E-ORIENT-04 (broken internal fragment), not exercised elsewhere in the corpus.",
     }

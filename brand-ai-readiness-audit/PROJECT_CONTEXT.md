@@ -2,6 +2,16 @@
 
 Living document. Updated at the end of every build day.
 
+> **Reading the numbers below.** Entries in this file are dated build-day
+> records and are kept as written; earlier corpus figures (24/24, 27/27) are
+> historical, not current. The release-candidate figures are **718 offline
+> tests, corpus 29/29 with no false positives or false negatives, and 37/37
+> evidence/recommendation/severity gates**. Every corpus figure anywhere in
+> this repository measures agreement with expectations authored in this
+> repository, for fixtures authored in this repository. It is regression
+> evidence, not independent validation of real-world accuracy, and every
+> fixture is English and ASCII.
+
 ## Goal
 An Agent Skill Marketplace that audits any public website for AI discoverability and
 on-site engagement, and emits one evidence-backed, prioritized, schema-valid report.

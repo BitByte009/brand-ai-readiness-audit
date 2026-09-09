@@ -27,10 +27,11 @@ enforcing test. Where a property is *not* enforced in code, it is listed under
 | Does not execute site code unnecessarily | Pass (hardened, V-3) | Raw lens never executes; rendered lens is opt-in, sandboxed, and channel-restricted |
 
 Five violations were found. All five are fixed, each with a regression test that
-fails against the previous code. The offline suite is 600 passing tests; the
-19-fixture corpus is 27/27 findings with zero false positives, zero false
-negatives and zero guardrail violations against this repository's own authored
-expectations (a regression gate, not independent accuracy evidence); the nine real-browser scenarios in
+fails against the previous code. Verified against the current tree: the offline
+suite is 718 passing tests; the 19-fixture corpus is 29/29 findings with zero
+false positives, zero false negatives and zero guardrail violations **against
+this repository's own authored expectations** -- a regression gate, not
+independent accuracy evidence; the nine real-browser scenarios in
 `tests/harness/run_safety.py` pass against Chromium.
 
 ## Violations found and fixed
@@ -217,7 +218,7 @@ Stated plainly rather than mitigated by wording.
 ## Reproducing this audit
 
 ```bash
-python -m pytest tests -q              # 600 offline tests, no sockets
+python -m pytest tests -q              # 718 offline tests, no sockets
 python tests/harness/run_corpus.py     # 19 fixtures: FP/FN, evidence and severity gates
 python tests/harness/run_safety.py     # 9 real-browser scenarios (needs Playwright + Chromium)
 ```

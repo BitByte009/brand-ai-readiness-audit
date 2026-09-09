@@ -1005,3 +1005,95 @@ def test_hostile_06b_long_page_without_anchor_nav_still_fires():
     )
 
     assert len(de.check_e_answer_04(store)) == 1
+
+
+# ---------------------------------------------------------------------------
+# E-ORIENT-01: a page cannot identify its owner with its own title
+# ---------------------------------------------------------------------------
+
+def _profile_with_aliases(canonical, alias_candidates):
+    return {"fields": {
+        "canonical_name": {"value": canonical},
+        "aliases": {"value": ", ".join(sorted({c["value"] for c in alias_candidates})) or None,
+                    "candidates": alias_candidates},
+    }}
+
+
+def test_a_deep_pages_own_title_does_not_identify_its_owner():
+    # The alias exists only because this page's own title produced it. Finding
+    # that string on this page is circular, and must not count as branding.
+    deep = "https://example.com/docs/guides/rate-limits"
+    profile = _profile_with_aliases("Acme Robotics", [
+        {"value": "Rate Limit Configuration", "source": "title", "source_url": deep},
+    ])
+    html = page_html(title="Rate Limit Configuration", body_text=LOREM)
+    store = make_store([fetch_obs(deep, html)])
+
+    findings = de.check_e_orient_01(store, profile)
+    assert len(findings) == 1, "the page states no brand anywhere"
+    assert_finding_shape(findings[0])
+
+
+def test_a_genuine_sitewide_alias_still_identifies_the_owner():
+    deep = "https://example.com/docs/guides/rate-limits"
+    profile = _profile_with_aliases("Acme Robotics", [
+        {"value": "Acme Labs", "source": "h1", "source_url": "https://example.com/a"},
+        {"value": "Acme Labs", "source": "h1", "source_url": "https://example.com/b"},
+    ])
+    html = page_html(title="Rate limits", body_text="Acme Labs enforces rate limits per key. " + LOREM)
+    store = make_store([fetch_obs(deep, html)])
+
+    assert de.check_e_orient_01(store, profile) == []
+
+
+def test_the_canonical_name_on_the_page_always_identifies_the_owner():
+    deep = "https://example.com/docs/guides/rate-limits"
+    profile = _profile_with_aliases("Acme Robotics", [])
+    html = page_html(title="Rate limits - Acme Robotics", body_text=LOREM)
+    store = make_store([fetch_obs(deep, html)])
+
+    assert de.check_e_orient_01(store, profile) == []
+
+
+# ---------------------------------------------------------------------------
+# E-CONTINUE-01: "no way to go deeper without returning to search"
+# ---------------------------------------------------------------------------
+#
+# This check asserts the visitor is stranded. Standing navigation that reaches
+# real internal destinations falsifies that claim directly, so the same
+# evidence that clears E-CONTINUE-02 clears this one. What stays reportable is
+# narrower: content that points only off-site AND no navigation to fall back on.
+
+def continue_01_hits(store, url="https://example.com/a"):
+    return [f for f in de.check_e_continue_01(store) if f["source_urls"][0] == url]
+
+
+def test_e_continue_01_does_not_fire_when_navigation_offers_a_way_deeper():
+    html = nav_page('<a href="https://twitter.com/acme">Twitter</a>'
+                    '<nav><a href="/docs">Docs</a><a href="/pricing">Pricing</a></nav>')
+    assert continue_01_hits(two_page_store(html)) == []
+
+
+def test_e_continue_01_still_fires_when_content_leaves_and_nothing_leads_back():
+    html = nav_page('<a href="https://twitter.com/acme">Twitter</a>'
+                    '<a href="https://facebook.com/acme">Facebook</a>')
+    hits = continue_01_hits(two_page_store(html))
+    assert len(hits) == 1
+    assert_finding_shape(hits[0])
+
+
+@pytest.mark.parametrize("nav_html,reason", [
+    ("<nav></nav>", "empty nav"),
+    ('<nav><a>Docs</a></nav>', "anchors with no href"),
+    ('<nav><a href="/a">this page</a></nav>', "only a self-link"),
+], ids=["empty", "no-href", "self-link"])
+def test_malformed_navigation_does_not_suppress_e_continue_01(nav_html, reason):
+    html = nav_page(f'<a href="https://twitter.com/acme">Twitter</a>{nav_html}')
+    assert len(continue_01_hits(two_page_store(html))) == 1, reason
+
+
+def test_external_only_navigation_does_not_suppress_e_continue_01():
+    html = nav_page('<a href="https://twitter.com/acme">Twitter</a>'
+                    '<nav><a href="https://partner.example/a">Partner</a>'
+                    '<a href="https://other.example/b">Other</a></nav>')
+    assert len(continue_01_hits(two_page_store(html))) == 1, "leaving the site is not continuing into it"

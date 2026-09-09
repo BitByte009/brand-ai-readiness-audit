@@ -123,8 +123,30 @@ Full scope, residual risks, and adversarial tests: [SAFETY_AUDIT.md](SAFETY_AUDI
 Runtime measurements, optimizations and remaining worst-case risks are documented
 in [PERFORMANCE_AUDIT.md](PERFORMANCE_AUDIT.md).
 
+    python -m pytest tests -q                # 718 offline tests, no network, no browser
     python tests/validate_marketplace.py     # manifest, entrypoint, frontmatter, schemas, size
     python tests/harness/run_corpus.py       # adversarial fixture corpus, FP/FN rates
+    python tests/harness/run_safety.py       # 9 real-browser safety scenarios
+
+Expected results, verified from a freshly extracted copy of the submission
+archive in a clean environment:
+
+| Command | Without Chromium | With Chromium |
+|---|---|---|
+| `pytest tests` | 718 passed | 718 passed |
+| `validate_marketplace.py` | PASS | PASS |
+| `run_corpus.py` | **28/29, 1 FP / 2 FN, exit 1** | 29/29, 0 FP / 0 FN, exit 0 |
+| `run_safety.py` | requires Chromium | 9/9 |
+
+**The corpus needs the optional renderer to score 29/29.** Playwright is optional
+for auditing a site -- without it the rendered lens degrades to a documented
+coverage gap and the audit still produces a schema-valid report. But three corpus
+fixtures exist specifically to exercise render-dependent checks, so without
+Chromium the harness scores them as one false positive and two false negatives
+and exits non-zero. That is the harness reporting a real capability gap, not a
+defect; it is deliberately not special-cased away, because a gate that passes by
+ignoring its own missing capability is worth nothing. Install Playwright and
+Chromium before reading the corpus numbers as a pass.
 
 Install `requirements-dev.txt` for validation/tests. If the official `skills-ref`
 tool is installed, use `python tests/validate_marketplace.py --official` to run

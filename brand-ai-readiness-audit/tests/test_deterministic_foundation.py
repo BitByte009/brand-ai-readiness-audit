@@ -360,3 +360,68 @@ def test_word_thresholds_are_measurable_in_scripts_without_spaces():
     assert text_weight("one two three four five") == 5          # unchanged for spaced text
     assert text_weight(JAPANESE * 10) > 25
     assert text_weight(JAPANESE) < text_weight(JAPANESE * 10)   # monotonic, not a constant
+
+
+# ---------------------------------------------------------------------------
+# Crawl resource identity: one key per resource
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("a,b,reason", [
+    ("http://h/", "http://h/index.html", "directory index resolves to its directory"),
+    ("http://h/docs/", "http://h/docs/index.htm", "index under a subdirectory"),
+    ("http://h/docs/", "http://h/docs/index.php", "PHP directory index"),
+    ("http://h/a", "http://h/a#section", "a fragment points into a resource, not at another one"),
+    ("http://h/a", "http://H/a", "hosts are case-insensitive"),
+    ("http://h/a", "http://h:80/a", "the default port is equivalent to omitting it"),
+    ("https://h/a", "https://h:443/a", "the default HTTPS port likewise"),
+    ("http://h/", "http://h", "an empty path is the root"),
+], ids=lambda v: None)
+def test_equivalent_urls_collapse_to_one_crawl_resource(a, b, reason):
+    from lib.site_observer.crawl import canonical_resource_url
+    assert canonical_resource_url(a) == canonical_resource_url(b), reason
+
+
+@pytest.mark.parametrize("a,b,reason", [
+    ("http://h/a", "http://h/b", "different paths"),
+    ("http://h/a", "http://h/a/", "trailing slash is server-defined, not a URL equivalence"),
+    ("http://h/p?page=1", "http://h/p?page=2", "query strings select different resources"),
+    ("http://h/p", "http://h/p?page=2", "a query string is part of the resource identity"),
+    ("http://h/a", "http://h/A", "paths are case-sensitive"),
+    ("http://h/a", "https://h/a", "scheme is part of the origin"),
+    ("http://h/a", "http://other/a", "different hosts"),
+    ("http://h/indexes/", "http://h/", "a path that merely starts like an index name"),
+    ("http://h/myindex.html", "http://h/", "index.html only counts as a whole segment"),
+], ids=lambda v: None)
+def test_distinct_resources_are_never_merged(a, b, reason):
+    from lib.site_observer.crawl import canonical_resource_url
+    assert canonical_resource_url(a) != canonical_resource_url(b), reason
+
+
+def test_a_page_linked_two_ways_is_fetched_and_counted_once():
+    from lib.site_observer.crawl import crawl
+    calls = []
+    def fetch(url):
+        calls.append(url)
+        # The homepage links to itself as "/" and as "/index.html", plus one real page.
+        html = ('<a href="/">Home</a><a href="/index.html">Home again</a>'
+                '<a href="/about">About</a>') if len(calls) == 1 else ""
+        return {"status_code": 200, "html": html}
+
+    result = crawl("https://example.org/index.html", fetch, robots={"status": "missing"})
+
+    assert calls == ["https://example.org/", "https://example.org/about"]
+    assert len(result["pages"]) == 2                    # scope accounting is not inflated
+    assert "https://example.org/index.html" not in result["pages"]
+
+
+def test_a_redirect_target_is_still_recorded_as_its_own_fetch():
+    # Normalization must not swallow a redirect: the crawler still fetches what
+    # it was given and the transport records where it landed.
+    from lib.site_observer.crawl import crawl
+    seen = []
+    def fetch(url):
+        seen.append(url)
+        return {"status_code": 200, "html": "", "final_url": "https://example.org/target"}
+    result = crawl("https://example.org/", fetch, robots={"status": "missing"})
+    assert seen == ["https://example.org/"]
+    assert result["pages"]["https://example.org/"]["final_url"] == "https://example.org/target"

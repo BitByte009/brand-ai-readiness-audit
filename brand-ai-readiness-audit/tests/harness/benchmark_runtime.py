@@ -20,6 +20,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / "skills/audit-orchestrator/scripts"), str(
 import run_audit
 from fixture_server import FixtureServer
 from lib.common.extract import parse_cache
+from lib.common import public_transport
 from lib.common.network_policy import RequestPolicy
 
 
@@ -66,12 +67,27 @@ def main():
     args = parser.parse_args()
     if args.fixture:
         with FixtureServer(ROOT / "tests/fixtures" / args.fixture) as server:
-            result = measure(server.base_url() + "/", {}, args.baseline)
+            # Test-owned loopback only, injected here exactly as run_corpus.py and
+            # run_safety.py do. The transport pins sockets to validated public
+            # addresses, so without this the fixture server is unreachable and the
+            # run silently reports a robots failure and zero pages instead of a
+            # measurement. The production CLI has no private-address bypass.
+            original_resolver = public_transport.public_address
+            def fixture_address(host, port):
+                if host == "127.0.0.1" and port == server.port:
+                    return host
+                return original_resolver(host, port)
+            with patch.object(public_transport, "public_address", fixture_address):
+                result = measure(server.base_url() + "/", {}, args.baseline)
     else:
         url, options = static_input()
         result = measure(url, options, args.baseline)
     print(json.dumps(result, indent=2))
+    if result["scope"]["pages_crawled"] == 0:
+        print("WARNING: zero pages crawled -- this is not a runtime measurement.", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

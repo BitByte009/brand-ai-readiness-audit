@@ -1,5 +1,8 @@
 # Implementation and test-suite overfitting audit
 
+> **Dated record.** Figures in this document describe the pass it reports on. Current release-candidate figures are 718 offline tests, corpus 29/29 with no false positives or false negatives, and 37/37 evidence/recommendation/severity gates -- all measured against expectations authored in this repository, which is regression evidence rather than independent real-world validation.
+
+
 ## Scope and conclusion
 
 Reviewed the common library, observation collector/crawler/renderer/probe,
@@ -66,7 +69,7 @@ and `::test_e_answer_01_still_fires_on_a_genuine_non_ascii_mismatch`.
 
 The corpus is entirely ASCII, so it could not have caught any of these and its
 results are unchanged by the fixes. That is itself the finding: a corpus can
-score 27/27 with 0 FP while an entire class of unseen sites is mishandled.
+score full marks with no false positives while an entire class of unseen sites is mishandled.
 
 ## Deterministic checks intentionally retained
 
@@ -98,7 +101,7 @@ score 27/27 with 0 FP while an entire class of unseen sites is mishandled.
 | Trust | English date/claim patterns; whole-page citation proximity and date inventories; archetype suppression; a named embedded organization can be mistaken for an operator. Exact role paths are still weak signals. | Bind source/date/operator evidence to the particular claim/subject. Preserve uncertainty when relationships are absent rather than invent them from global page text. |
 | Prioritization | Mechanism prose is a fallback subtype key; sampled affected URLs cannot prove disjoint populations or reconstruct an exact union. | Stable detector-supplied subtype IDs and explicit population identity/full affected sets. Current counts are conservative lower bounds. |
 | Tests and corpus | Most tests use hand-built stores and English, example.com/Acme-style fixtures. Corpus scoring mainly compares check-ID sets; recommendation/evidence length and severity enum checks do not prove substantive correctness. Confirmed/unreachable misses are tracked separately. | Continue metamorphic tests across brands, routes, languages and representations; add independently authored fixtures with multiplicity, scope and evidence-span assertions. The new CI gate enforces existing metrics, not semantic ground truth. |
-| Packaging | `tests/validate_marketplace.py` is a pre-existing `NotImplementedError("skeleton")` stub. | Implement the promised packaging validator as separate unfinished work; do not count it as passing or silently remove it. |
+| Packaging | RESOLVED since this pass was written. `tests/validate_marketplace.py` was then a `NotImplementedError("skeleton")` stub; it is now a 248-line offline validator that checks the manifest, skill contracts, resource links, composition, scripts, schemas and package size, exits zero, and is covered by 49 compliance tests. Packaging validation is claimed green on that basis. | None outstanding. Optional `--official` `skills-ref` validation fails rather than silently skipping when the tool is absent. |
 
 ## Verification
 
@@ -112,8 +115,9 @@ Final results:
   false negatives or guardrail violations; 34/34 passed each existing quality
   metric. Schema, coverage and skill-failure gates also passed (exit 0).
 - `git diff --check` passed.
-- `tests/validate_marketplace.py` was run and failed with its pre-existing
-  `NotImplementedError("skeleton")`; packaging validation is not claimed green.
+- `tests/validate_marketplace.py` then failed with its pre-existing
+  `NotImplementedError("skeleton")`. **That is no longer true**: the validator is
+  implemented and passes. This line records the state at the time of that pass.
 
 The initial browserless corpus run exposed two missing expected render-dependent
 checks and one unexpected entity check. After installing isolated temporary
