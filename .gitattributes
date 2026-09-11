@@ -1,0 +1,7 @@
+**/__pycache__/** export-ignore
+**/.pytest_cache/** export-ignore
+*.pyc export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+dist/ export-ignore
+

@@ -1,0 +1,11 @@
+{
+  "description": "45 templated /product/N.html pages, all sharing a byte-identical title and meta description (a realistic templating mistake), linked from one catalog.html hub which also carries several ?sort= facet-parameter links. Default crawl budget is 30 pages; BFS order (home, about, catalog, then the ?sort= facet links, then products 1..N) means the crawl exhausts its budget partway through the product list.",
+  "expected_findings": [
+    "D-CRAWL-14",
+    "D-EXTRACT-02"
+  ],
+  "expected_coverage": [
+    "BUDGET_EXHAUSTED"
+  ],
+  "notes": "Regression expectation now exercises the wired collection and detectors end to end. Historical unwired-function notes have been superseded."
+}

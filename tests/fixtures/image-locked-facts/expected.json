@@ -1,0 +1,12 @@
+{
+  "description": "hours.html states store hours only inside an <img> with empty alt text; no surrounding prose states the hours in machine-readable text.",
+  "expected_findings": [],
+  "notes": "Known coverage limitation, included in the total missing-check count; never claim this fixture proves image understanding.",
+  "confirmed_false_negative": {
+    "check": "D-EXTRACT-01",
+    "why": "No OCR or semantic absence instrument is configured. Positive text probes cannot verify image-only hours; PROBE_LIMITED must disclose this gap."
+  },
+  "expected_coverage": [
+    "PROBE_LIMITED"
+  ]
+}

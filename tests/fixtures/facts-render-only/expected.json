@@ -1,0 +1,13 @@
+{
+  "description": "rates.html has substantial raw prose (ratio stays above the 0.30 D-RENDER-01 threshold) but the one load-bearing fact -- the actual rate -- exists only in a client-side script.",
+  "expected_findings": [
+    "D-RENDER-02"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-ENTITY-06",
+    "D-TRUST-06"
+  ],
+  "notes": "Regression expectation now exercises the wired collection and detectors end to end. Historical unwired-function notes have been superseded."
+}

@@ -1,0 +1,16 @@
+{
+  "description": "rate-limits.html (depth 3) has no nav, no brand name anywhere (title/h1/body/img-alt), no breadcrumb, and a same-page fragment link to #see-also that has no matching id anywhere on the page. The rest of the site (depth 0-2) is well-connected, brand-clear, and offers a working continuation link back to the guides hub.",
+  "expected_findings": [
+    "E-ORIENT-01",
+    "E-ORIENT-03",
+    "E-ORIENT-04"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-04",
+    "D-TRUST-06",
+    "E-CONTINUE-02",
+    "E-CONTINUE-03"
+  ],
+  "notes": "Regression expectation now exercises the wired collection and detectors end to end. Historical unwired-function notes have been superseded."
+}

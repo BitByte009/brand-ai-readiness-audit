@@ -1,0 +1,12 @@
+{
+  "description": "JS-heavy site: index/platform pages render almost all body text client-side via a DOMContentLoaded script; raw HTML is a near-empty shell. This is textbook D-RENDER-01 (raw-vs-rendered text ratio <0.30).",
+  "expected_findings": [
+    "D-RENDER-01"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-TRUST-06"
+  ],
+  "notes": "Tests bulk rendering loss. Explicit price-span rendering loss has its own facts-render-only fixture."
+}

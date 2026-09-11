@@ -1,0 +1,18 @@
+{
+  "description": "Homepage/about/contact (depth 0-1) are brand-clear and well-formed (clean D-CRAWL/D-ENTITY/D-TRUST). The catalog hierarchy (depth 1-3) is discoverable and well-linked (strong 'discoverability') but its category and product pages (depth>=2) state no brand anywhere in title/h1/body-first-800/img-alt, and the site has no breadcrumb anywhere despite a sitewide max depth of 3 (weak 'engagement' -- orientation specifically).",
+  "expected_findings": [
+    "E-ORIENT-01",
+    "E-ORIENT-03"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-01",
+    "D-ENTITY-02",
+    "D-ENTITY-04",
+    "D-CRAWL-01",
+    "D-TRUST-06",
+    "E-CONTINUE-01",
+    "E-CONTINUE-02",
+    "E-CONTINUE-03"
+  ],
+  "notes": "Regression expectation now exercises the wired collection and detectors end to end. Historical unwired-function notes have been superseded."
+}

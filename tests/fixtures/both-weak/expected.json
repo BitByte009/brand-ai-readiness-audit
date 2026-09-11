@@ -1,0 +1,18 @@
+{
+  "description": "robots.txt blocks the /catalog/ path that the homepage links to (D-CRAWL-01). widget.html/gadget.html (both at root, reachable) share an identical title AND description (D-EXTRACT-02), neither states a brand consistently with the homepage, and no page has contact info -- deliberately unpolished on every axis, unlike the other fixtures which isolate one mechanism. Homepage has a time-sensitive 'currently' claim with no date signal anywhere (D-TRUST-01), a blocking modal visible by default (E-ANSWER-02), and every content page is a dead end with no continuation link (E-CONTINUE-02).",
+  "expected_findings": [
+    "D-CRAWL-01",
+    "D-ENTITY-01",
+    "D-ENTITY-05",
+    "D-ENTITY-06",
+    "D-EXTRACT-02",
+    "D-TRUST-01",
+    "E-ANSWER-02",
+    "E-CONTINUE-02"
+  ],
+  "expected_non_findings": [
+    "D-ENTITY-02"
+  ],
+  "notes_on_own_authoring": "D-ENTITY-02 does not fire: the homepage h1 is bare 'Shop', and 'shop' is one of entity-semantic-audit's TYPE_KEYWORDS, so the type is considered (weakly) stated even on this deliberately bad site -- another useful orthogonality data point alongside ambiguous-entity's 'platform' case.",
+  "notes": "Explicit conflicting Organization names test identity inconsistency without mistaking page topics for brand names. These names provide operator identity, so the no-operator-and-no-contact check correctly stays silent. The modal now has fixed full-viewport CSS; duplicate title AND description on distinct products must fire across path clusters."
+}

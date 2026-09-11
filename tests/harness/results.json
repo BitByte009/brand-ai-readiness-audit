@@ -1,0 +1,4336 @@
+[
+  {
+    "fixture": "ambiguous-entity",
+    "elapsed_s": 3.772,
+    "description": "Exactly 2 of 4 pages call the brand 'BrightPath Analytics', the other 2 call it 'Vertex Data Group' (title AND h1 both vary together, no schema anchor either way, no majority >=70%). No page states an offering-verb sentence, and no JSON-LD anywhere.",
+    "expected_findings": [
+      "D-ENTITY-01",
+      "D-ENTITY-05",
+      "D-ENTITY-06"
+    ],
+    "actual_findings": [
+      "D-ENTITY-01",
+      "D-ENTITY-05",
+      "D-ENTITY-06"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [
+      "D-ENTITY-03"
+    ],
+    "known_coverage_gaps": [
+      "D-ENTITY-03"
+    ],
+    "guardrail_violations": [],
+    "structurally_untestable": [
+      "D-ENTITY-03"
+    ],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 3,
+      "ok": 3,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 3,
+      "ok": 3,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 3,
+      "ok": 3,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 3,
+      "critical": 0,
+      "high": 3,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54603",
+      "audited_at": "2026-09-11T03:57:38.916076+00:00",
+      "summary": {
+        "total_findings": 3,
+        "critical": 0,
+        "high": 3,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-ENTITY-01",
+          "category": "identity",
+          "title": "No canonical entity name stated consistently",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A citation pipeline that sees multiple name variants for one entity may cite the wrong one or split attribution across variants.",
+          "impact": "A machine cannot determine one authoritative name to cite.",
+          "observed_signal": "2 distinct name forms, no single form >=70% share",
+          "evidence": "Competing name forms: \"BrightPath Analytics\" (4/8), \"Vertex Data Group\" (4/8)",
+          "observation_ids": [
+            "OBS-RENDER-6ecfd4b97d6bb725",
+            "OBS-RENDER-7066f3dbd791f494",
+            "OBS-RENDER-cedb892e53bce67a",
+            "OBS-RENDER-f5b77fee755a63f7"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54603/",
+            "http://127.0.0.1:54603/contact.html",
+            "http://127.0.0.1:54603/platform.html",
+            "http://127.0.0.1:54603/team.html"
+          ],
+          "affected": {
+            "count": 4,
+            "sample_urls": [
+              "http://127.0.0.1:54603/",
+              "http://127.0.0.1:54603/contact.html",
+              "http://127.0.0.1:54603/platform.html",
+              "http://127.0.0.1:54603/team.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "State the canonical name consistently in title, h1, and structured data sitewide.",
+            "priority": "high",
+            "how_to_fix": "Pick one dominant name form; if a legal/trading-name pair is intentional, link them in one sentence.",
+            "validation": "Re-extract name candidates; the normalized-core set converges to one value at >=70% share."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected",
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-001",
+          "related_findings": [
+            "F-002",
+            "F-003"
+          ]
+        },
+        {
+          "check_id": "D-ENTITY-05",
+          "category": "identity",
+          "title": "No machine-readable identity anchor",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "Structured identity anchors (sameAs, a self-referencing url) are how a citation pipeline cross-checks which entity a name refers to; combined with an already-observed name/type clarity gap, there is no anchor to fall back on either.",
+          "impact": "No structured cross-check exists for this entity's identity, compounding the name/type gap already found.",
+          "observed_signal": "no Organization/LocalBusiness/Person node with sameAs or a self-referencing url",
+          "evidence": "No identity anchor found on any sampled page",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-61e14f4d28dca750",
+            "OBS-HTTP-FETCH-7de9cdbcab7d09f2",
+            "OBS-HTTP-FETCH-d380f7633e222788",
+            "OBS-HTTP-FETCH-f14cecc3e715bc6b",
+            "OBS-PAGE-CLASSIFICATION-32d0afe612138760",
+            "OBS-PAGE-CLASSIFICATION-9a3fb7114c5935a7",
+            "OBS-PAGE-CLASSIFICATION-f96bded53096db87",
+            "OBS-PAGE-CLASSIFICATION-fdea15ab7b158a62",
+            "OBS-PROBE-1384eb353548fe56",
+            "OBS-PROBE-9026ed257f3979fc",
+            "OBS-PROBE-c2ec5619ae84f31f",
+            "OBS-PROBE-f8e38ee79a5ddf8a",
+            "OBS-RENDER-6ecfd4b97d6bb725",
+            "OBS-RENDER-7066f3dbd791f494",
+            "OBS-RENDER-cedb892e53bce67a",
+            "OBS-RENDER-f5b77fee755a63f7"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54603/",
+            "http://127.0.0.1:54603/contact.html",
+            "http://127.0.0.1:54603/platform.html",
+            "http://127.0.0.1:54603/team.html"
+          ],
+          "affected": {
+            "count": 4,
+            "sample_urls": [
+              "http://127.0.0.1:54603/",
+              "http://127.0.0.1:54603/contact.html",
+              "http://127.0.0.1:54603/platform.html",
+              "http://127.0.0.1:54603/team.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add an Organization/Person/LocalBusiness JSON-LD node with sameAs links to official profiles.",
+            "priority": "high",
+            "how_to_fix": "Add sameAs (or at minimum a self-referencing url) to the identity JSON-LD node.",
+            "validation": "Re-fetch; the node is present with a non-empty sameAs or a self-referencing url."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected"
+            ]
+          },
+          "id": "F-002",
+          "related_findings": [
+            "F-001",
+            "F-003"
+          ]
+        },
+        {
+          "check_id": "D-ENTITY-06",
+          "category": "identity",
+          "title": "Primary offering unclear on the homepage and one click from it",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "An assistant asked what this entity does needs a plain answer; marketing abstraction with no concrete statement of the offering produces no quotable answer.",
+          "impact": "Machines cannot determine what this entity sells, builds, or does.",
+          "observed_signal": "no offering statement found on the homepage or its 3 depth-1 page(s)",
+          "evidence": "Checked: http://127.0.0.1:54603/, http://127.0.0.1:54603/contact.html, http://127.0.0.1:54603/platform.html, http://127.0.0.1:54603/team.html",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-61e14f4d28dca750",
+            "OBS-HTTP-FETCH-7de9cdbcab7d09f2",
+            "OBS-HTTP-FETCH-d380f7633e222788",
+            "OBS-HTTP-FETCH-f14cecc3e715bc6b",
+            "OBS-PAGE-CLASSIFICATION-32d0afe612138760",
+            "OBS-PAGE-CLASSIFICATION-9a3fb7114c5935a7",
+            "OBS-PAGE-CLASSIFICATION-f96bded53096db87",
+            "OBS-PAGE-CLASSIFICATION-fdea15ab7b158a62",
+            "OBS-PROBE-1384eb353548fe56",
+            "OBS-PROBE-9026ed257f3979fc",
+            "OBS-PROBE-c2ec5619ae84f31f",
+            "OBS-PROBE-f8e38ee79a5ddf8a",
+            "OBS-RENDER-6ecfd4b97d6bb725",
+            "OBS-RENDER-7066f3dbd791f494",
+            "OBS-RENDER-cedb892e53bce67a",
+            "OBS-RENDER-f5b77fee755a63f7"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54603/",
+            "http://127.0.0.1:54603/contact.html",
+            "http://127.0.0.1:54603/platform.html",
+            "http://127.0.0.1:54603/team.html"
+          ],
+          "affected": {
+            "count": 4,
+            "sample_urls": [
+              "http://127.0.0.1:54603/",
+              "http://127.0.0.1:54603/contact.html",
+              "http://127.0.0.1:54603/platform.html",
+              "http://127.0.0.1:54603/team.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "State plainly, on the homepage or a page one click from it, what the entity offers or does.",
+            "priority": "high",
+            "how_to_fix": "Add a concrete offering sentence to the homepage or a directly-linked page.",
+            "validation": "Re-fetch the homepage and its depth-1 pages; the offering pattern or identity probe now succeeds on at least one."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected",
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-003",
+          "related_findings": [
+            "F-001",
+            "F-002"
+          ]
+        }
+      ],
+      "scope": {
+        "archetype": "",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.772
+      }
+    }
+  },
+  {
+    "fixture": "both-strong",
+    "elapsed_s": 4.902,
+    "description": "A deep (3-level: /docs/getting-started/connect.html), well-built site: consistent brand everywhere, explicit breadcrumbs on every depth>=2 doc page, working continuation links, unique titles/descriptions, contact info, offering stated, clean robots.",
+    "expected_findings": [],
+    "actual_findings": [],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "documentation",
+      "pages_crawled": 6,
+      "pages_rendered": 6,
+      "template_clusters": 6,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54614",
+      "audited_at": "2026-09-11T03:57:44.266324+00:00",
+      "summary": {
+        "total_findings": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [],
+      "scope": {
+        "archetype": "documentation",
+        "pages_crawled": 6,
+        "pages_rendered": 6,
+        "template_clusters": 6,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54614/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-25857168c5800e93",
+            "OBS-RENDER-3a7df3f0dfdbf1bc",
+            "OBS-RENDER-4646b866b88a42f7",
+            "OBS-RENDER-5ed5005b3bd06fcc",
+            "OBS-RENDER-6aa34264824d1ae8",
+            "OBS-RENDER-dcd0d30e0020b2f4"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54614/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 6,
+          "requests_made": 6,
+          "render_pages_done": 6,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 14
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 4.902
+      }
+    }
+  },
+  {
+    "fixture": "both-weak",
+    "elapsed_s": 2.658,
+    "description": "robots.txt blocks the /catalog/ path that the homepage links to (D-CRAWL-01). widget.html/gadget.html (both at root, reachable) share an identical title AND description (D-EXTRACT-02), neither states a brand consistently with the homepage, and no page has contact info -- deliberately unpolished on every axis, unlike the other fixtures which isolate one mechanism. Homepage has a time-sensitive 'currently' claim with no date signal anywhere (D-TRUST-01), a blocking modal visible by default (E-ANSWER-02), and every content page is a dead end with no continuation link (E-CONTINUE-02).",
+    "expected_findings": [
+      "D-CRAWL-01",
+      "D-ENTITY-01",
+      "D-ENTITY-05",
+      "D-ENTITY-06",
+      "D-EXTRACT-02",
+      "D-TRUST-01",
+      "E-ANSWER-02",
+      "E-CONTINUE-02"
+    ],
+    "actual_findings": [
+      "D-CRAWL-01",
+      "D-ENTITY-01",
+      "D-ENTITY-05",
+      "D-ENTITY-06",
+      "D-EXTRACT-02",
+      "D-TRUST-01",
+      "E-ANSWER-02",
+      "E-CONTINUE-02"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 9,
+      "ok": 9,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 9,
+      "ok": 9,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 9,
+      "ok": 9,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 9,
+      "critical": 0,
+      "high": 6,
+      "medium": 3,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 3,
+      "pages_rendered": 3,
+      "template_clusters": 3,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54631",
+      "audited_at": "2026-09-11T03:57:47.391222+00:00",
+      "summary": {
+        "total_findings": 9,
+        "critical": 0,
+        "high": 6,
+        "medium": 3,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-ENTITY-05",
+          "category": "identity",
+          "title": "No machine-readable identity anchor",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "Structured identity anchors (sameAs, a self-referencing url) are how a citation pipeline cross-checks which entity a name refers to; combined with an already-observed name/type clarity gap, there is no anchor to fall back on either.",
+          "impact": "No structured cross-check exists for this entity's identity, compounding the name/type gap already found.",
+          "observed_signal": "no Organization/LocalBusiness/Person node with sameAs or a self-referencing url",
+          "evidence": "No identity anchor found on any sampled page",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-1a57223653fb97da",
+            "OBS-HTTP-FETCH-1d3f5dce0c34a5b4",
+            "OBS-HTTP-FETCH-9fde662aedfe5938",
+            "OBS-PAGE-CLASSIFICATION-042913b0d8cba3bb",
+            "OBS-PAGE-CLASSIFICATION-b812ab339cc12f4c",
+            "OBS-PAGE-CLASSIFICATION-d0b12cab04b708af",
+            "OBS-PROBE-1aa1576fdc26be44",
+            "OBS-PROBE-d2569fffe4e5bc68",
+            "OBS-PROBE-f4c3f45e5b66aa34",
+            "OBS-RENDER-0ad3adbdacd6ae22",
+            "OBS-RENDER-7d995ae70d5265a6",
+            "OBS-RENDER-bb26218b9ec74ccd"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/",
+            "http://127.0.0.1:54631/gadget.html",
+            "http://127.0.0.1:54631/widget.html"
+          ],
+          "affected": {
+            "count": 3,
+            "sample_urls": [
+              "http://127.0.0.1:54631/",
+              "http://127.0.0.1:54631/gadget.html",
+              "http://127.0.0.1:54631/widget.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add an Organization/Person/LocalBusiness JSON-LD node with sameAs links to official profiles.",
+            "priority": "high",
+            "how_to_fix": "Add sameAs (or at minimum a self-referencing url) to the identity JSON-LD node.",
+            "validation": "Re-fetch; the node is present with a non-empty sameAs or a self-referencing url."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected"
+            ]
+          },
+          "id": "F-001",
+          "related_findings": [
+            "F-002",
+            "F-004",
+            "F-005",
+            "F-006",
+            "F-007",
+            "F-008",
+            "F-009"
+          ]
+        },
+        {
+          "check_id": "D-ENTITY-01",
+          "category": "identity",
+          "title": "No canonical entity name stated consistently",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A citation pipeline that sees multiple name variants for one entity may cite the wrong one or split attribution across variants.",
+          "impact": "A machine cannot determine one authoritative name to cite.",
+          "observed_signal": "2 distinct name forms, no single form >=70% share",
+          "evidence": "Competing name forms: \"Glenmark Supply\" (1/2), \"Other Widget Company\" (1/2)",
+          "observation_ids": [
+            "OBS-RENDER-7d995ae70d5265a6",
+            "OBS-RENDER-bb26218b9ec74ccd"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/",
+            "http://127.0.0.1:54631/widget.html"
+          ],
+          "affected": {
+            "count": 2,
+            "sample_urls": [
+              "http://127.0.0.1:54631/",
+              "http://127.0.0.1:54631/widget.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "State the canonical name consistently in title, h1, and structured data sitewide.",
+            "priority": "high",
+            "how_to_fix": "Pick one dominant name form; if a legal/trading-name pair is intentional, link them in one sentence.",
+            "validation": "Re-extract name candidates; the normalized-core set converges to one value at >=70% share."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected",
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-002",
+          "related_findings": [
+            "F-001",
+            "F-004",
+            "F-005",
+            "F-006",
+            "F-007",
+            "F-009"
+          ]
+        },
+        {
+          "check_id": "D-CRAWL-01",
+          "category": "discoverability",
+          "title": "robots.txt disallows content paths in /catalog",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A disallowed path is never fetched by a compliant crawler; the content behind it does not exist for that system at all.",
+          "impact": "Pages in this template are structurally unreachable to any robots-respecting citation pipeline.",
+          "observed_signal": "1 non-utility URL(s) disallowed by robots.txt",
+          "evidence": "robots.txt disallows: http://127.0.0.1:54631/catalog/",
+          "observation_ids": [
+            "OBS-ROBOTS-48be09bba4fcd60b"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/catalog/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54631/catalog/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Remove the Disallow rule blocking this content, or confirm it has no unique content reachable no other way.",
+            "priority": "high",
+            "how_to_fix": "Edit robots.txt to allow /catalog.",
+            "validation": "Re-fetch robots.txt; robots_allows() on the named path returns true."
+          },
+          "scoring_trace": {
+            "original_severity": "critical",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-003",
+          "related_findings": []
+        },
+        {
+          "check_id": "D-TRUST-01",
+          "category": "trust",
+          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:54631/",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A citation pipeline repeating a time-framed claim with no way to judge its currency risks repeating something already false.",
+          "impact": "Machines cannot tell whether this claim is still current.",
+          "observed_signal": "1 time-sensitive phrase(s), 0 date signals on this page",
+          "evidence": "Time-sensitive text: \"talog Widget Gadget Shop Our pricing is currently the best in the industry. Browse the ca\"",
+          "observation_ids": [
+            "OBS-RENDER-7d995ae70d5265a6"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54631/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a visible 'last updated' date or dateModified schema near the claim.",
+            "priority": "high",
+            "how_to_fix": "State when the claim on http://127.0.0.1:54631/ was last verified or updated.",
+            "validation": "Re-fetch the page; a date signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected"
+            ]
+          },
+          "id": "F-004",
+          "related_findings": [
+            "F-001",
+            "F-002",
+            "F-005",
+            "F-006"
+          ]
+        },
+        {
+          "check_id": "E-ANSWER-02",
+          "category": "engagement",
+          "title": "Entry-blocking interstitial on http://127.0.0.1:54631/",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A visitor arriving expecting a specific answer, met instead with a blocking overlay, cannot see that answer without first dismissing something they didn't ask for.",
+          "impact": "Content is not visible to an arriving visitor without dismissing this element first.",
+          "observed_signal": "visible-by-default div (role='dialog', class='modal-overlay')",
+          "evidence": "Blocking element found on http://127.0.0.1:54631/: {'tag': 'div', 'role': 'dialog', 'class': 'modal-overlay', 'id': ''}",
+          "observation_ids": [
+            "OBS-RENDER-7d995ae70d5265a6"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54631/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Defer the overlay until after the visitor has seen the primary content.",
+            "priority": "high",
+            "how_to_fix": "Make the overlay on http://127.0.0.1:54631/ dismissible without obscuring the answer, or delay it.",
+            "validation": "Re-render; no blocking dialog/modal is present-and-visible at first paint."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected",
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-005",
+          "related_findings": [
+            "F-001",
+            "F-002",
+            "F-004",
+            "F-006"
+          ]
+        },
+        {
+          "check_id": "D-ENTITY-06",
+          "category": "identity",
+          "title": "Primary offering unclear on the homepage and one click from it",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "An assistant asked what this entity does needs a plain answer; marketing abstraction with no concrete statement of the offering produces no quotable answer.",
+          "impact": "Machines cannot determine what this entity sells, builds, or does.",
+          "observed_signal": "no offering statement found on the homepage or its 2 depth-1 page(s)",
+          "evidence": "Checked: http://127.0.0.1:54631/, http://127.0.0.1:54631/gadget.html, http://127.0.0.1:54631/widget.html",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-1a57223653fb97da",
+            "OBS-HTTP-FETCH-1d3f5dce0c34a5b4",
+            "OBS-HTTP-FETCH-9fde662aedfe5938",
+            "OBS-PAGE-CLASSIFICATION-042913b0d8cba3bb",
+            "OBS-PAGE-CLASSIFICATION-b812ab339cc12f4c",
+            "OBS-PAGE-CLASSIFICATION-d0b12cab04b708af",
+            "OBS-PROBE-1aa1576fdc26be44",
+            "OBS-PROBE-d2569fffe4e5bc68",
+            "OBS-PROBE-f4c3f45e5b66aa34",
+            "OBS-RENDER-0ad3adbdacd6ae22",
+            "OBS-RENDER-7d995ae70d5265a6",
+            "OBS-RENDER-bb26218b9ec74ccd"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/",
+            "http://127.0.0.1:54631/gadget.html",
+            "http://127.0.0.1:54631/widget.html"
+          ],
+          "affected": {
+            "count": 3,
+            "sample_urls": [
+              "http://127.0.0.1:54631/",
+              "http://127.0.0.1:54631/gadget.html",
+              "http://127.0.0.1:54631/widget.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "State plainly, on the homepage or a page one click from it, what the entity offers or does.",
+            "priority": "high",
+            "how_to_fix": "Add a concrete offering sentence to the homepage or a directly-linked page.",
+            "validation": "Re-fetch the homepage and its depth-1 pages; the offering pattern or identity probe now succeeds on at least one."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected",
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-006",
+          "related_findings": [
+            "F-001",
+            "F-002",
+            "F-004",
+            "F-005",
+            "F-007",
+            "F-008",
+            "F-009"
+          ]
+        },
+        {
+          "check_id": "D-EXTRACT-02",
+          "category": "discoverability",
+          "title": "Duplicated title across distinct pages in site",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "Duplicated titles collapse distinct pages into one signal.",
+          "impact": "A reader cannot distinguish these pages by title alone.",
+          "observed_signal": "2 page(s) share the title \"Shop Glenmark Supply\"",
+          "evidence": "Duplicate title \"Shop Glenmark Supply\" on: http://127.0.0.1:54631/gadget.html, http://127.0.0.1:54631/widget.html",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-1a57223653fb97da",
+            "OBS-HTTP-FETCH-9fde662aedfe5938"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/gadget.html",
+            "http://127.0.0.1:54631/widget.html"
+          ],
+          "affected": {
+            "count": 2,
+            "sample_urls": [
+              "http://127.0.0.1:54631/gadget.html",
+              "http://127.0.0.1:54631/widget.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Give each page a unique, descriptive title.",
+            "priority": "medium",
+            "how_to_fix": "Differentiate the title per page's specific subject.",
+            "validation": "Re-fetch; no two distinct pages share the same title."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-007",
+          "related_findings": [
+            "F-001",
+            "F-002",
+            "F-006",
+            "F-008",
+            "F-009"
+          ]
+        },
+        {
+          "check_id": "E-CONTINUE-02",
+          "category": "engagement",
+          "title": "Dead end at http://127.0.0.1:54631/gadget.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "There is structurally nothing to click that leads deeper into the site from this page's own content.",
+          "impact": "A visitor has no way to continue browsing from this page's content.",
+          "observed_signal": "0 outgoing links in the main-content region",
+          "evidence": "No content-region links found on http://127.0.0.1:54631/gadget.html",
+          "observation_ids": [
+            "OBS-RENDER-0ad3adbdacd6ae22"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/gadget.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54631/gadget.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add at least one in-content link to related material.",
+            "priority": "medium",
+            "how_to_fix": "Add a content-region link on http://127.0.0.1:54631/gadget.html.",
+            "validation": "Re-fetch; content-region out-degree is >=1."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-008",
+          "related_findings": [
+            "F-001",
+            "F-006",
+            "F-007"
+          ]
+        },
+        {
+          "check_id": "E-CONTINUE-02",
+          "category": "engagement",
+          "title": "Dead end at http://127.0.0.1:54631/widget.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "There is structurally nothing to click that leads deeper into the site from this page's own content.",
+          "impact": "A visitor has no way to continue browsing from this page's content.",
+          "observed_signal": "0 outgoing links in the main-content region",
+          "evidence": "No content-region links found on http://127.0.0.1:54631/widget.html",
+          "observation_ids": [
+            "OBS-RENDER-bb26218b9ec74ccd"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54631/widget.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54631/widget.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add at least one in-content link to related material.",
+            "priority": "medium",
+            "how_to_fix": "Add a content-region link on http://127.0.0.1:54631/widget.html.",
+            "validation": "Re-fetch; content-region out-degree is >=1."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-009",
+          "related_findings": [
+            "F-001",
+            "F-002",
+            "F-006",
+            "F-007"
+          ]
+        }
+      ],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 3,
+        "pages_rendered": 3,
+        "template_clusters": 3,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "ROBOTS_DISALLOWED",
+          "detail": "1 discovered path(s) skipped by robots.txt",
+          "scope": "the specific disallowed paths, not the whole site"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54631/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-7d995ae70d5265a6",
+            "OBS-RENDER-bb26218b9ec74ccd"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54631/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": false
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 3,
+          "requests_made": 3,
+          "render_pages_done": 3,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 8
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [
+          {
+            "type": "severity_distribution_warning",
+            "high_critical_ratio": 0.6666666666666666,
+            "threshold": 0.3,
+            "finding_count": 9
+          }
+        ],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 2.658
+      }
+    }
+  },
+  {
+    "fixture": "clean-static",
+    "elapsed_s": 3.383,
+    "description": "Strong static site: consistent brand H1/title everywhere, stated type/offering, contact info, clean robots/canonical, no schema defects, working continuation links.",
+    "expected_findings": [],
+    "actual_findings": [],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54644",
+      "audited_at": "2026-09-11T03:57:51.238755+00:00",
+      "summary": {
+        "total_findings": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.383
+      }
+    }
+  },
+  {
+    "fixture": "conflicting-content",
+    "elapsed_s": 3.379,
+    "description": "history.html claims 'Founded in 2008'; careers.html claims 'Since our founding in 2015' -- same entity_fact key (founded_year), different values (D-TRUST-03). Two Organization JSON-LD nodes carry the same org name (not distinguishing branch labels) but genuinely different addresses (D-ENTITY-04).",
+    "expected_findings": [
+      "D-ENTITY-04",
+      "D-TRUST-03"
+    ],
+    "actual_findings": [
+      "D-ENTITY-04",
+      "D-TRUST-03"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 2,
+      "critical": 0,
+      "high": 2,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54656",
+      "audited_at": "2026-09-11T03:57:55.078841+00:00",
+      "summary": {
+        "total_findings": 2,
+        "critical": 0,
+        "high": 2,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-ENTITY-04",
+          "category": "identity",
+          "title": "Entity address differs across pages with no distinguishing label",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "Conflicting addresses for one undifferentiated entity give a citation pipeline no reliable location to repeat.",
+          "impact": "A machine cannot determine one authoritative address for this entity.",
+          "observed_signal": "conflicting address fields between http://127.0.0.1:54656/history.html and http://127.0.0.1:54656/careers.html",
+          "evidence": "\"100 Main St, Boulder, CO, 80301\" (http://127.0.0.1:54656/history.html) vs. \"500 Oak Ave, Denver, CO, 80202\" (http://127.0.0.1:54656/careers.html)",
+          "observation_ids": [
+            "OBS-RENDER-59fac5afeab23fba",
+            "OBS-RENDER-c78790b52ff4deba"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54656/careers.html",
+            "http://127.0.0.1:54656/history.html"
+          ],
+          "affected": {
+            "count": 2,
+            "sample_urls": [
+              "http://127.0.0.1:54656/careers.html",
+              "http://127.0.0.1:54656/history.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Reconcile the conflicting addresses, or label each location explicitly.",
+            "priority": "high",
+            "how_to_fix": "Add a distinguishing name (branch/location) to each address node, or correct the conflicting value.",
+            "validation": "Re-extract; the addresses now match or each carries an explicit distinguishing label."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-001",
+          "related_findings": [
+            "F-002"
+          ]
+        },
+        {
+          "check_id": "D-TRUST-03",
+          "category": "trust",
+          "title": "Internal contradiction on 'founded_year'",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "Conflicting asserted values give a citation pipeline no reliable single fact to repeat, and may cause it to prefer a stale or wrong version.",
+          "impact": "Machines cannot determine one authoritative value for 'founded_year'.",
+          "observed_signal": "'founded_year' differs: \"2008\" vs. \"2015\"",
+          "evidence": "\"Founded in 2008\" (http://127.0.0.1:54656/history.html) vs. \"operating since 2015\" (http://127.0.0.1:54656/careers.html)",
+          "observation_ids": [
+            "OBS-RENDER-59fac5afeab23fba",
+            "OBS-RENDER-c78790b52ff4deba"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54656/careers.html",
+            "http://127.0.0.1:54656/history.html"
+          ],
+          "affected": {
+            "count": 2,
+            "sample_urls": [
+              "http://127.0.0.1:54656/careers.html",
+              "http://127.0.0.1:54656/history.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Reconcile the conflicting 'founded_year' values, or state explicitly why they differ.",
+            "priority": "high",
+            "how_to_fix": "Update the incorrect page, or label the distinguishing context (e.g. different time periods or entities).",
+            "validation": "Re-extract; the two values now match or carry an explicit distinguishing label."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": [
+            "F-001"
+          ]
+        }
+      ],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54656/history.html"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-59fac5afeab23fba",
+            "OBS-RENDER-c78790b52ff4deba"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54656/history.html carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.379
+      }
+    }
+  },
+  {
+    "fixture": "deep-page-no-orientation",
+    "elapsed_s": 4.118,
+    "description": "rate-limits.html (depth 3) has no nav, no brand name anywhere (title/h1/body/img-alt), no breadcrumb, and a same-page fragment link to #see-also that has no matching id anywhere on the page. The rest of the site (depth 0-2) is well-connected, brand-clear, and offers a working continuation link back to the guides hub.",
+    "expected_findings": [
+      "E-ORIENT-01",
+      "E-ORIENT-03",
+      "E-ORIENT-04"
+    ],
+    "actual_findings": [
+      "E-ORIENT-01",
+      "E-ORIENT-03",
+      "E-ORIENT-04"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 4,
+      "critical": 0,
+      "high": 1,
+      "medium": 3,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "documentation",
+      "pages_crawled": 5,
+      "pages_rendered": 5,
+      "template_clusters": 5,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54667",
+      "audited_at": "2026-09-11T03:57:59.655562+00:00",
+      "summary": {
+        "total_findings": 4,
+        "critical": 0,
+        "high": 1,
+        "medium": 3,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "E-ORIENT-01",
+          "category": "engagement",
+          "title": "No brand identification on arrival at http://127.0.0.1:54667/docs/guides/rate-limits.html",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "An AI-referred visitor arrives with no homepage context and no navigation history; if the first screen doesn't say whose page this is, they cannot evaluate trust.",
+          "impact": "A cold arrival on this page cannot tell whose site it landed on.",
+          "observed_signal": "brand token absent from early body text, logo alt, and title",
+          "evidence": "Checked title \"Rate Limit Configuration\", logo alt text, and first 800 body-text characters on http://127.0.0.1:54667/docs/guides/rate-limits.html; visual viewport not measured for this check",
+          "observation_ids": [
+            "OBS-RENDER-e72699ceabecde37"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54667/docs/guides/rate-limits.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54667/docs/guides/rate-limits.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Put the brand name in the title, accessible header text, or the logo's alt text.",
+            "priority": "high",
+            "how_to_fix": "Add the brand name to one of the three positions on http://127.0.0.1:54667/docs/guides/rate-limits.html.",
+            "validation": "Re-fetch the page cold; the brand token is present in >=1 of the three positions."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": []
+          },
+          "id": "F-001",
+          "related_findings": [
+            "F-003",
+            "F-004"
+          ]
+        },
+        {
+          "check_id": "E-ORIENT-03",
+          "category": "engagement",
+          "title": "No path context on http://127.0.0.1:54667/docs/guides/",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
+          "impact": "A visitor cannot tell where this page sits in the wider site.",
+          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
+          "evidence": "No path-context signal found on http://127.0.0.1:54667/docs/guides/",
+          "observation_ids": [
+            "OBS-RENDER-c3e31f611f5fb68e"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54667/docs/guides/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54667/docs/guides/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
+            "priority": "medium",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:54667/docs/guides/.",
+            "validation": "Re-fetch; a path-context signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": []
+        },
+        {
+          "check_id": "E-ORIENT-03",
+          "category": "engagement",
+          "title": "No path context on http://127.0.0.1:54667/docs/guides/rate-limits.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
+          "impact": "A visitor cannot tell where this page sits in the wider site.",
+          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
+          "evidence": "No path-context signal found on http://127.0.0.1:54667/docs/guides/rate-limits.html",
+          "observation_ids": [
+            "OBS-RENDER-e72699ceabecde37"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54667/docs/guides/rate-limits.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54667/docs/guides/rate-limits.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
+            "priority": "medium",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:54667/docs/guides/rate-limits.html.",
+            "validation": "Re-fetch; a path-context signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-003",
+          "related_findings": [
+            "F-001",
+            "F-004"
+          ]
+        },
+        {
+          "check_id": "E-ORIENT-04",
+          "category": "engagement",
+          "title": "Fragment links don't resolve from http://127.0.0.1:54667/docs/guides/rate-limits.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "A visitor following a deep-linked anchor lands on the target page with no way to reach the specific content the fragment promised.",
+          "impact": "These deep links do not resolve to any content on their target page.",
+          "observed_signal": "1 fragment link(s) with no matching target id",
+          "evidence": "http://127.0.0.1:54667/docs/guides/rate-limits.html#see-also -> http://127.0.0.1:54667/docs/guides/rate-limits.html (no #see-also)",
+          "observation_ids": [
+            "OBS-RENDER-e72699ceabecde37"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54667/docs/guides/rate-limits.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54667/docs/guides/rate-limits.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add the missing anchor id to the target page, or fix the link.",
+            "priority": "medium",
+            "how_to_fix": "Add an id/name attribute matching the fragment at the referenced content.",
+            "validation": "Re-fetch the target page; an element with the matching id now exists."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-004",
+          "related_findings": [
+            "F-001",
+            "F-003"
+          ]
+        }
+      ],
+      "scope": {
+        "archetype": "documentation",
+        "pages_crawled": 5,
+        "pages_rendered": 5,
+        "template_clusters": 5,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54667/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-1b0bede18144bf60",
+            "OBS-RENDER-c552663b612222a8"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54667/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 5,
+          "requests_made": 5,
+          "render_pages_done": 5,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 12
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 4.118
+      }
+    }
+  },
+  {
+    "fixture": "facts-render-only",
+    "elapsed_s": 3.419,
+    "description": "rates.html has substantial raw prose (ratio stays above the 0.30 D-RENDER-01 threshold) but the one load-bearing fact -- the actual rate -- exists only in a client-side script.",
+    "expected_findings": [
+      "D-RENDER-02"
+    ],
+    "actual_findings": [
+      "D-RENDER-02"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 1,
+      "critical": 0,
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54680",
+      "audited_at": "2026-09-11T03:58:03.537964+00:00",
+      "summary": {
+        "total_findings": 1,
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-RENDER-02",
+          "category": "discoverability",
+          "title": "Key fact render-only on http://127.0.0.1:54680/rates.html",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "Even when most of the page reads fine raw, the one fact a user would ask an assistant for can be the part that's missing.",
+          "impact": "This specific, user-relevant fact cannot be read without executing JavaScript.",
+          "observed_signal": "probe question 'Q6' answered from rendered text only",
+          "evidence": "Rendered-only fact: \"$184\"",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-9e01fe1a35be167f",
+            "OBS-PROBE-639a6afcd52bdadb",
+            "OBS-RENDER-a80a300323e1a1a6"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54680/rates.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54680/rates.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Move this fact into server-rendered markup.",
+            "priority": "high",
+            "how_to_fix": "Ensure the text \"$184\" is present in the raw HTML response.",
+            "validation": "Re-fetch raw; the named evidence span is present verbatim."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-001",
+          "related_findings": []
+        }
+      ],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54680/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-9269c56e59c962f2"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54680/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.419
+      }
+    }
+  },
+  {
+    "fixture": "fp-trap-composite",
+    "elapsed_s": 4.896,
+    "description": "Nine simultaneous false-positive traps: (1) archival news post dated 2019-05-01 discussing a forward-framed 'upcoming' event on 2019-05-20 -- the page's own date precedes the event, so not actually stale; (2) regional pricing $49/EUR59 on two pages -- price is never extracted as an entity_fact; (3) sales vs support phone numbers on different pages -- phone is never extracted as an entity_fact; (4) two LocalBusiness nodes with distinct branch names ('- Downtown' / '- Airport') and genuinely different addresses -- legitimate multi-location, not a conflict; (5) title/h1 always 'Cobalt Field Services' with no legal-suffix variant, so no D-ENTITY-01 risk; (6) documentation archetype (>=30% /docs/ paths) with no offering-verb sentence -- D-ENTITY-06 is archetype-suppressed for documentation; (7) no sitemap.xml on a small, fully-interlinked site with zero orphans; (8) an old (c) 2019 footer year paired with a fresh 'Updated: January 15, 2026' freshness-labeled date on the same page -- a real date signal suppresses the copyright-only staleness path; (9) contact info present so D-TRUST-06 stays silent despite the documentation archetype.",
+    "expected_findings": [],
+    "actual_findings": [],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "local-business",
+      "pages_crawled": 6,
+      "pages_rendered": 6,
+      "template_clusters": 6,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54691",
+      "audited_at": "2026-09-11T03:58:08.879506+00:00",
+      "summary": {
+        "total_findings": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [],
+      "scope": {
+        "archetype": "local-business",
+        "pages_crawled": 6,
+        "pages_rendered": 6,
+        "template_clusters": 6,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54691/locations.html"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-aad39ef68388fedc"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54691/locations.html carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 6,
+          "requests_made": 6,
+          "render_pages_done": 6,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 14
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 4.896
+      }
+    }
+  },
+  {
+    "fixture": "image-locked-facts",
+    "elapsed_s": 2.838,
+    "description": "hours.html states store hours only inside an <img> with empty alt text; no surrounding prose states the hours in machine-readable text.",
+    "expected_findings": [],
+    "actual_findings": [],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [
+      "D-EXTRACT-01"
+    ],
+    "known_coverage_gaps": [
+      "D-EXTRACT-01"
+    ],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": {
+      "check": "D-EXTRACT-01",
+      "why": "No OCR or semantic absence instrument is configured. Positive text probes cannot verify image-only hours; PROBE_LIMITED must disclose this gap."
+    },
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 3,
+      "pages_rendered": 3,
+      "template_clusters": 3,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54707",
+      "audited_at": "2026-09-11T03:58:12.187786+00:00",
+      "summary": {
+        "total_findings": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 3,
+        "pages_rendered": 3,
+        "template_clusters": 3,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54707/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-8aab6bc072acc3a5"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54707/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 3,
+          "requests_made": 3,
+          "render_pages_done": 3,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 9
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 2.838
+      }
+    }
+  },
+  {
+    "fixture": "invalid-structured-data",
+    "elapsed_s": 3.387,
+    "description": "product-a.html has syntactically broken JSON-LD (trailing comma + missing colon). product-b.html has valid JSON but a Product node missing the required offers.price/priceCurrency. Verified by calling detect_extract.check_d_extract_04() directly on this fixture's real collected store: it correctly returns both findings (the JSONDecodeError branch and the required-property branch).",
+    "expected_findings": [
+      "D-EXTRACT-04"
+    ],
+    "actual_findings": [
+      "D-EXTRACT-04"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 2,
+      "critical": 0,
+      "high": 2,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "ecommerce",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54717",
+      "audited_at": "2026-09-11T03:58:16.039775+00:00",
+      "summary": {
+        "total_findings": 2,
+        "critical": 0,
+        "high": 2,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-EXTRACT-04",
+          "category": "discoverability",
+          "title": "Structured data fails to parse on http://127.0.0.1:54717/product-a.html",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A machine that trusts structured data discards the whole block on a parse failure.",
+          "impact": "This entire structured-data block is unusable.",
+          "observed_signal": "JSON-LD parse error: Expecting property name enclosed in double quotes: line 1 column 80 (char 79)",
+          "evidence": "{\"@context\": \"https://schema.org\", \"@type\": \"Product\", \"name\": \"Cast Iron Pan\",, \"offers\": {\"@type\": \"Offer\" \"price\": \"39.00\"}}",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-c98c2382fb407759"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54717/product-a.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54717/product-a.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Fix the JSON syntax error in the structured data block.",
+            "priority": "high",
+            "how_to_fix": "Correct the JSON syntax: Expecting property name enclosed in double quotes: line 1 column 80 (char 79)",
+            "validation": "Re-fetch; the block parses without error."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-001",
+          "related_findings": []
+        },
+        {
+          "check_id": "D-EXTRACT-04",
+          "category": "discoverability",
+          "title": "Product structured data missing required properties on http://127.0.0.1:54717/product-b.html",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A machine that trusts structured data over prose picks up an incomplete fact.",
+          "impact": "Product data is incomplete for the properties: offers.price/offers.priceCurrency.",
+          "observed_signal": "missing required property: offers.price/offers.priceCurrency",
+          "evidence": "{\"@context\": \"https://schema.org\", \"@type\": \"Product\", \"name\": \"Chef Knife\"}",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-1db97cedfe214f04"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54717/product-b.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54717/product-b.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add the missing required Product property: offers.price/offers.priceCurrency.",
+            "priority": "high",
+            "how_to_fix": "Populate offers.price/offers.priceCurrency in the Product JSON-LD block.",
+            "validation": "Re-fetch; required properties are present and match visible text."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": []
+        }
+      ],
+      "scope": {
+        "archetype": "ecommerce",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.387
+      }
+    }
+  },
+  {
+    "fixture": "js-render-gap",
+    "elapsed_s": 3.411,
+    "description": "JS-heavy site: index/platform pages render almost all body text client-side via a DOMContentLoaded script; raw HTML is a near-empty shell. This is textbook D-RENDER-01 (raw-vs-rendered text ratio <0.30).",
+    "expected_findings": [
+      "D-RENDER-01"
+    ],
+    "actual_findings": [
+      "D-RENDER-01"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 2,
+      "critical": 0,
+      "high": 2,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54728",
+      "audited_at": "2026-09-11T03:58:19.911282+00:00",
+      "summary": {
+        "total_findings": 2,
+        "critical": 0,
+        "high": 2,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-RENDER-01",
+          "category": "discoverability",
+          "title": "Primary content is render-dependent in /",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "A fetcher that does not execute JavaScript receives a shell; the page looks complete to a person and empty to the machine.",
+          "impact": "Non-rendering readers cannot read, quote, or cite this content.",
+          "observed_signal": "http://127.0.0.1:54728/: raw 75/rendered 441 chars (ratio 0.17)",
+          "evidence": "Present rendered, absent raw, e.g.: \"We\"",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-0872e49f5c0ef63e",
+            "OBS-RENDER-fd924581f28768d1"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54728/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54728/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Server-render or pre-render the main-content region for this template.",
+            "priority": "high",
+            "how_to_fix": "Emit the substantive text in the initial HTML payload and hydrate on top.",
+            "validation": "Re-fetch with JS disabled; the named excerpt appears raw and the ratio exceeds 0.6."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": [
+              "importance +1: the explicitly requested audit target is affected",
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-001",
+          "related_findings": []
+        },
+        {
+          "check_id": "D-RENDER-01",
+          "category": "discoverability",
+          "title": "Primary content is render-dependent in /platform.html",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "A fetcher that does not execute JavaScript receives a shell; the page looks complete to a person and empty to the machine.",
+          "impact": "Non-rendering readers cannot read, quote, or cite this content.",
+          "observed_signal": "http://127.0.0.1:54728/platform.html: raw 75/rendered 441 chars (ratio 0.17)",
+          "evidence": "Present rendered, absent raw, e.g.: \"We\"",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-927d5925da82e5b1",
+            "OBS-RENDER-21a335393be96667"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54728/platform.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54728/platform.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Server-render or pre-render the main-content region for this template.",
+            "priority": "high",
+            "how_to_fix": "Emit the substantive text in the initial HTML payload and hydrate on top.",
+            "validation": "Re-fetch with JS disabled; the named excerpt appears raw and the ratio exceeds 0.6."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": []
+        }
+      ],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54728/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-fd924581f28768d1"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54728/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.411
+      }
+    }
+  },
+  {
+    "fixture": "large-site",
+    "elapsed_s": 10.962,
+    "description": "45 templated /product/N.html pages, all sharing a byte-identical title and meta description (a realistic templating mistake), linked from one catalog.html hub which also carries several ?sort= facet-parameter links. Default crawl budget is 30 pages; BFS order (home, about, catalog, then the ?sort= facet links, then products 1..N) means the crawl exhausts its budget partway through the product list.",
+    "expected_findings": [
+      "D-CRAWL-14",
+      "D-EXTRACT-02"
+    ],
+    "actual_findings": [
+      "D-CRAWL-14",
+      "D-EXTRACT-02"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 2,
+      "ok": 2,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 2,
+      "critical": 0,
+      "high": 1,
+      "medium": 1,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "ecommerce",
+      "pages_crawled": 30,
+      "pages_rendered": 8,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54739",
+      "audited_at": "2026-09-11T03:58:31.196356+00:00",
+      "summary": {
+        "total_findings": 2,
+        "critical": 0,
+        "high": 1,
+        "medium": 1,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-CRAWL-14",
+          "category": "discoverability",
+          "title": "Crawl budget burned by parameter URLs in /catalog.html",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "A crawler with a fixed page budget that spends it on filter/sort combinations never reaches the actual content pages.",
+          "impact": "Substantive pages behind this template may go undiscovered.",
+          "observed_signal": "80% of discovered URLs in /catalog.html carry a query string, and the crawl exhausted its budget",
+          "evidence": "Parameter URLs: http://127.0.0.1:54739/catalog.html?sort=name, http://127.0.0.1:54739/catalog.html?sort=newest, http://127.0.0.1:54739/catalog.html?sort=price, http://127.0.0.1:54739/catalog.html?sort=rating",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-3a47b81239b71c7c",
+            "OBS-HTTP-FETCH-9686b46aea20bcaf",
+            "OBS-HTTP-FETCH-da8bb516f8ff2e38",
+            "OBS-HTTP-FETCH-e71fbd3bd313bccc",
+            "OBS-PAGE-CLASSIFICATION-35f6e45db360e3c3",
+            "OBS-PAGE-CLASSIFICATION-5e91e19ba70cad93",
+            "OBS-PAGE-CLASSIFICATION-6f86b809fc18a76e",
+            "OBS-PAGE-CLASSIFICATION-92c4cc1c5ffcfd2a",
+            "OBS-PROBE-33f95c5da5270c5d",
+            "OBS-PROBE-52e6f36615f1027e",
+            "OBS-PROBE-61149c51808955ee",
+            "OBS-PROBE-d3a22f665f636bcf",
+            "OBS-RENDER-895bd3a4c095b952",
+            "OBS-RENDER-ef384205db8264b2"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54739/catalog.html?sort=name",
+            "http://127.0.0.1:54739/catalog.html?sort=newest",
+            "http://127.0.0.1:54739/catalog.html?sort=price",
+            "http://127.0.0.1:54739/catalog.html?sort=rating"
+          ],
+          "affected": {
+            "count": 4,
+            "sample_urls": [
+              "http://127.0.0.1:54739/catalog.html?sort=name",
+              "http://127.0.0.1:54739/catalog.html?sort=newest",
+              "http://127.0.0.1:54739/catalog.html?sort=price",
+              "http://127.0.0.1:54739/catalog.html?sort=rating"
+            ],
+            "total_in_scope": 5
+          },
+          "suggested_action": {
+            "summary": "Disallow or canonicalize low-value parameter combinations so budget reaches substantive URLs.",
+            "priority": "high",
+            "how_to_fix": "Add robots.txt rules or canonical tags for facet/sort parameters.",
+            "validation": "Re-crawl under the same budget; discovery reaches the previously unreached substantive URLs."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": [
+              "scope +1: affects 80% of in-scope items (>=80%)"
+            ]
+          },
+          "id": "F-001",
+          "related_findings": []
+        },
+        {
+          "check_id": "D-EXTRACT-02",
+          "category": "discoverability",
+          "title": "Duplicated title across distinct pages in site",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "Duplicated titles collapse distinct pages into one signal.",
+          "impact": "A reader cannot distinguish these pages by title alone.",
+          "observed_signal": "23 page(s) share the title \"Product | Northwind Supply\"",
+          "evidence": "Duplicate title \"Product | Northwind Supply\" on: http://127.0.0.1:54739/product/1.html, http://127.0.0.1:54739/product/10.html, http://127.0.0.1:54739/product/11.html, http://127.0.0.1:54739/product/12.html, http://127.0.0.1:54739/product/13.html",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-0ed433ef5bf0fcef",
+            "OBS-HTTP-FETCH-15b9ce584dc71fe5",
+            "OBS-HTTP-FETCH-2ad153deff975fb5",
+            "OBS-HTTP-FETCH-3561337e688089f6",
+            "OBS-HTTP-FETCH-38c450f65739a1a2",
+            "OBS-HTTP-FETCH-3f049af0ab412235",
+            "OBS-HTTP-FETCH-43a25c7ef544147b",
+            "OBS-HTTP-FETCH-49e6decad3f4f380",
+            "OBS-HTTP-FETCH-4bf0d9d9c76a09e6",
+            "OBS-HTTP-FETCH-5038ab2990a665cf",
+            "OBS-HTTP-FETCH-566b6960da71cd85",
+            "OBS-HTTP-FETCH-65ae7c8b0456e5de",
+            "OBS-HTTP-FETCH-6867f4edf1f9b55d",
+            "OBS-HTTP-FETCH-7909f2e1b5c7a1dd",
+            "OBS-HTTP-FETCH-83cc45ddab8d8687",
+            "OBS-HTTP-FETCH-913a07c12bfa9bba",
+            "OBS-HTTP-FETCH-971d657f8fe6e311",
+            "OBS-HTTP-FETCH-9f17d8e65d11682b",
+            "OBS-HTTP-FETCH-a84e7673c225af47",
+            "OBS-HTTP-FETCH-b12b06e51b2f7ebd",
+            "OBS-HTTP-FETCH-b9c30e4a02d0d5a1",
+            "OBS-HTTP-FETCH-c3b67e88d3bf498a",
+            "OBS-HTTP-FETCH-ca673241cc942a23"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54739/product/1.html",
+            "http://127.0.0.1:54739/product/10.html",
+            "http://127.0.0.1:54739/product/11.html",
+            "http://127.0.0.1:54739/product/12.html",
+            "http://127.0.0.1:54739/product/13.html",
+            "http://127.0.0.1:54739/product/14.html",
+            "http://127.0.0.1:54739/product/15.html",
+            "http://127.0.0.1:54739/product/16.html",
+            "http://127.0.0.1:54739/product/17.html",
+            "http://127.0.0.1:54739/product/18.html",
+            "http://127.0.0.1:54739/product/19.html",
+            "http://127.0.0.1:54739/product/2.html",
+            "http://127.0.0.1:54739/product/20.html",
+            "http://127.0.0.1:54739/product/21.html",
+            "http://127.0.0.1:54739/product/22.html",
+            "http://127.0.0.1:54739/product/23.html",
+            "http://127.0.0.1:54739/product/3.html",
+            "http://127.0.0.1:54739/product/4.html",
+            "http://127.0.0.1:54739/product/5.html",
+            "http://127.0.0.1:54739/product/6.html",
+            "http://127.0.0.1:54739/product/7.html",
+            "http://127.0.0.1:54739/product/8.html",
+            "http://127.0.0.1:54739/product/9.html"
+          ],
+          "affected": {
+            "count": 23,
+            "sample_urls": [
+              "http://127.0.0.1:54739/product/1.html",
+              "http://127.0.0.1:54739/product/10.html",
+              "http://127.0.0.1:54739/product/11.html",
+              "http://127.0.0.1:54739/product/12.html",
+              "http://127.0.0.1:54739/product/13.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Give each page a unique, descriptive title.",
+            "priority": "medium",
+            "how_to_fix": "Differentiate the title per page's specific subject.",
+            "validation": "Re-fetch; no two distinct pages share the same title."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": []
+        }
+      ],
+      "scope": {
+        "archetype": "ecommerce",
+        "pages_crawled": 30,
+        "pages_rendered": 8,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "BUDGET_EXHAUSTED",
+          "detail": "raw crawl stopped at 30 page(s)",
+          "scope": "pages beyond the crawl budget"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": true,
+            "complete": false
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 30,
+          "requests_made": 30,
+          "render_pages_done": 8,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 40
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 10.962
+      }
+    }
+  },
+  {
+    "fixture": "no-structured-data-ok",
+    "elapsed_s": 3.434,
+    "description": "No JSON-LD anywhere on the site. Identity (name/type/offering) is stated clearly in prose instead. Structured data is absent, not wrong -- absence alone must never be a finding.",
+    "expected_findings": [],
+    "actual_findings": [],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54780",
+      "audited_at": "2026-09-11T03:58:35.073742+00:00",
+      "summary": {
+        "total_findings": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [],
+      "scope": {
+        "archetype": "",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.434
+      }
+    }
+  },
+  {
+    "fixture": "robots-5xx",
+    "elapsed_s": 0.005,
+    "description": "robots.txt itself returns HTTP 500. The crawl must stop before fetching anything, per lib/site_observer/collect.py's _robots_degradation.",
+    "expected_findings": [
+      "D-CRAWL-15"
+    ],
+    "actual_findings": [
+      "D-CRAWL-15"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 1,
+      "critical": 0,
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "",
+      "pages_crawled": 0,
+      "pages_rendered": 0,
+      "template_clusters": 0,
+      "disallowed": true
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54794",
+      "audited_at": "2026-09-11T03:58:35.568490+00:00",
+      "summary": {
+        "total_findings": 1,
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-CRAWL-15",
+          "category": "discoverability",
+          "title": "robots.txt is unreachable or unparseable",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "Many crawlers treat an unreachable robots.txt as disallow-all.",
+          "impact": "The entire site may be treated as off-limits by conservative crawlers.",
+          "observed_signal": "robots.txt status: error",
+          "evidence": "robots.txt fetch status: error; HTTP status: 500",
+          "observation_ids": [
+            "OBS-ROBOTS-25099b4b8338dcf3"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54794/robots.txt"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54794/robots.txt"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Serve a syntactically valid robots.txt with a 200 status.",
+            "priority": "high",
+            "how_to_fix": "Fix the server/proxy issue serving robots.txt, or correct its syntax.",
+            "validation": "Re-fetch /robots.txt; status is 200 and it parses."
+          },
+          "scoring_trace": {
+            "original_severity": "critical",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-001",
+          "related_findings": []
+        }
+      ],
+      "scope": {
+        "archetype": "",
+        "pages_crawled": 0,
+        "pages_rendered": 0,
+        "template_clusters": 0,
+        "disallowed": true
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "ROBOTS_DISALLOWED",
+          "detail": "robots.txt error",
+          "scope": "all raw-crawl and rendered-lens checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": false,
+            "reason": "NO_REACHABLE_PAGES"
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": false
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 0,
+          "requests_made": 0,
+          "render_pages_done": 0,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 1
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 0.005
+      }
+    }
+  },
+  {
+    "fixture": "single-page-site",
+    "elapsed_s": 1.211,
+    "description": "A genuinely single-page site with no internal links at all.",
+    "expected_findings": [],
+    "actual_findings": [],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 0,
+      "ok": 0,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 1,
+      "pages_rendered": 1,
+      "template_clusters": 1,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54796",
+      "audited_at": "2026-09-11T03:58:37.253796+00:00",
+      "summary": {
+        "total_findings": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 1,
+        "pages_rendered": 1,
+        "template_clusters": 1,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "INSUFFICIENT_PAGES",
+          "detail": "only 1 page(s) discoverable",
+          "scope": "cross-page checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54796/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-ca4ea30ca5ef5c86"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54796/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 1,
+          "requests_made": 1,
+          "render_pages_done": 1,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 4
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 1.211
+      }
+    }
+  },
+  {
+    "fixture": "stale-content",
+    "elapsed_s": 3.535,
+    "description": "pricing.html: 'currently' with no date signal anywhere on the page (D-TRUST-01). events.html: a forward-framed event dated March 3, 2024 (already past at any real audit time) with no page-level date at/before it, PLUS a bare (c) 2022 footer with no other date signal on that page (D-TRUST-02a and D-TRUST-02c both on the same page).",
+    "expected_findings": [
+      "D-TRUST-01",
+      "D-TRUST-02"
+    ],
+    "actual_findings": [
+      "D-TRUST-01",
+      "D-TRUST-02"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 3,
+      "ok": 3,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 3,
+      "ok": 3,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 3,
+      "ok": 3,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 3,
+      "critical": 0,
+      "high": 0,
+      "medium": 3,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "",
+      "pages_crawled": 4,
+      "pages_rendered": 4,
+      "template_clusters": 4,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54801",
+      "audited_at": "2026-09-11T03:58:41.219424+00:00",
+      "summary": {
+        "total_findings": 3,
+        "critical": 0,
+        "high": 0,
+        "medium": 3,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-TRUST-02",
+          "category": "trust",
+          "title": "Stale dated event on http://127.0.0.1:54801/events.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "A stale forward-framed claim is actively misleading if repeated, not merely uninformative.",
+          "impact": "Repeating this claim would assert something that has already lapsed.",
+          "observed_signal": "date 2024-03-03 is before the audit date 2026-09-11",
+          "evidence": "Join us for our upcoming product launch event on March 3, 2024",
+          "observation_ids": [
+            "OBS-RENDER-2c5c3de33e51d9de"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54801/events.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54801/events.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Update or remove the stale date-bound claim, offer, or event.",
+            "priority": "medium",
+            "how_to_fix": "Refresh or remove the claim on http://127.0.0.1:54801/events.html.",
+            "validation": "Re-fetch; the extracted date is no longer past relative to its framing."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-001",
+          "related_findings": [
+            "F-002"
+          ]
+        },
+        {
+          "check_id": "D-TRUST-01",
+          "category": "trust",
+          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:54801/events.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "A citation pipeline repeating a time-framed claim with no way to judge its currency risks repeating something already false.",
+          "impact": "Machines cannot tell whether this claim is still current.",
+          "observed_signal": "1 time-sensitive phrase(s), 0 date signals on this page",
+          "evidence": "Time-sensitive text: \"ontact Aurora Retail Co Join us for our upcoming product launch event on March 3, 2024.\"",
+          "observation_ids": [
+            "OBS-RENDER-2c5c3de33e51d9de"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54801/events.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54801/events.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a visible 'last updated' date or dateModified schema near the claim.",
+            "priority": "medium",
+            "how_to_fix": "State when the claim on http://127.0.0.1:54801/events.html was last verified or updated.",
+            "validation": "Re-fetch the page; a date signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": [
+            "F-001"
+          ]
+        },
+        {
+          "check_id": "D-TRUST-01",
+          "category": "trust",
+          "title": "Time-sensitive claims with no date signal on http://127.0.0.1:54801/pricing.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "A citation pipeline repeating a time-framed claim with no way to judge its currency risks repeating something already false.",
+          "impact": "Machines cannot tell whether this claim is still current.",
+          "observed_signal": "1 time-sensitive phrase(s), 0 date signals on this page",
+          "evidence": "Time-sensitive text: \"Contact Aurora Retail Co Our pricing is currently the best value in the industry. See our\"",
+          "observation_ids": [
+            "OBS-RENDER-65f67b2ef3860c03"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54801/pricing.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54801/pricing.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a visible 'last updated' date or dateModified schema near the claim.",
+            "priority": "medium",
+            "how_to_fix": "State when the claim on http://127.0.0.1:54801/pricing.html was last verified or updated.",
+            "validation": "Re-fetch the page; a date signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-003",
+          "related_findings": []
+        }
+      ],
+      "scope": {
+        "archetype": "",
+        "pages_crawled": 4,
+        "pages_rendered": 4,
+        "template_clusters": 4,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 4,
+          "requests_made": 4,
+          "render_pages_done": 4,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 10
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 3.535
+      }
+    }
+  },
+  {
+    "fixture": "strong-disc-weak-engage",
+    "elapsed_s": 5.084,
+    "description": "Homepage/about/contact (depth 0-1) are brand-clear and well-formed (clean D-CRAWL/D-ENTITY/D-TRUST). The catalog hierarchy (depth 1-3) is discoverable and well-linked (strong 'discoverability') but its category and product pages (depth>=2) state no brand anywhere in title/h1/body-first-800/img-alt, and the site has no breadcrumb anywhere despite a sitewide max depth of 3 (weak 'engagement' -- orientation specifically).",
+    "expected_findings": [
+      "E-ORIENT-01",
+      "E-ORIENT-03"
+    ],
+    "actual_findings": [
+      "E-ORIENT-01",
+      "E-ORIENT-03"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 4,
+      "critical": 0,
+      "high": 2,
+      "medium": 2,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "brand-product",
+      "pages_crawled": 6,
+      "pages_rendered": 6,
+      "template_clusters": 6,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54812",
+      "audited_at": "2026-09-11T03:58:46.729922+00:00",
+      "summary": {
+        "total_findings": 4,
+        "critical": 0,
+        "high": 2,
+        "medium": 2,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "E-ORIENT-01",
+          "category": "engagement",
+          "title": "No brand identification on arrival at http://127.0.0.1:54812/catalog/bearings/",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "An AI-referred visitor arrives with no homepage context and no navigation history; if the first screen doesn't say whose page this is, they cannot evaluate trust.",
+          "impact": "A cold arrival on this page cannot tell whose site it landed on.",
+          "observed_signal": "brand token absent from early body text, logo alt, and title",
+          "evidence": "Checked title \"Bearings Category\", logo alt text, and first 800 body-text characters on http://127.0.0.1:54812/catalog/bearings/; visual viewport not measured for this check",
+          "observation_ids": [
+            "OBS-RENDER-dadcaf4cd1537721"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54812/catalog/bearings/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54812/catalog/bearings/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Put the brand name in the title, accessible header text, or the logo's alt text.",
+            "priority": "high",
+            "how_to_fix": "Add the brand name to one of the three positions on http://127.0.0.1:54812/catalog/bearings/.",
+            "validation": "Re-fetch the page cold; the brand token is present in >=1 of the three positions."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": []
+          },
+          "id": "F-001",
+          "related_findings": [
+            "F-003"
+          ]
+        },
+        {
+          "check_id": "E-ORIENT-01",
+          "category": "engagement",
+          "title": "No brand identification on arrival at http://127.0.0.1:54812/catalog/bearings/b-3000.html",
+          "severity": "high",
+          "confidence": "medium",
+          "mechanism": "An AI-referred visitor arrives with no homepage context and no navigation history; if the first screen doesn't say whose page this is, they cannot evaluate trust.",
+          "impact": "A cold arrival on this page cannot tell whose site it landed on.",
+          "observed_signal": "brand token absent from early body text, logo alt, and title",
+          "evidence": "Checked title \"B-3000 Spec Sheet\", logo alt text, and first 800 body-text characters on http://127.0.0.1:54812/catalog/bearings/b-3000.html; visual viewport not measured for this check",
+          "observation_ids": [
+            "OBS-RENDER-b7de31d653961379"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54812/catalog/bearings/b-3000.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54812/catalog/bearings/b-3000.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Put the brand name in the title, accessible header text, or the logo's alt text.",
+            "priority": "high",
+            "how_to_fix": "Add the brand name to one of the three positions on http://127.0.0.1:54812/catalog/bearings/b-3000.html.",
+            "validation": "Re-fetch the page cold; the brand token is present in >=1 of the three positions."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "medium",
+            "final_severity": "high",
+            "final_confidence": "medium",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": [
+            "F-004"
+          ]
+        },
+        {
+          "check_id": "E-ORIENT-03",
+          "category": "engagement",
+          "title": "No path context on http://127.0.0.1:54812/catalog/bearings/",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
+          "impact": "A visitor cannot tell where this page sits in the wider site.",
+          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
+          "evidence": "No path-context signal found on http://127.0.0.1:54812/catalog/bearings/",
+          "observation_ids": [
+            "OBS-RENDER-dadcaf4cd1537721"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54812/catalog/bearings/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54812/catalog/bearings/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
+            "priority": "medium",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:54812/catalog/bearings/.",
+            "validation": "Re-fetch; a path-context signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-003",
+          "related_findings": [
+            "F-001"
+          ]
+        },
+        {
+          "check_id": "E-ORIENT-03",
+          "category": "engagement",
+          "title": "No path context on http://127.0.0.1:54812/catalog/bearings/b-3000.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "An AI-referred visitor dropped mid-site has no navigation history to infer structure from.",
+          "impact": "A visitor cannot tell where this page sits in the wider site.",
+          "observed_signal": "no BreadcrumbList, breadcrumb-named element, or textual path equivalent found",
+          "evidence": "No path-context signal found on http://127.0.0.1:54812/catalog/bearings/b-3000.html",
+          "observation_ids": [
+            "OBS-RENDER-b7de31d653961379"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54812/catalog/bearings/b-3000.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54812/catalog/bearings/b-3000.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add a breadcrumb or a clear parent-topic link near the top of the page.",
+            "priority": "medium",
+            "how_to_fix": "Add breadcrumb markup (e.g. BreadcrumbList) to http://127.0.0.1:54812/catalog/bearings/b-3000.html.",
+            "validation": "Re-fetch; a path-context signal is now present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-004",
+          "related_findings": [
+            "F-002"
+          ]
+        }
+      ],
+      "scope": {
+        "archetype": "brand-product",
+        "pages_crawled": 6,
+        "pages_rendered": 6,
+        "template_clusters": 6,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [
+        {
+          "source": "identity_anchor_gap",
+          "source_urls": [
+            "http://127.0.0.1:54812/"
+          ],
+          "observation_ids": [
+            "OBS-RENDER-6a2e323664157268",
+            "OBS-RENDER-6c78a7821124469a",
+            "OBS-RENDER-cd6764f080e43db2"
+          ],
+          "title": "No sameAs links from the entity's structured data",
+          "opportunity": "The Organization/Person markup on http://127.0.0.1:54812/ carries no `sameAs` array. If verified profiles exist, add links to the entity's authoritative profiles (official social accounts, Wikidata/Wikipedia, a company registry page) gives citation pipelines a corroboration path that does not depend on prose alone.",
+          "expected_mechanism": "sameAs links let a consumer cross-check the entity against an independent, authoritative source.",
+          "expected_effect": "Higher confidence in entity resolution for systems that follow sameAs."
+        }
+      ],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 6,
+          "requests_made": 6,
+          "render_pages_done": 6,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 14
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 5.084
+      }
+    }
+  },
+  {
+    "fixture": "unusual-site-structure",
+    "elapsed_s": 8.083,
+    "description": "Numeric-ID article URLs (/article/101.html etc, should cluster as /article/# per template_shape). /old-page.html -> /new-page.html is a single-hop redirect (must NOT fire D-CRAWL-05). /a.html -> /b.html -> /c.html -> /d.html is a 3-hop chain (must fire D-CRAWL-05). /en/pricing.html and /fr/pricing.html are locale variants with no hreflang tag anywhere (D-CRAWL-11). /gone.html returns HTTP 200 with a short soft-404 phrase (D-CRAWL-04).",
+    "expected_findings": [
+      "D-CRAWL-04",
+      "D-CRAWL-05",
+      "D-CRAWL-11",
+      "E-CONTINUE-02"
+    ],
+    "actual_findings": [
+      "D-CRAWL-04",
+      "D-CRAWL-05",
+      "D-CRAWL-11",
+      "E-CONTINUE-02"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 4,
+      "ok": 4,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 4,
+      "critical": 0,
+      "high": 1,
+      "medium": 3,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "",
+      "pages_crawled": 11,
+      "pages_rendered": 8,
+      "template_clusters": 9,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54828",
+      "audited_at": "2026-09-11T03:58:55.205983+00:00",
+      "summary": {
+        "total_findings": 4,
+        "critical": 0,
+        "high": 1,
+        "medium": 3,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-CRAWL-04",
+          "category": "discoverability",
+          "title": "Dead or soft-404 pages in /gone.html",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A dead page cannot be read regardless of what a sitemap or internal link claims.",
+          "impact": "Links and sitemap entries pointing here lead nowhere.",
+          "observed_signal": "1 page(s) dead or soft-404",
+          "evidence": "Broken: http://127.0.0.1:54828/gone.html",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-8ae122f71478ebbe"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54828/gone.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54828/gone.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Fix the broken route, 301 to the correct resource, or remove the dead link/sitemap entry.",
+            "priority": "high",
+            "how_to_fix": "Restore or redirect the named URLs.",
+            "validation": "Re-fetch; status is 200 and the soft-404 phrase no longer matches."
+          },
+          "scoring_trace": {
+            "original_severity": "high",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-001",
+          "related_findings": [
+            "F-004"
+          ]
+        },
+        {
+          "check_id": "D-CRAWL-11",
+          "category": "discoverability",
+          "title": "Locale variants with no hreflang (*/pricing.html)",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "Ambiguous locale signals split citation authority across duplicates and risk serving the wrong-language version to a crawler.",
+          "impact": "These locale variants compete instead of consolidating signal.",
+          "observed_signal": "2 locale variant(s), none carry hreflang",
+          "evidence": "Variants: http://127.0.0.1:54828/en/pricing.html, http://127.0.0.1:54828/fr/pricing.html",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-aa3856f007e8a403",
+            "OBS-HTTP-FETCH-b35fcd1c12f34275"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54828/en/pricing.html",
+            "http://127.0.0.1:54828/fr/pricing.html"
+          ],
+          "affected": {
+            "count": 2,
+            "sample_urls": [
+              "http://127.0.0.1:54828/en/pricing.html",
+              "http://127.0.0.1:54828/fr/pricing.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add self- and cross-referencing hreflang tags across every locale variant.",
+            "priority": "medium",
+            "how_to_fix": "Add <link rel=alternate hreflang=...> for each variant on every variant.",
+            "validation": "Re-fetch each variant; a consistent, mutually-referencing hreflang set is present."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-002",
+          "related_findings": []
+        },
+        {
+          "check_id": "D-CRAWL-05",
+          "category": "discoverability",
+          "title": "Redirect chain faults in /a.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "Each hop is a chance for a crawler to give up, and adds latency against the crawl-budget ceiling every citation pipeline has.",
+          "impact": "Slower, less reliable discovery of these URLs.",
+          "observed_signal": "1 URL(s) with >=3 hops or a loop",
+          "evidence": "Long/looping chains: http://127.0.0.1:54828/a.html",
+          "observation_ids": [
+            "OBS-HTTP-FETCH-f1bd46f23de82a9f"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54828/a.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54828/a.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Collapse the chain to a single redirect straight to the final canonical URL.",
+            "priority": "medium",
+            "how_to_fix": "Update the redirect rule(s) to a direct hop.",
+            "validation": "Re-fetch the original URL; redirect_chain length is <=1."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-003",
+          "related_findings": []
+        },
+        {
+          "check_id": "E-CONTINUE-02",
+          "category": "engagement",
+          "title": "Dead end at http://127.0.0.1:54828/gone.html",
+          "severity": "medium",
+          "confidence": "high",
+          "mechanism": "There is structurally nothing to click that leads deeper into the site from this page's own content.",
+          "impact": "A visitor has no way to continue browsing from this page's content.",
+          "observed_signal": "0 outgoing links in the main-content region",
+          "evidence": "No content-region links found on http://127.0.0.1:54828/gone.html",
+          "observation_ids": [
+            "OBS-RENDER-f47a4e269546dddf"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54828/gone.html"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54828/gone.html"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Add at least one in-content link to related material.",
+            "priority": "medium",
+            "how_to_fix": "Add a content-region link on http://127.0.0.1:54828/gone.html.",
+            "validation": "Re-fetch; content-region out-degree is >=1."
+          },
+          "scoring_trace": {
+            "original_severity": "medium",
+            "original_confidence": "high",
+            "final_severity": "medium",
+            "final_confidence": "high",
+            "modifiers_applied": []
+          },
+          "id": "F-004",
+          "related_findings": [
+            "F-001"
+          ]
+        }
+      ],
+      "scope": {
+        "archetype": "",
+        "pages_crawled": 11,
+        "pages_rendered": 8,
+        "template_clusters": 9,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": true
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 11,
+          "requests_made": 11,
+          "render_pages_done": 8,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 25
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 8.083
+      }
+    }
+  },
+  {
+    "fixture": "weak-disc-strong-engage",
+    "elapsed_s": 2.758,
+    "description": "robots.txt disallows /catalog/, which the homepage still links to (a real, linked-but-blocked path). The 3 reachable pages (home/about/contact, all depth<=1) are brand-clear, well-connected and terminal-appropriate.",
+    "expected_findings": [
+      "D-CRAWL-01"
+    ],
+    "actual_findings": [
+      "D-CRAWL-01"
+    ],
+    "false_positives": [],
+    "false_negatives": [],
+    "total_missing_checks": [],
+    "known_coverage_gaps": [],
+    "guardrail_violations": [],
+    "structurally_untestable": [],
+    "confirmed_false_negative": null,
+    "missing_expected_coverage": [],
+    "evidence_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "recommendation_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "severity_quality": {
+      "n": 1,
+      "ok": 1,
+      "failing": []
+    },
+    "summary": {
+      "total_findings": 1,
+      "critical": 0,
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": {
+      "archetype": "",
+      "pages_crawled": 3,
+      "pages_rendered": 3,
+      "template_clusters": 3,
+      "disallowed": false
+    },
+    "schema_valid": true,
+    "skill_failures": [],
+    "report": {
+      "site": "127.0.0.1:54854",
+      "audited_at": "2026-09-11T03:58:58.408262+00:00",
+      "summary": {
+        "total_findings": 1,
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "check_id": "D-CRAWL-01",
+          "category": "discoverability",
+          "title": "robots.txt disallows content paths in /catalog",
+          "severity": "high",
+          "confidence": "high",
+          "mechanism": "A disallowed path is never fetched by a compliant crawler; the content behind it does not exist for that system at all.",
+          "impact": "Pages in this template are structurally unreachable to any robots-respecting citation pipeline.",
+          "observed_signal": "1 non-utility URL(s) disallowed by robots.txt",
+          "evidence": "robots.txt disallows: http://127.0.0.1:54854/catalog/",
+          "observation_ids": [
+            "OBS-ROBOTS-2da3c20756ed6b01"
+          ],
+          "source_urls": [
+            "http://127.0.0.1:54854/catalog/"
+          ],
+          "affected": {
+            "count": 1,
+            "sample_urls": [
+              "http://127.0.0.1:54854/catalog/"
+            ],
+            "total_in_scope": null
+          },
+          "suggested_action": {
+            "summary": "Remove the Disallow rule blocking this content, or confirm it has no unique content reachable no other way.",
+            "priority": "high",
+            "how_to_fix": "Edit robots.txt to allow /catalog.",
+            "validation": "Re-fetch robots.txt; robots_allows() on the named path returns true."
+          },
+          "scoring_trace": {
+            "original_severity": "critical",
+            "original_confidence": "high",
+            "final_severity": "high",
+            "final_confidence": "high",
+            "modifiers_applied": [
+              "critical-cap: requires confirmed broad or whole-site invisibility and high confidence"
+            ]
+          },
+          "id": "F-001",
+          "related_findings": []
+        }
+      ],
+      "scope": {
+        "archetype": "",
+        "pages_crawled": 3,
+        "pages_rendered": 3,
+        "template_clusters": 3,
+        "disallowed": false
+      },
+      "coverage": [
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "ROBOTS_DISALLOWED",
+          "detail": "1 discovered path(s) skipped by robots.txt",
+          "scope": "the specific disallowed paths, not the whole site"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "partial",
+          "reason": "PROBE_LIMITED",
+          "detail": "Local probes verify explicit text spans; they cannot prove absent answers or read image-only facts.",
+          "scope": "semantic absence and OCR-dependent extraction checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "SEARCH_UNAVAILABLE",
+          "detail": "No external search evidence provider configured; corroboration is unknown.",
+          "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        }
+      ],
+      "proactive_opportunities": [],
+      "demoted": [],
+      "run": {
+        "capabilities": {
+          "renderer": {
+            "available": true,
+            "reason": null
+          },
+          "corroboration": {
+            "available": false,
+            "reason": "MODEL_UNAVAILABLE"
+          },
+          "crawl": {
+            "budget_exhausted": false,
+            "complete": false
+          },
+          "probe": {
+            "available": true,
+            "method": "deterministic_explicit_spans",
+            "negative_inference": false
+          }
+        },
+        "budget": {
+          "pages_fetched": 3,
+          "requests_made": 3,
+          "render_pages_done": 3,
+          "model_calls_made": 0,
+          "model_calls_max": 14,
+          "network_requests": 8
+        },
+        "skill_failures": [],
+        "evidence_binding_drops": [],
+        "merge_log": [],
+        "calibration_log": [],
+        "rejected_findings": [],
+        "schema_valid": true,
+        "elapsed_s": 2.758
+      }
+    }
+  }
+]
