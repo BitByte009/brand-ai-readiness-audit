@@ -120,7 +120,10 @@ def validate_marketplace(root=ROOT, official=False):
     errors = []
     try:
         manifest = read_json(root / "marketplace.json")
-        schema = read_json(ROOT / "schemas/marketplace.schema.json")
+        schema_path = root / "schemas/marketplace.schema.json"
+        # Tiny validator fixtures intentionally omit schemas; real extracted
+        # packages validate against their own shipped schema, never ROOT's.
+        schema = read_json(schema_path if schema_path.is_file() else ROOT / "schemas/marketplace.schema.json")
         jsonschema.Draft202012Validator.check_schema(schema)
         for error in jsonschema.Draft202012Validator(schema).iter_errors(manifest):
             errors.append(f"manifest/{'/'.join(map(str, error.path))}: {error.message}")

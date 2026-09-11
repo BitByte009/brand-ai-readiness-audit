@@ -1,5 +1,6 @@
 """Regression cases for live collection, conservative evidence, and packaging."""
 import json
+import shutil
 import sys
 import zipfile
 from pathlib import Path
@@ -171,32 +172,62 @@ def test_empty_id_absence_findings_get_replayable_page_anchors():
     assert kept[0]['observation_ids'] == [store['observations'][0]['id']]
 
 
-def test_submission_zip_excludes_caches_and_has_manifest_at_root(tmp_path, monkeypatch):
+def packaging_fixture(tmp_path):
     root = tmp_path/'repo'
     root.mkdir()
-    (root/'marketplace.json').write_text('{}')
+    for name in package_submission.ROOT_FILES:
+        source = ROOT/name
+        destination = root/name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+    for source_name in package_submission.TEMPLATES.values():
+        source = ROOT/source_name
+        destination = root/source_name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+    for directory in ('lib', 'schemas', 'references', 'skills'):
+        shutil.copytree(ROOT/directory, root/directory)
+    return root
+
+
+def test_submission_zip_is_an_explicit_deliverable_allowlist(tmp_path, monkeypatch):
+    root = packaging_fixture(tmp_path)
     (root/'.pytest_cache').mkdir()
     (root/'.pytest_cache'/'cache').write_text('not submitted')
     (root/'compiled.pyc').write_bytes(b'bytecode')
+    (root/'PROJECT_CONTEXT.md').write_text('repository-only context')
+    (root/'handbook.pdf').write_bytes(b'preserved but not submitted')
+    (root/'tests').mkdir()
+    (root/'tests'/'test_extra.py').write_text('assert True')
+    (root/'skills'/'audit-orchestrator'/'KNOWLEDGE.md').write_text('maintainer notes')
+    (root/'model.safetensors').write_bytes(b'not selected')
     monkeypatch.setattr(package_submission, 'ROOT', root)
     output = tmp_path/'submission.zip'
     package_submission.package(output)
     with zipfile.ZipFile(output) as archive:
-        assert archive.namelist() == ['marketplace.json']
+        names = archive.namelist()
+        assert names[0] == 'LICENSE'
+        assert {'marketplace.json', 'README.md', 'requirements.txt',
+                'skills/audit-orchestrator/SKILL.md'} <= set(names)
+        assert not any(name.startswith(('tests/', 'source-materials/')) for name in names)
+        assert not any(name.endswith(('.pdf', '.pyc', '.safetensors', 'KNOWLEDGE.md')) for name in names)
+        assert 'PROJECT_CONTEXT.md' not in names
+        readme = archive.read('README.md').decode()
+        assert 'requirements-dev.txt' not in readme
+        assert 'scripts/package_submission.py' not in readme
+        assert '../../tests/' not in archive.read('skills/crawl-render-audit/SKILL.md').decode()
 
 
 def test_packaging_is_reproducible_and_preserves_previous_archive_on_failure(tmp_path, monkeypatch):
-    root = tmp_path/'repo'
-    root.mkdir()
-    (root/'marketplace.json').write_text('{}')
+    root = packaging_fixture(tmp_path)
     monkeypatch.setattr(package_submission, 'ROOT', root)
     output = tmp_path/'submission.zip'
     package_submission.package(output)
     original = output.read_bytes()
     package_submission.package(output)
     assert output.read_bytes() == original
-    (root/'model.safetensors').write_bytes(b'not allowed')
-    with pytest.raises(ValueError, match='weights'):
+    (root/'marketplace.json').unlink()
+    with pytest.raises(ValueError, match='required package file'):
         package_submission.package(output)
     assert output.read_bytes() == original
 

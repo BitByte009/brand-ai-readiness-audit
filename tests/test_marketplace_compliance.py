@@ -5,12 +5,14 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import zipfile
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / "tests")]
 import validate_marketplace as validator
+from scripts import package_submission
 
 
 def write_skill(root, name, extra=""):
@@ -42,6 +44,18 @@ def change_manifest(root, change):
 def test_repository_and_minimal_composition_pass(package):
     assert validator.validate_marketplace(ROOT) == []
     assert validator.validate_marketplace(package) == []
+
+
+def test_built_submission_validates_from_its_extracted_root(tmp_path):
+    archive_path = tmp_path / "submission.zip"
+    package_submission.package(archive_path)
+    extracted = tmp_path / "extracted"
+    with zipfile.ZipFile(archive_path) as archive:
+        archive.extractall(extracted)
+    assert validator.validate_marketplace(extracted) == []
+    names = {path.relative_to(extracted).as_posix() for path in extracted.rglob("*") if path.is_file()}
+    assert not any(name.startswith(("tests/", "design-docs/", "source-materials/")) for name in names)
+    assert not any(name.endswith((".pdf", "KNOWLEDGE.md")) for name in names)
 
 
 @pytest.mark.parametrize("change", [
