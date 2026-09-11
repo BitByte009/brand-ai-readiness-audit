@@ -824,3 +824,149 @@ def test_hostile_07c_personal_portfolio_type_absence_is_downgraded():
     assert len(findings) == 1
     assert findings[0]["severity"] == "medium"
     assert findings[0]["confidence"] == "low"  # medium (no probe) downgraded once more
+
+
+# ---------------------------------------------------------------------------
+# Structured identity authority (D-ENTITY-01/04) and conservative aliases
+# ---------------------------------------------------------------------------
+#
+# A page title is a document label; an Organization node's `name` is an entity
+# declaration. Authority is earned by five conditions, and each test below
+# removes exactly one of them.
+
+import build_entity_profile as _bep
+
+ORG = '{"@context":"https://schema.org","@type":"Organization","name":"Meridian Bearings",%s"description":"An industrial bearing supplier."}'
+
+
+def _page(url, title, jsonld=ORG % "", body="Meridian Bearings supplies industrial bearings to machine shops.", desc=None):
+    meta = f'<meta name="description" content="{desc}">' if desc else ""
+    script = f'<script type="application/ld+json">{jsonld}</script>' if jsonld else ""
+    html = f"<html><head><title>{title}</title>{meta}{script}</head><body><h1>{title}</h1><p>{body}</p></body></html>"
+    return make_observation("HTTP_FETCH", url, {"html": html, "status_code": 200, "final_url": url})
+
+
+def _profile(observations):
+    return _bep.build_entity_profile({"observations": observations, "archetype": "brand-product",
+                                      "target": {"audited_host": "example.com"}})
+
+
+SITE = ["https://example.com/", "https://example.com/support", "https://example.com/pricing"]
+TITLES = ["Meridian Bearings", "Support - Meridian Bearings", "Pricing - Meridian Bearings"]
+
+
+# -- A: identical valid Organization markup across pages --------------------
+
+def test_consistent_structured_identity_outranks_per_page_titles():
+    profile = _profile([_page(u, t) for u, t in zip(SITE, TITLES)])
+    name = profile["fields"]["canonical_name"]
+    assert name["value"] == "Meridian Bearings"
+    assert name["consistent"] is True
+    assert name["determined_by"] == "structured_identity"
+    assert name["candidates"], "the observed candidates are still carried as evidence"
+    assert detect_entity.check_d_entity_01({"observations": []}, profile) == []
+
+
+def test_per_page_meta_descriptions_are_not_conflicting_entity_descriptions():
+    # Distinct per-page descriptions are correct practice, not a contradiction.
+    observations = [_page(u, t, desc=d) for u, t, d in zip(
+        SITE, TITLES,
+        ["Meridian Bearings supplies precision bearings to Nordic machine shops.",
+         "Answers about stock ranges, dispatch times and returns.",
+         "Trade pricing, volume discounts and payment terms."])]
+    profile = _profile(observations)
+    assert detect_entity.check_d_entity_04({"observations": []}, profile) == []
+
+
+# -- B: markup that contradicts the visible site keeps reporting ------------
+
+def test_structured_identity_invisible_on_the_page_earns_no_authority():
+    invisible = (ORG % "").replace("Meridian Bearings", "Completely Different Holdings")
+    observations = [_page(u, t, jsonld=invisible) for u, t in zip(SITE, TITLES)]
+    assert _bep._structured_identity(_bep.effective_pages({"observations": observations})) is None
+
+
+# -- C: markup on one page is not a sitewide claim ---------------------------
+
+def test_structured_identity_on_a_single_page_is_not_sitewide_truth():
+    observations = [_page(SITE[0], TITLES[0])] + [_page(u, t, jsonld=None) for u, t in zip(SITE[1:], TITLES[1:])]
+    assert _bep._structured_identity(_bep.effective_pages({"observations": observations})) is None
+
+
+# -- D: malformed or nameless markup earns nothing ---------------------------
+
+@pytest.mark.parametrize("jsonld,reason", [
+    ("{not valid json", "unparseable"),
+    ('{"@context":"https://schema.org","@type":"Organization"}', "no name property"),
+    ('{"@context":"https://schema.org","@type":"Organization","name":"   "}', "blank name"),
+], ids=["unparseable", "nameless", "blank"])
+def test_malformed_structured_identity_earns_no_authority(jsonld, reason):
+    observations = [_page(u, t, jsonld=jsonld) for u, t in zip(SITE, TITLES)]
+    assert _bep._structured_identity(_bep.effective_pages({"observations": observations})) is None, reason
+
+
+# -- E: competing organizations are never resolved arbitrarily --------------
+
+def test_two_competing_organizations_are_not_arbitrarily_resolved():
+    other = (ORG % "").replace("Meridian Bearings", "Nordic Bearings Group")
+    observations = [_page(SITE[0], TITLES[0]), _page(SITE[1], TITLES[1], jsonld=other),
+                    _page(SITE[2], TITLES[2])]
+    assert _bep._structured_identity(_bep.effective_pages({"observations": observations})) is None
+
+
+def test_a_third_party_node_pointing_at_another_site_is_not_adopted():
+    foreign = ORG % '"url":"https://payments.vendor.example/",'
+    observations = [_page(u, t, jsonld=foreign) for u, t in zip(SITE, TITLES)]
+    assert _bep._structured_identity(_bep.effective_pages({"observations": observations})) is None
+
+
+def test_the_www_spelling_of_the_same_site_is_not_treated_as_foreign():
+    same = ORG % '"url":"https://www.example.com/",'
+    observations = [_page(u, t, jsonld=same) for u, t in zip(SITE, TITLES)]
+    assert _bep._structured_identity(_bep.effective_pages({"observations": observations})) is not None
+
+
+# -- F: non-organization markup does not establish identity -----------------
+
+@pytest.mark.parametrize("node_type", ["Product", "Article", "WebPage", "BreadcrumbList"])
+def test_non_identity_markup_does_not_satisfy_entity_identity(node_type):
+    node = '{"@context":"https://schema.org","@type":"%s","name":"Meridian Bearings"}' % node_type
+    observations = [_page(u, t, jsonld=node) for u, t in zip(SITE, TITLES)]
+    assert _bep._structured_identity(_bep.effective_pages({"observations": observations})) is None
+
+
+# -- G: non-ASCII entity names behave identically ---------------------------
+
+def test_structured_identity_authority_holds_for_non_ascii_names():
+    greek = '{"@context":"https://schema.org","@type":"Organization","name":"Μερίντιαν Ρουλεμάν"}'
+    titles = ["Μερίντιαν Ρουλεμάν", "Υποστήριξη - Μερίντιαν Ρουλεμάν", "Τιμές - Μερίντιαν Ρουλεμάν"]
+    observations = [_page(u, t, jsonld=greek, body="Η Μερίντιαν Ρουλεμάν πουλάει ρουλεμάν ακριβείας.")
+                    for u, t in zip(SITE, titles)]
+    profile = _profile(observations)
+    assert profile["fields"]["canonical_name"]["value"] == "Μερίντιαν Ρουλεμάν"
+    assert profile["fields"]["canonical_name"]["determined_by"] == "structured_identity"
+
+
+# -- aliases -----------------------------------------------------------------
+
+def test_a_single_page_title_does_not_become_a_sitewide_alias():
+    profile = _profile([_page(u, t) for u, t in zip(SITE, TITLES)])
+    aliases = (profile["fields"]["aliases"]["value"] or "")
+    assert "Support" not in aliases and "Pricing" not in aliases
+
+
+def test_a_name_repeated_across_pages_is_accepted_as_an_alias():
+    # A trading name carried in the h1 of several pages is real alternate identity.
+    observations = [_page(u, t, body="Meridian Bearings supplies bearings.") for u, t in zip(SITE, TITLES)]
+    observations += [make_observation("HTTP_FETCH", u, {"html":
+        f'<html><head><title>Meridian Nordic</title>{"<script type=\"application/ld+json\">" + (ORG % "") + "</script>"}</head>'
+        "<body><h1>Meridian Nordic</h1><p>Meridian Bearings supplies bearings.</p></body></html>",
+        "status_code": 200, "final_url": u}) for u in ("https://example.com/a", "https://example.com/b")]
+    profile = _profile(observations)
+    assert "Meridian Nordic" in (profile["fields"]["aliases"]["value"] or "")
+
+
+def test_the_canonical_name_is_never_demoted_to_an_alias():
+    profile = _profile([_page(u, t) for u, t in zip(SITE, TITLES)])
+    assert profile["fields"]["canonical_name"]["value"] == "Meridian Bearings"
+    assert "Meridian Bearings" not in (profile["fields"]["aliases"]["value"] or "")

@@ -276,6 +276,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -395,6 +423,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -1009,6 +1065,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -1150,6 +1234,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -1364,6 +1476,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -1672,6 +1812,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -1852,6 +2020,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -1985,6 +2181,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -2125,6 +2349,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -2341,6 +2593,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -2548,6 +2828,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -2842,6 +3150,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -2961,6 +3297,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -3133,6 +3497,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -3259,6 +3651,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -3520,6 +3940,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -3810,6 +4258,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [
@@ -4119,6 +4595,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],
@@ -4291,6 +4795,34 @@
           "reason": "SEARCH_UNAVAILABLE",
           "detail": "No external search evidence provider configured; corroboration is unknown.",
           "scope": "D-ENTITY-03 and D-TRUST-05 corroboration checks"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-EXTRACT-01, D-EXTRACT-03, D-EXTRACT-06, D-EXTRACT-07, D-RENDER-02, E-ANSWER-04 could not be evaluated: they require a PROBE observation from the per-page extraction probe (needs a model instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether a specific fact a user would ask for is actually extractable from this page's text"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-ENTITY-03, D-TRUST-05 could not be evaluated: they require a CLAIM_CORROBORATION observation from the outbound corroboration search (needs a search instrument), which this run did not have. These checks did not pass; they did not run.",
+          "scope": "whether the site's claims and identity are supported anywhere beyond the site itself"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-07 could not be evaluated: it requires a SITEMAP observation from the sitemap retrieval (not performed by the single collection pass), which this run did not have. This check did not pass; it did not run.",
+          "scope": "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph"
+        },
+        {
+          "check_id": "X-COV-01",
+          "status": "skipped",
+          "reason": "UNAVAILABLE_INSTRUMENT",
+          "detail": "D-CRAWL-14 could not be evaluated: it requires crawl budget telemetry that this collection pass does not record. This check did not pass; it did not run.",
+          "scope": "whether the crawl was cut short by budget rather than by the site's own size"
         }
       ],
       "proactive_opportunities": [],

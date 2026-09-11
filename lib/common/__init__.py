@@ -10,7 +10,7 @@ from .extract import (
 from .findings import affected_block, make_finding
 from .http_client import fetch_url, resolve_redirect_chain
 from .observations import ObservationStore, make_observation
-from .robots import fetch_robots, parse_robots, robots_allows
+from .robots import fetch_robots, parse_robots, robots_allows, robots_allows_every_interpretation
 
 __all__ = [
     "fetch_url",
@@ -18,6 +18,7 @@ __all__ = [
     "fetch_robots",
     "parse_robots",
     "robots_allows",
+    "robots_allows_every_interpretation",
     "extract_metadata",
     "extract_canonical_url",
     "extract_jsonld",

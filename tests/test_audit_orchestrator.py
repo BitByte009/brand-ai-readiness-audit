@@ -384,6 +384,295 @@ def test_proactive_reframes_demoted_findings_never_as_defects():
 
 
 # ---------------------------------------------------------------------------
+# Checks that could not be evaluated at all (unavailable instrument)
+# ---------------------------------------------------------------------------
+#
+# A check gated on an instrument this deployment does not have is neither
+# passed nor failed -- it did not run. Silence from it must not read as a clean
+# result, so the report names it.
+
+def test_unavailable_instrument_produces_coverage_and_never_a_finding():
+    store = {"observations": [make_observation("HTTP_FETCH", "https://example.org/", {"html": "<h1>Hi</h1>"})],
+             "capabilities": {}}
+    entries = run_audit._unavailable_instrument_coverage(store)
+
+    assert entries, "no probe, corroboration or sitemap observation exists in this store"
+    for entry in entries:
+        assert entry["check_id"] == "X-COV-01"        # a coverage row, never a finding
+        assert entry["status"] == "skipped"
+        assert entry["reason"] == "UNAVAILABLE_INSTRUMENT"
+        assert "did not run" in entry["detail"]
+
+
+@pytest.mark.parametrize("check_id", [
+    "D-EXTRACT-01", "D-EXTRACT-03", "D-EXTRACT-06", "D-EXTRACT-07", "D-RENDER-02",
+    "E-ANSWER-04", "D-ENTITY-03", "D-TRUST-05", "D-CRAWL-07", "D-CRAWL-14",
+])
+def test_every_unevaluable_check_is_named_in_coverage(check_id):
+    # Naming the capability is not enough; a reader needs the check IDs, because
+    # that is what they would otherwise assume had passed.
+    detail = " ".join(e["detail"] for e in run_audit._unavailable_instrument_coverage(
+        {"observations": [], "capabilities": {}}))
+    assert check_id in detail
+
+
+def test_declared_unevaluable_checks_actually_exist_in_the_detectors():
+    # Guards against the disclosure list drifting away from the code it describes.
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    implemented = set()
+    for path in root.glob("skills/*/scripts/detect_*.py"):
+        implemented.update(re.findall(r'check_id="([DE]-[A-Z]+-[0-9]+)"', path.read_text(encoding="utf-8")))
+    declared = {c for _, _, checks, _ in run_audit.INSTRUMENT_DEPENDENT_CHECKS for c in checks}
+    declared.update(run_audit.BUDGET_TELEMETRY_CHECKS)
+    assert declared <= implemented, f"disclosed checks that no detector implements: {declared - implemented}"
+
+
+def test_an_available_instrument_removes_its_coverage_entry():
+    store = {"observations": [make_observation("PROBE", "https://example.org/", {"questions": []})],
+             "capabilities": {}}
+    reasons = [e["detail"] for e in run_audit._unavailable_instrument_coverage(store)]
+    assert not any("D-RENDER-02" in detail for detail in reasons), "probe is present, so its checks are evaluable"
+    assert any("D-ENTITY-03" in detail for detail in reasons), "corroboration is still absent"
+
+
+def test_coverage_entries_are_not_duplicated():
+    duplicated = [
+        {"check_id": "X-COV-01", "status": "skipped", "reason": "UNAVAILABLE_INSTRUMENT", "scope": "a", "detail": "x"},
+        {"check_id": "X-COV-01", "status": "skipped", "reason": "UNAVAILABLE_INSTRUMENT", "scope": "a", "detail": "y"},
+        {"check_id": "X-COV-01", "status": "skipped", "reason": "UNAVAILABLE_INSTRUMENT", "scope": "b", "detail": "z"},
+    ]
+    assert len(run_audit._deduplicate_coverage(duplicated)) == 2
+
+
+# ---------------------------------------------------------------------------
+# Proactive opportunities on HEALTHY observations (FINDING vs OPPORTUNITY)
+# ---------------------------------------------------------------------------
+#
+# A FINDING says something is wrong. An OPPORTUNITY says the observed state is
+# healthy and there is still a specific, evidence-backed improvement. These
+# cases pin that boundary: an opportunity must never be a demoted defect, and
+# a site with nothing to build on must get nothing invented for it.
+
+ANSWER = (
+    "Stocked metric sizes run from three millimetres to two hundred millimetres bore, and every "
+    "listed size ships the same working day when the order arrives before fifteen hundred hours."
+)
+LONG_BODY = ANSWER + " " + ANSWER
+
+
+def healthy_page(html: str, url: str = "https://example.org/support", kind: str = "HTTP_FETCH"):
+    return make_observation(kind, url, {"html": html, "status_code": 200})
+
+
+def faq_html(count: int = 4, answer: str = ANSWER, heading: str = "h2") -> str:
+    sections = "".join(
+        f"<section><{heading}>Question number {index} about stock and dispatch?</{heading}>"
+        f"<p>{answer}</p></section>"
+        for index in range(count)
+    )
+    return f"<html><body><h1>Support</h1>{sections}</body></html>"
+
+
+def sectioned_html(count: int = 5, body: str = LONG_BODY, with_ids: bool = False) -> str:
+    sections = "".join(
+        f'<section><h2{f' id="s{index}"' if with_ids else ""}>Section {index} on bearing maintenance</h2>'
+        f"<p>{body}</p></section>"
+        for index in range(count)
+    )
+    return f"<html><body><h1>Guide</h1>{sections}</body></html>"
+
+
+# -- A: healthy site, zero findings, still a grounded opportunity ------------
+
+def test_healthy_site_with_no_findings_still_yields_a_grounded_opportunity():
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+
+    markup = [o for o in opportunities if o["source"] == "answer_markup_gap"]
+    assert len(markup) == 1
+    item = markup[0]
+    # Every field the report contract requires, and none that would make it a defect.
+    for field in ("title", "evidence", "why_it_matters", "suggested_action", "validation"):
+        assert item[field].strip()
+    assert item["confidence"] == "high"          # five answered questions
+    assert item["observation_ids"] and item["source_urls"]
+    assert "severity" not in item and "check_id" not in item
+    # Grounded in what was actually observed, not a template.
+    assert "5 question-shaped heading" in item["evidence"]
+    assert "Question number 0 about stock and dispatch?" in item["evidence"]
+
+
+def test_long_form_page_without_heading_ids_is_an_opportunity_not_a_defect():
+    store = {"observations": [healthy_page(sectioned_html(), url="https://example.org/guide")]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+    anchors = [o for o in opportunities if o["source"] == "section_anchor_gap"]
+    assert len(anchors) == 1
+    assert anchors[0]["confidence"] == "medium"
+    assert "none of their headings has an id" in anchors[0]["evidence"]
+
+
+def test_pages_that_already_did_the_work_get_no_advice():
+    # Existing FAQ markup, and a generator that already anchors headings.
+    marked_up = faq_html(count=5).replace(
+        "<h1>Support</h1>",
+        '<h1>Support</h1><script type="application/ld+json">{"@type":"FAQPage","mainEntity":[]}</script>',
+    )
+    store = {"observations": [
+        healthy_page(marked_up),
+        healthy_page(sectioned_html(with_ids=True), url="https://example.org/guide"),
+    ]}
+    assert proactive.generate_proactive_opportunities(store, demoted=[], findings=[]) == []
+
+
+# -- cross-script: an opportunity source must not be English-shaped ----------
+
+NON_ASCII_QUESTIONS = {
+    # Structurally different question marks: fullwidth, Arabic, and Greek's
+    # semicolon. A page in any of these is as markup-able as an English one.
+    "japanese": ("どのサイズを在庫していますか？",
+                 "当社は三ミリから二百ミリまでの精密ベアリングを在庫しており、在庫品は翌営業日に"
+                 "倉庫から発送されます。在庫のないサイズはお取り寄せとなり、通常十営業日ほどで入荷します。"),
+    "arabic": ("ما هي المقاسات المتوفرة لديكم؟",
+               "نحتفظ بمخزون من المحامل الدقيقة بأقطار تتراوح بين ثلاثة ومائتي مليمتر، وتشحن المقاسات "
+               "المتوفرة في المخزون في يوم العمل التالي من مستودعنا، أما المقاسات الأخرى فتطلب خصيصا."),
+    "greek": ("Ποια μεγέθη έχετε σε απόθεμα;",
+              "Διαθέτουμε ρουλεμάν ακριβείας από τρία έως διακόσια χιλιοστά και τα αποθηκευμένα μεγέθη "
+              "αποστέλλονται την επόμενη εργάσιμη ημέρα από την αποθήκη μας στον Πειραιά κάθε ημέρα."),
+}
+
+
+@pytest.mark.parametrize("script", sorted(NON_ASCII_QUESTIONS), ids=sorted(NON_ASCII_QUESTIONS))
+def test_answered_questions_are_recognized_in_any_script(script):
+    question, answer = NON_ASCII_QUESTIONS[script]
+    sections = "".join(f"<section><h2>{question}</h2><p>{answer}</p></section>" for _ in range(4))
+    store = {"observations": [healthy_page(f"<html><body><h1>FAQ</h1>{sections}</body></html>")]}
+
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+    assert any(o["source"] == "answer_markup_gap" for o in opportunities), (
+        f"{script} answers are as markup-able as English ones"
+    )
+
+
+def test_a_heading_ending_in_a_semicolon_is_not_a_question_in_latin_script():
+    # Greek writes questions with ";", so it counts there -- but an English
+    # heading ending in ";" must not be read as an answered question.
+    assert proactive._is_question("Ποια μεγέθη έχετε σε απόθεμα;")
+    assert not proactive._is_question("Sizes, dispatch and returns;")
+
+
+# -- B: healthy minimalist site, nothing forced ------------------------------
+
+def test_healthy_minimalist_site_gets_no_forced_or_generic_opportunity():
+    # A small, correct brochure page: no questions, no long sections, and its
+    # Organization markup already carries sameAs. There is nothing to say.
+    html = (
+        '<html><head><title>Northwind Robotics</title>'
+        '<script type="application/ld+json">{"@type":"Organization","name":"Northwind",'
+        '"sameAs":["https://en.wikipedia.org/wiki/Robotics"]}</script></head>'
+        "<body><h1>Northwind Robotics</h1><p>We build warehouse robots in Leeds.</p></body></html>"
+    )
+    store = {"observations": [healthy_page(html, url="https://example.org/")]}
+    assert proactive.generate_proactive_opportunities(store, demoted=[], findings=[]) == []
+
+
+# -- C: a genuinely broken site keeps its findings, unchanged ----------------
+
+def test_broken_page_keeps_its_finding_and_is_not_offered_an_enhancement():
+    findings = [{
+        "id": "F-001", "check_id": "D-EXTRACT-02", "severity": "medium",
+        "title": "Duplicate titles", "evidence": "Two pages share one title.",
+        "source_urls": ["https://example.org/support"],
+    }]
+    before = json.dumps(findings, sort_keys=True)
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=findings)
+
+    # The defect is untouched: the proactive layer neither rewrites nor demotes it.
+    assert json.dumps(findings, sort_keys=True) == before
+    # And the page with an extractability defect is not also handed an enhancement.
+    assert not any("support" in url for o in opportunities for url in o["source_urls"])
+
+
+def test_a_page_without_a_finding_is_unaffected_by_another_pages_finding():
+    findings = [{"id": "F-001", "check_id": "D-EXTRACT-02", "severity": "medium",
+                 "title": "t", "evidence": "e", "source_urls": ["https://example.org/other"]}]
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=findings)
+    assert any(o["source"] == "answer_markup_gap" for o in opportunities)
+
+
+# -- D: ambiguous evidence produces nothing ---------------------------------
+
+@pytest.mark.parametrize("html,reason", [
+    (faq_html(count=5, answer="Yes."), "question headings with no substantive answer below them"),
+    (faq_html(count=2), "too few question headings to be an answer set"),
+    (sectioned_html(count=5, body="Short."), "sections too thin to be worth citing"),
+    (sectioned_html(count=2), "too few sections to call the page long-form"),
+    ("<html><body><h2>Is this a question?</h2></body></html>", "a heading with no page behind it"),
+], ids=["unanswered-questions", "too-few-questions", "thin-sections", "too-few-sections", "bare-heading"])
+def test_ambiguous_evidence_yields_no_opportunity(html, reason):
+    store = {"observations": [healthy_page(html)]}
+    assert proactive.generate_proactive_opportunities(store, demoted=[], findings=[]) == [], reason
+
+
+# -- E: duplicates are collapsed --------------------------------------------
+
+def test_the_same_page_seen_through_both_lenses_yields_one_opportunity():
+    html = faq_html(count=5)
+    store = {"observations": [
+        healthy_page(html, kind="HTTP_FETCH"),
+        healthy_page(html, kind="RENDER"),
+    ]}
+    opportunities = proactive.generate_proactive_opportunities(store, demoted=[], findings=[])
+    assert len([o for o in opportunities if o["source"] == "answer_markup_gap"]) == 1
+
+
+def test_identical_opportunities_are_deduplicated():
+    one = {"source": "answer_markup_gap", "title": "T", "evidence": "e", "why_it_matters": "w",
+           "suggested_action": "a", "validation": "v", "confidence": "high",
+           "source_urls": ["https://example.org/x"], "observation_ids": ["OBS-1"]}
+    assert len(proactive._deduplicate([dict(one), dict(one), dict(one)])) == 1
+
+
+# -- F: speculative opportunities are rejected before emission --------------
+
+@pytest.mark.parametrize("field", ["title", "evidence", "why_it_matters", "suggested_action", "validation"])
+def test_an_opportunity_missing_its_grounding_is_rejected(field):
+    item = proactive._opportunity(
+        source="answer_markup_gap", title="T", evidence="e", why_it_matters="w",
+        suggested_action="a", validation="v", confidence="high",
+        source_urls=["https://example.org/x"], observation_ids=["OBS-1"])
+    item[field] = "   "
+    assert not proactive._is_grounded(item)
+
+
+def test_an_opportunity_anchored_to_nothing_observed_is_rejected():
+    item = proactive._opportunity(
+        source="section_anchor_gap", title="T", evidence="e", why_it_matters="w",
+        suggested_action="a", validation="v", confidence="high")
+    assert not item["source_urls"] and not item["observation_ids"]
+    assert not proactive._is_grounded(item)
+
+
+def test_an_opportunity_with_an_invented_confidence_is_rejected():
+    item = proactive._opportunity(
+        source="answer_markup_gap", title="T", evidence="e", why_it_matters="w",
+        suggested_action="a", validation="v", confidence="certain",
+        source_urls=["https://example.org/x"])
+    assert not proactive._is_grounded(item)
+
+
+def test_opportunities_never_reach_the_report_ungrounded():
+    # The generator, not just the predicate, is what enforces this.
+    store = {"observations": [healthy_page(faq_html(count=5))]}
+    for item in proactive.generate_proactive_opportunities(store, demoted=[], findings=[]):
+        assert proactive._is_grounded(item)
+
+
+# ---------------------------------------------------------------------------
 # Integration tests -- run_audit() end to end
 # ---------------------------------------------------------------------------
 
@@ -421,6 +710,41 @@ def test_run_audit_composes_findings_from_multiple_detector_skills():
     assert report["run"]["evidence_binding_drops"] == []
     assert report["run"]["skill_failures"] == []
     assert report["summary"]["total_findings"] == len(report["findings"])
+
+
+def test_unevaluable_checks_are_disclosed_without_disturbing_the_rest_of_the_audit():
+    """End to end: the checks that could not run are named in coverage, the
+    checks that could run still produce their findings, and the report is
+    still schema-valid with no duplicate coverage rows."""
+    report = run_audit.run_audit(
+        "https://acme.example/",
+        fetch=make_fetch(acme_site()),
+        robots_fetcher=robots_missing,
+        render_capability={"available": False, "reason": "x"},
+        now=FIXED_NOW,
+        sleep=NO_SLEEP,
+    )
+
+    # A: the unavailable instrument becomes coverage, never a finding.
+    unavailable = [c for c in report["coverage"] if c["reason"] == "UNAVAILABLE_INSTRUMENT"]
+    assert unavailable
+    disclosed = " ".join(c["detail"] for c in unavailable)
+    for check_id in ("D-RENDER-02", "E-ANSWER-04", "D-ENTITY-03", "D-CRAWL-14"):
+        assert check_id in disclosed
+        assert not any(f["check_id"] == check_id for f in report["findings"]), \
+            f"{check_id} cannot have a finding when its instrument was unavailable"
+
+    # B: the report is still schema-valid.
+    is_valid, errors = validate_report_schema(report)
+    assert is_valid, errors
+    assert report["run"]["schema_valid"] is True
+
+    # C: checks that do not need the missing instrument still run.
+    assert len({f["check_id"] for f in report["findings"]}) >= 3
+
+    # E: no duplicate coverage rows.
+    keys = [(c["reason"], c.get("scope")) for c in report["coverage"]]
+    assert len(keys) == len(set(keys)), f"duplicate coverage entries: {keys}"
 
 
 def test_run_audit_is_deterministic_given_the_same_inputs():

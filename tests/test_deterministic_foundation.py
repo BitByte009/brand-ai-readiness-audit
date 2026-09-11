@@ -282,3 +282,146 @@ def test_raw_vs_rendered_pipeline_flags_render_only_content():
     comparison = compare_raw_vs_rendered(raw_html, rendered_html)
 
     assert comparison["evidence"]["rendered_only_nodes"] == ["p"]
+
+
+# ---------------------------------------------------------------------------
+# Cross-script generalization: decoding and tokenization
+# ---------------------------------------------------------------------------
+#
+# Every text-based check reads whatever these two produce. When they assume
+# ASCII, the assumption does not fail loudly on an unseen non-Latin site -- it
+# quietly corrupts or empties the input and the checks draw conclusions from
+# the wreckage. The scripts below are deliberately structurally different from
+# each other: accented Latin, a non-Latin alphabet, and a script with no word
+# spaces at all.
+
+GREEK = "Ρουλεμάν ακριβείας για μηχανουργεία"
+JAPANESE = "機械工場向けの精密ベアリング"
+FRENCH = "Roulements de précision pour ateliers"
+
+
+@pytest.mark.parametrize("declaration,body_prefix", [
+    ("text/html; charset=utf-8", b""),                       # transport declares it
+    ("text/html", b'<meta charset="utf-8">'),                # only the document declares it
+    ("text/html", b'<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'),
+    ("text/html", b"\xef\xbb\xbf"),                          # only a byte-order mark
+    ("text/html", b""),                                      # nothing declares it at all
+], ids=["http-header", "meta-charset", "meta-http-equiv", "bom", "undeclared-utf8"])
+def test_html_is_decoded_the_way_a_browser_decodes_it(declaration, body_prefix):
+    # requests defaults text/* with no charset to ISO-8859-1, which turns every
+    # non-ASCII page into mojibake. HTML5, and every browser, does not.
+    body = body_prefix + f"<html><body><h1>{GREEK}</h1></body></html>".encode("utf-8")
+    encoding = http_client.html_encoding({"Content-Type": declaration}, body)
+    assert GREEK in body.decode(encoding)
+
+
+def test_an_explicit_transport_charset_still_wins_over_the_document():
+    body = b'<meta charset="utf-8">' + "caf\xe9".encode("latin-1")
+    assert http_client.html_encoding({"Content-Type": "text/html; charset=iso-8859-1"}, body) == "iso-8859-1"
+
+
+def test_genuinely_latin1_bytes_are_not_forced_to_utf8():
+    assert http_client.html_encoding({"Content-Type": "text/html"}, b"caf\xe9") == "iso-8859-1"
+
+
+@pytest.mark.parametrize("text", [GREEK, JAPANESE, FRENCH], ids=["greek", "japanese", "french"])
+def test_identical_text_is_recognized_as_identical_in_any_script(text):
+    from lib.common.extract import containment_ratio, significant_words
+    # The ASCII-only tokenizer this replaced returned an empty set for Greek and
+    # Japanese, so a page whose title exactly described its body scored 0.0 and
+    # read as a mismatch.
+    assert significant_words(text)
+    assert containment_ratio(text, text) == 1.0
+
+
+def test_accented_words_are_not_split_at_the_accent():
+    from lib.common.extract import significant_words
+    # "précision" came back as "cision" under [a-z0-9]+, silently corrupting
+    # every overlap comparison on French, Spanish, German or Portuguese pages.
+    assert "précision" in significant_words(FRENCH)
+    assert "cision" not in significant_words(FRENCH)
+
+
+def test_ascii_tokenization_is_unchanged_by_the_unicode_rewrite():
+    from lib.common.extract import significant_words
+    import re
+    ascii_text = "Precision bearings for machine shops, next-day dispatch (stocked sizes only) 2026."
+    previous = {w for w in re.findall(r"[a-z0-9]+", ascii_text.lower())
+                if len(w) >= 4 and w not in {"a", "an", "the", "and", "or", "but", "of", "to", "for",
+                                             "in", "on", "at", "is", "are", "was", "were", "with",
+                                             "that", "this", "it", "as", "by", "be"}}
+    assert significant_words(ascii_text) == previous
+
+
+def test_word_thresholds_are_measurable_in_scripts_without_spaces():
+    from lib.common.extract import text_weight
+    # Splitting on whitespace scores any amount of Japanese prose as one word,
+    # which puts every word-count threshold permanently out of reach for it.
+    assert text_weight("one two three four five") == 5          # unchanged for spaced text
+    assert text_weight(JAPANESE * 10) > 25
+    assert text_weight(JAPANESE) < text_weight(JAPANESE * 10)   # monotonic, not a constant
+
+
+# ---------------------------------------------------------------------------
+# Crawl resource identity: one key per resource
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("a,b,reason", [
+    ("http://h/", "http://h/index.html", "directory index resolves to its directory"),
+    ("http://h/docs/", "http://h/docs/index.htm", "index under a subdirectory"),
+    ("http://h/docs/", "http://h/docs/index.php", "PHP directory index"),
+    ("http://h/a", "http://h/a#section", "a fragment points into a resource, not at another one"),
+    ("http://h/a", "http://H/a", "hosts are case-insensitive"),
+    ("http://h/a", "http://h:80/a", "the default port is equivalent to omitting it"),
+    ("https://h/a", "https://h:443/a", "the default HTTPS port likewise"),
+    ("http://h/", "http://h", "an empty path is the root"),
+], ids=lambda v: None)
+def test_equivalent_urls_collapse_to_one_crawl_resource(a, b, reason):
+    from lib.site_observer.crawl import canonical_resource_url
+    assert canonical_resource_url(a) == canonical_resource_url(b), reason
+
+
+@pytest.mark.parametrize("a,b,reason", [
+    ("http://h/a", "http://h/b", "different paths"),
+    ("http://h/a", "http://h/a/", "trailing slash is server-defined, not a URL equivalence"),
+    ("http://h/p?page=1", "http://h/p?page=2", "query strings select different resources"),
+    ("http://h/p", "http://h/p?page=2", "a query string is part of the resource identity"),
+    ("http://h/a", "http://h/A", "paths are case-sensitive"),
+    ("http://h/a", "https://h/a", "scheme is part of the origin"),
+    ("http://h/a", "http://other/a", "different hosts"),
+    ("http://h/indexes/", "http://h/", "a path that merely starts like an index name"),
+    ("http://h/myindex.html", "http://h/", "index.html only counts as a whole segment"),
+], ids=lambda v: None)
+def test_distinct_resources_are_never_merged(a, b, reason):
+    from lib.site_observer.crawl import canonical_resource_url
+    assert canonical_resource_url(a) != canonical_resource_url(b), reason
+
+
+def test_a_page_linked_two_ways_is_fetched_and_counted_once():
+    from lib.site_observer.crawl import crawl
+    calls = []
+    def fetch(url):
+        calls.append(url)
+        # The homepage links to itself as "/" and as "/index.html", plus one real page.
+        html = ('<a href="/">Home</a><a href="/index.html">Home again</a>'
+                '<a href="/about">About</a>') if len(calls) == 1 else ""
+        return {"status_code": 200, "html": html}
+
+    result = crawl("https://example.org/index.html", fetch, robots={"status": "missing"})
+
+    assert calls == ["https://example.org/", "https://example.org/about"]
+    assert len(result["pages"]) == 2                    # scope accounting is not inflated
+    assert "https://example.org/index.html" not in result["pages"]
+
+
+def test_a_redirect_target_is_still_recorded_as_its_own_fetch():
+    # Normalization must not swallow a redirect: the crawler still fetches what
+    # it was given and the transport records where it landed.
+    from lib.site_observer.crawl import crawl
+    seen = []
+    def fetch(url):
+        seen.append(url)
+        return {"status_code": 200, "html": "", "final_url": "https://example.org/target"}
+    result = crawl("https://example.org/", fetch, robots={"status": "missing"})
+    assert seen == ["https://example.org/"]
+    assert result["pages"]["https://example.org/"]["final_url"] == "https://example.org/target"

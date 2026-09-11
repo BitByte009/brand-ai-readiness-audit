@@ -17,10 +17,10 @@ import re
 import time
 from collections import deque
 from typing import Any, Callable, Dict, List, Optional, Set
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunsplit
 
 from lib.common.extract import extract_links
-from lib.common.robots import robots_allows
+from lib.common.robots import robots_allows_every_interpretation
 from lib.common.network_policy import unsafe_target
 
 _NUMERIC_SEGMENT_RE = re.compile(r"^\d+$")
@@ -36,6 +36,56 @@ def registrable_host(url_or_host: str) -> str:
     host = urlparse(url_or_host).netloc or url_or_host
     host = host.split("@")[-1].split(":")[0].lower()
     return host[4:] if host.startswith("www.") else host
+
+
+# Directory-index filenames every common server maps to the containing
+# directory. Deliberately short: these are the spellings that are near-universal,
+# not every filename a server *could* be configured to treat as an index.
+_DIRECTORY_INDEX_NAMES = ("index.html", "index.htm", "index.php", "default.html", "default.htm")
+
+
+def canonical_resource_url(url: str) -> str:
+    """One key per resource, so a page linked two ways is fetched and reported once.
+
+    Applies only normalizations that URL semantics already guarantee, plus one
+    near-universal server convention:
+
+    - scheme and host are case-insensitive (RFC 3986), so they lowercase; the
+      path is case-sensitive and is left exactly as written;
+    - the default port for the scheme is equivalent to omitting it;
+    - a fragment is a client-side pointer into a resource, never a different
+      resource, so it is dropped;
+    - a trailing directory-index filename resolves to its directory on every
+      mainstream server, so "/docs/index.html" keys as "/docs/";
+    - an empty path is "/".
+
+    Deliberately NOT normalized, because each would merge resources that are
+    genuinely allowed to differ: the query string (order and presence are
+    server-defined, and "?page=2" is a different resource), and the trailing
+    slash on a non-index path ("/about" and "/about/" are distinct targets that
+    servers usually resolve with a redirect -- which this crawler already
+    follows, recording the resolved URL).
+    """
+    parsed = urlparse(url)
+    scheme = (parsed.scheme or "").lower()
+    host = (parsed.hostname or "").lower()
+    if not scheme or not host:
+        return url.split("#")[0]
+
+    netloc = host
+    port = parsed.port
+    if port and port != (443 if scheme == "https" else 80 if scheme == "http" else None):
+        netloc = f"{host}:{port}"
+
+    path = parsed.path or "/"
+    for index_name in _DIRECTORY_INDEX_NAMES:
+        if path.endswith("/" + index_name):
+            path = path[: -len(index_name)]
+            break
+    if not path:
+        path = "/"
+
+    return urlunsplit((scheme, netloc, path, parsed.query, ""))
 
 
 def template_shape(path: str) -> str:
@@ -86,7 +136,9 @@ def crawl(
     logic without a real test suite run taking minutes."""
     host = registrable_host(origin)
     max_frontier = max_frontier if max_frontier is not None else max_pages * 6
-    initial = list(dict.fromkeys([origin] + (seed_urls or [])))[:max(1, max_frontier)]
+    initial = list(
+        dict.fromkeys(canonical_resource_url(url) for url in [origin] + (seed_urls or []))
+    )[:max(1, max_frontier)]
     queue = deque(initial)
     seen: Set[str] = set(initial)
     pages: Dict[str, Dict[str, Any]] = {}
@@ -102,7 +154,7 @@ def crawl(
         path = urlparse(url).path or "/"
         if urlparse(url).query:
             path += "?" + urlparse(url).query
-        if robots is not None and not robots_allows(robots, path):
+        if robots is not None and not robots_allows_every_interpretation(robots, path):
             skipped_robots.append(url)
             continue
 
@@ -129,7 +181,7 @@ def crawl(
             parsed = urlparse(href)
             if parsed.scheme not in ("http", "https") or registrable_host(href) != host:
                 continue
-            normalized = href.split("#")[0]
+            normalized = canonical_resource_url(href)
             link_graph.setdefault(normalized, set()).add(url)
             if normalized not in seen and len(seen) < max_frontier:
                 seen.add(normalized)

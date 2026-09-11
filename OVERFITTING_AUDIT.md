@@ -2,6 +2,9 @@
 
 # Implementation and test-suite overfitting audit
 
+> **Dated record.** Figures in this document describe the pass it reports on. Current release-candidate figures are 718 offline tests, corpus 29/29 with no false positives or false negatives, and 37/37 evidence/recommendation/severity gates -- all measured against expectations authored in this repository, which is regression evidence rather than independent real-world validation.
+
+
 ## Scope and conclusion
 
 Reviewed the common library, observation collector/crawler/renderer/probe,
@@ -44,6 +47,32 @@ the retired assumption.
 | The final two hostname labels identify one organization. | Treat the audited host and its descendants as site-local, normalize www, and leave unrelated hosts external. Do not guess registrable domains or ownership. | `test_continuation_host_scope_does_not_guess_registrable_domains` covers co.uk, hosted tenants and valid descendants. |
 | Printing corpus failures while exiting zero is adequate validation. | Exit nonzero for measured FP/FN, guardrail, coverage, skill, schema or quality failures. No fixture-name exceptions added. | `test_corpus_gate.py` exercises each failure class and a clean result. |
 
+## Second pass: cross-script generalization
+
+The first pass reviewed rule shape — URL forms, markup spellings, archetypes,
+scope inference. It did not review the two primitives every text-based rule
+sits on: how bytes become text, and how text becomes tokens. Both assumed
+ASCII, and neither fails loudly. Reproduced end to end against a healthy Greek
+site before fixing.
+
+| OLD ASSUMPTION | GENERALIZED RULE | NEW TEST / regression |
+|---|---|---|
+| A response with no charset parameter is ISO-8859-1 (the HTTP/1.1 default `requests` applies). | Resolve encoding the way HTML5 and browsers do: transport charset, then BOM, then the document's own `<meta charset>`, then UTF-8 if the bytes are valid UTF-8, then Latin-1. Deterministic ladder, no character-set guessing library. | `test_deterministic_foundation.py::test_html_is_decoded_the_way_a_browser_decodes_it` (5 declaration styles); `test_an_explicit_transport_charset_still_wins_over_the_document`; `test_genuinely_latin1_bytes_are_not_forced_to_utf8` |
+| Content words are `[a-z0-9]+`. | Tokenize on Unicode word characters, and approximate scripts written without spaces by character bigrams. ASCII output is unchanged. | `test_identical_text_is_recognized_as_identical_in_any_script`; `test_accented_words_are_not_split_at_the_accent`; `test_ascii_tokenization_is_unchanged_by_the_unicode_rewrite` |
+| A word count is `len(text.split())`. | Charge spaceless runs at one word per three characters — below the real ratio, so the estimate under-counts rather than manufacturing substance. Spaced text scores exactly as before. | `test_word_thresholds_are_measurable_in_scripts_without_spaces` |
+| A question heading ends in `"?"`. | Accept fullwidth, Arabic and Greek question marks; read a trailing `";"` as a question only when the heading is actually Greek. | `test_answered_questions_are_recognized_in_any_script`; `test_a_heading_ending_in_a_semicolon_is_not_a_question_in_latin_script` |
+
+Downstream effect, measured: E-ANSWER-01 compares a title against its body by
+word overlap. With an empty token set the overlap was always 0.0, so the check
+fired on **every** content page of a healthy Greek site (3 of 3). It now fires
+on none of them, and still fires on a genuine Greek title/body mismatch —
+`test_engagement_audit.py::test_e_answer_01_never_fires_when_a_non_ascii_title_matches_its_body`
+and `::test_e_answer_01_still_fires_on_a_genuine_non_ascii_mismatch`.
+
+The corpus is entirely ASCII, so it could not have caught any of these and its
+results are unchanged by the fixes. That is itself the finding: a corpus can
+score full marks with no false positives while an entire class of unseen sites is mishandled.
+
 ## Deterministic checks intentionally retained
 
 - Observed HTTP failures, explicit robots/noindex signals, redirect loops,
@@ -74,7 +103,7 @@ the retired assumption.
 | Trust | English date/claim patterns; whole-page citation proximity and date inventories; archetype suppression; a named embedded organization can be mistaken for an operator. Exact role paths are still weak signals. | Bind source/date/operator evidence to the particular claim/subject. Preserve uncertainty when relationships are absent rather than invent them from global page text. |
 | Prioritization | Mechanism prose is a fallback subtype key; sampled affected URLs cannot prove disjoint populations or reconstruct an exact union. | Stable detector-supplied subtype IDs and explicit population identity/full affected sets. Current counts are conservative lower bounds. |
 | Tests and corpus | Most tests use hand-built stores and English, example.com/Acme-style fixtures. Corpus scoring mainly compares check-ID sets; recommendation/evidence length and severity enum checks do not prove substantive correctness. Confirmed/unreachable misses are tracked separately. | Continue metamorphic tests across brands, routes, languages and representations; add independently authored fixtures with multiplicity, scope and evidence-span assertions. The new CI gate enforces existing metrics, not semantic ground truth. |
-| Packaging | `tests/validate_marketplace.py` is a pre-existing `NotImplementedError("skeleton")` stub. | Implement the promised packaging validator as separate unfinished work; do not count it as passing or silently remove it. |
+| Packaging | RESOLVED since this pass was written. `tests/validate_marketplace.py` was then a `NotImplementedError("skeleton")` stub; it is now a 248-line offline validator that checks the manifest, skill contracts, resource links, composition, scripts, schemas and package size, exits zero, and is covered by 49 compliance tests. Packaging validation is claimed green on that basis. | None outstanding. Optional `--official` `skills-ref` validation fails rather than silently skipping when the tool is absent. |
 
 ## Verification
 
@@ -88,8 +117,9 @@ Final results:
   false negatives or guardrail violations; 34/34 passed each existing quality
   metric. Schema, coverage and skill-failure gates also passed (exit 0).
 - `git diff --check` passed.
-- `tests/validate_marketplace.py` was run and failed with its pre-existing
-  `NotImplementedError("skeleton")`; packaging validation is not claimed green.
+- `tests/validate_marketplace.py` then failed with its pre-existing
+  `NotImplementedError("skeleton")`. **That is no longer true**: the validator is
+  implemented and passes. This line records the state at the time of that pass.
 
 The initial browserless corpus run exposed two missing expected render-dependent
 checks and one unexpected entity check. After installing isolated temporary

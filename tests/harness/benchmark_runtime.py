@@ -20,6 +20,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / "skills/audit-orchestrator/scripts"), str(
 import run_audit
 from fixture_server import FixtureServer
 from lib.common.extract import parse_cache
+from lib.common import public_transport
 from lib.common.network_policy import RequestPolicy
 
 
@@ -80,7 +81,11 @@ def main():
         url, options = static_input()
         result = measure(url, options, args.baseline)
     print(json.dumps(result, indent=2))
+    if result["scope"]["pages_crawled"] == 0:
+        print("WARNING: zero pages crawled -- this is not a runtime measurement.", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

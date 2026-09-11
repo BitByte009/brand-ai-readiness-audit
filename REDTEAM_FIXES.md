@@ -2,6 +2,9 @@
 
 # Red-team fixes
 
+> **Dated record.** Figures in this document describe the pass it reports on. Current release-candidate figures are 718 offline tests, corpus 29/29 with no false positives or false negatives, and 37/37 evidence/recommendation/severity gates -- all measured against expectations authored in this repository, which is regression evidence rather than independent real-world validation.
+
+
 Scope: highest-impact, directly reproducible issues from the review. Existing
 overfitting changes were preserved. No new detector, model integration, marketplace
 skill, or external service was added. Useful deterministic checks remain in place.

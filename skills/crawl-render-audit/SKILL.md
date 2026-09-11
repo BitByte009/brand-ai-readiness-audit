@@ -68,6 +68,12 @@ Raw-vs-rendered findings must quote text present in one lens and absent in the o
 See [references/fp-guardrails.md](references/fp-guardrails.md). Normal JavaScript use, missing structured data on
 its own, short pages, and legitimately disallowed utility paths are never findings.
 
+> **Capability note.** D-EXTRACT-01/03/06/07 and D-RENDER-02 need a per-page extraction
+> probe, and the sitemap-quality half of D-CRAWL-07 needs a fetched sitemap. Neither
+> instrument is wired into this environment, so those checks are reported as
+> `UNAVAILABLE_INSTRUMENT` coverage entries rather than evaluated. Silence from them is
+> not a pass. Every other check in this skill runs from the ordinary collection pass.
+
 ## Outputs
 
 Unscored findings: `check_id, category, title, severity, confidence, mechanism,

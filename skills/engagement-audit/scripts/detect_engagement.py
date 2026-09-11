@@ -33,6 +33,7 @@ from _engagement_util import (
     http_fetches,
     hub_url,
     internal_fragment_links,
+    navigation_destinations,
     is_in_collapsed_region,
     is_terminal_page,
     main_text,
@@ -48,27 +49,49 @@ from lib.common.extract import extract_metadata, language_supported
 CATEGORY = "engagement"
 
 
-def _brand_tokens(entity_profile: Optional[Dict[str, Any]]) -> List[str]:
+def _brand_tokens(entity_profile: Optional[Dict[str, Any]], for_url: Optional[str] = None) -> List[str]:
+    """Names that would identify the operator to a visitor on this page.
+
+    `for_url` drops alias tokens whose only evidence is this very page. A page
+    cannot identify its owner by repeating its own title: if /docs/rate-limits
+    is titled "Rate Limit Configuration", finding that string on that page says
+    nothing about whose site it is. Excluding it is what lets E-ORIENT-01 see a
+    genuinely unbranded deep page instead of being satisfied by circular
+    evidence. The canonical name is never dropped -- when a page's title *is*
+    the brand name, that is real identification.
+    """
     if not entity_profile:
         return []
     fields = entity_profile.get("fields", {})
     canonical = (fields.get("canonical_name") or {}).get("value")
     if not canonical:
         return []
-    aliases = (fields.get("aliases") or {}).get("value") or ""
-    tokens = [canonical] + [a.strip() for a in aliases.split(",") if a.strip()]
+
+    alias_field = fields.get("aliases") or {}
+    page_local = set()
+    if for_url:
+        by_value: Dict[str, set] = {}
+        for candidate in alias_field.get("candidates", []) or []:
+            by_value.setdefault(str(candidate.get("value", "")).strip(), set()).add(candidate.get("source_url"))
+        page_local = {value for value, urls in by_value.items() if urls == {for_url}}
+
+    aliases = alias_field.get("value") or ""
+    tokens = [canonical] + [
+        alias.strip() for alias in aliases.split(",")
+        if alias.strip() and alias.strip() not in page_local
+    ]
     return tokens
 
 
 def check_e_orient_01(store: Dict[str, Any], entity_profile: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    tokens = _brand_tokens(entity_profile)
-    if not tokens:
+    if not _brand_tokens(entity_profile):
         return []  # no determined canonical name -- that gap is D-ENTITY-01's, not this skill's
 
     findings = []
     for url, page in effective_pages(store).items():
         if url_depth(url) < 2:
             continue
+        tokens = _brand_tokens(entity_profile, for_url=url)
         title = extract_metadata(page["html"])["title"]
         positions = brand_token_positions(page["html"], title, tokens)
         if any(positions.values()):
@@ -192,8 +215,6 @@ def check_e_answer_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
     findings = []
 
     for url, page in effective_pages(store).items():
-        if not language_supported(page['html']):
-            continue
         meta = extract_metadata(page["html"])
         title_desc = f"{meta['title']} {meta['description']}".strip()
         if not title_desc:
@@ -388,6 +409,11 @@ def _outgoing_classifications(url: str, page: Dict[str, Any]) -> List[str]:
     return [classify_link(link, url) for link in links]
 
 
+# Two destinations, because one is satisfied by a bare "Home" link, which
+# returns the visitor to the start rather than letting them continue.
+MIN_NAVIGATION_DESTINATIONS = 2
+
+
 def check_e_continue_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
     if store.get('archetype') in {'personal-portfolio', 'web-app'}:
         return []
@@ -406,6 +432,15 @@ def check_e_continue_01(store: Dict[str, Any]) -> List[Dict[str, Any]]:
         if not kinds:
             continue  # E-CONTINUE-02's case
         if any(k == "internal_content" for k in kinds):
+            continue
+
+        # This check asserts the visitor has "no way to go deeper or sideways
+        # without returning to search". Standing navigation that reaches real
+        # internal destinations falsifies exactly that claim, so the same
+        # evidence that clears E-CONTINUE-02 has to clear this one. What remains
+        # reportable is narrower than E-CONTINUE-02's: a page whose own content
+        # points only off-site *and* which offers no navigation to come back to.
+        if len(navigation_destinations(page["html"], url)) >= MIN_NAVIGATION_DESTINATIONS:
             continue
 
         probe = probe_map.get(url)
@@ -459,6 +494,14 @@ def check_e_continue_02(store: Dict[str, Any]) -> List[Dict[str, Any]]:
         if kinds:
             continue
 
+        # No in-content link is not the same as no way out. Standing navigation
+        # that reaches real internal destinations is a continuation path, and
+        # treating its absence from the prose as a dead end reports every
+        # well-built brochure and documentation page as a defect.
+        navigation = navigation_destinations(page["html"], url)
+        if len(navigation) >= MIN_NAVIGATION_DESTINATIONS:
+            continue
+
         findings.append(
             make_finding(
                 check_id="E-CONTINUE-02",
@@ -467,10 +510,13 @@ def check_e_continue_02(store: Dict[str, Any]) -> List[Dict[str, Any]]:
                 severity="medium",
                 confidence="high",
                 mechanism="There is structurally nothing to click that leads "
-                "deeper into the site from this page's own content.",
-                impact="A visitor has no way to continue browsing from this page's content.",
-                observed_signal="0 outgoing links in the main-content region",
-                evidence=f"No content-region links found on {url}",
+                "deeper into the site, either from this page's own content or "
+                "from its navigation.",
+                impact="A visitor has no way to continue browsing from this page.",
+                observed_signal="no in-content internal links and fewer than "
+                f"{MIN_NAVIGATION_DESTINATIONS} internal destination(s) in site navigation",
+                evidence=f"Outgoing content-area link kinds on {url}: {kinds}; "
+                f"internal navigation destinations: {navigation}",
                 observation_ids=[page["observation_id"]],
                 source_urls=[url],
                 affected=affected_block([url]),

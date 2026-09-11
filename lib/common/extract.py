@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 _PARSE_CACHE = ContextVar("audit_parse_cache", default=None)
 _TITLE_SEPARATOR_RE = re.compile(r"\s*[|—:]\s*|\s+-\s+")
 _SIGNIFICANT_WORD_RE = re.compile(r"[^\W_]+", re.UNICODE)
+_SPACELESS_SCRIPT_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]+")
 _STOPWORDS = {
     "a", "an", "the", "and", "or", "but", "of", "to", "for", "in", "on", "at",
     "is", "are", "was", "were", "with", "that", "this", "it", "as", "by", "be",
@@ -29,8 +30,21 @@ def title_segments(title: str) -> List[str]:
 
 
 def significant_words(text: str) -> set:
-    words = _SIGNIFICANT_WORD_RE.findall((text or "").lower())
-    return {w for w in words if len(w) >= 4 and w not in _STOPWORDS}
+    """Content tokens for overlap comparisons, across scripts that separate
+    words and scripts that do not.
+
+    Space-separated scripts tokenize on word characters. Scripts written
+    without spaces are approximated by character bigrams: crude next to real
+    segmentation, but enough to tell "this title describes this body" from
+    "it does not", which is all the callers ask. Output for ASCII input is
+    unchanged from the ASCII-only implementation this replaced.
+    """
+    lowered = (text or "").lower()
+    spaced = _SIGNIFICANT_WORD_RE.findall(_SPACELESS_SCRIPT_RE.sub(" ", lowered))
+    words = {w for w in spaced if len(w) >= 4 and w not in _STOPWORDS}
+    for run in _SPACELESS_SCRIPT_RE.findall(lowered):
+        words.update(run[index:index + 2] for index in range(len(run) - 1))
+    return words
 
 
 def language_supported(html: str) -> bool:
@@ -283,6 +297,58 @@ def extract_text(html: str) -> str:
     soup = _soup(html)
     text = soup.get_text(" ", strip=True)
     return re.sub(r"\s+", " ", text)
+
+
+def text_weight(text: str) -> int:
+    """Approximate word count for prose in any script.
+
+    Splitting on whitespace scores a page of Japanese or Chinese at one or two
+    "words" however substantial it is, so any threshold expressed in words
+    excludes those languages entirely. Spaceless runs are charged at one word
+    per three characters -- deliberately below the real ratio, so the estimate
+    under-counts rather than manufacturing substance. Text without such runs
+    scores exactly as `len(text.split())` did.
+    """
+    spaceless = sum(len(run) for run in _SPACELESS_SCRIPT_RE.findall(text or ""))
+    spaced = len(_SPACELESS_SCRIPT_RE.sub(" ", text or "").split())
+    return spaced + spaceless // 3
+
+
+_HEADING_TAGS = ("h1", "h2", "h3", "h4", "h5", "h6")
+
+
+def heading_sections(html: str) -> List[Dict[str, Any]]:
+    """Split a page into (heading, prose that follows it) sections.
+
+    A structural view of a page that `page_inventory`'s counts cannot give:
+    whether real prose actually follows a heading, which is what separates a
+    documented answer from a bare label. Body text runs from the heading to
+    the next heading at the same or a shallower level.
+
+    Sibling traversal only sees prose that shares the heading's parent. That
+    is the common authoring shape, and when a page nests differently the word
+    count comes back low, so callers under-fire rather than over-fire.
+    """
+    soup = _soup(html)
+    sections: List[Dict[str, Any]] = []
+    for heading in soup.find_all(_HEADING_TAGS):
+        level = int(heading.name[1])
+        words = 0
+        for sibling in heading.next_siblings:
+            name = getattr(sibling, "name", None)
+            if name in _HEADING_TAGS and int(name[1]) <= level:
+                break
+            text = sibling.get_text(" ", strip=True) if name else str(sibling).strip()
+            words += text_weight(text)
+        sections.append(
+            {
+                "level": level,
+                "text": heading.get_text(" ", strip=True),
+                "id": str(heading.get("id") or "").strip(),
+                "body_words": words,
+            }
+        )
+    return sections
 
 
 def page_inventory(html: str) -> Dict[str, Any]:

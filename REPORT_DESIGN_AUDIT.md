@@ -2,6 +2,9 @@
 
 # Final report design audit
 
+> **Dated record.** Figures in this document describe the pass it reports on. Current release-candidate figures are 718 offline tests, corpus 29/29 with no false positives or false negatives, and 37/37 evidence/recommendation/severity gates -- all measured against expectations authored in this repository, which is regression evidence rather than independent real-world validation.
+
+
 The required top-level fields remain `site`, `audited_at`, `summary`, and
 `findings`. Every finding still requires `id`, `title`, `severity`, `evidence`,
 and `suggested_action`. Existing summary counters and action summary/priority

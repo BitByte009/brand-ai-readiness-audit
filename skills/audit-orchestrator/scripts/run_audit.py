@@ -32,6 +32,7 @@ for _path in (str(MARKETPLACE_ROOT), str(SCRIPTS_DIR)):
         sys.path.insert(0, _path)
 
 from lib.common.budget import Budget  # noqa: E402
+from lib.common.network_policy import MAX_REQUESTS_PER_AUDIT  # noqa: E402
 from lib.common.extract import with_parse_cache  # noqa: E402
 from lib.common.schema import validate_report as validate_report_schema  # noqa: E402
 from lib.site_observer.collect import collect  # noqa: E402
@@ -132,6 +133,119 @@ def _prioritize(pooled_findings: List[Dict[str, Any]], store: Dict[str, Any], fa
         return {"findings": [], "demoted": [], "rejected": pooled_findings, "merge_log": [], "calibration_log": []}
 
 
+# Checks whose evidence can only come from an instrument this deployment does
+# not have. A check like this is in coverage-policy.md's third state: not
+# "evaluated and passed" and not "evaluated and failed", but *not evaluable*.
+# Silence from one of them must never read as a clean bill of health, so the
+# report names them rather than leaving the reader to infer the checks ran.
+#
+# Availability is derived from the observations actually collected, not from a
+# hardcoded flag: wire a real probe or corroboration instrument later and these
+# entries disappear on their own, with no list to remember to update.
+INSTRUMENT_DEPENDENT_CHECKS = (
+    (
+        "PROBE",
+        "per-page extraction probe (needs a model instrument)",
+        ("D-EXTRACT-01", "D-EXTRACT-03", "D-EXTRACT-06", "D-EXTRACT-07", "D-RENDER-02", "E-ANSWER-04"),
+        "whether a specific fact a user would ask for is actually extractable from this page's text",
+    ),
+    (
+        "CLAIM_CORROBORATION",
+        "outbound corroboration search (needs a search instrument)",
+        ("D-ENTITY-03", "D-TRUST-05"),
+        "whether the site's claims and identity are supported anywhere beyond the site itself",
+    ),
+    (
+        "SITEMAP",
+        "sitemap retrieval (not performed by the single collection pass)",
+        ("D-CRAWL-07",),
+        "sitemap quality; the orphan-page half of D-CRAWL-07 is still evaluated from the link graph",
+    ),
+)
+
+# Gated on crawl telemetry the collector does not currently record, rather than
+# on a missing observation type.
+BUDGET_TELEMETRY_CHECKS = ("D-CRAWL-14",)
+
+
+def _unavailable_instrument_coverage(store: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Coverage entries naming the checks that could not be evaluated at all."""
+    observations = store.get("observations", []) or []
+    entries: List[Dict[str, Any]] = []
+
+    for observation_type, instrument, checks, scope in INSTRUMENT_DEPENDENT_CHECKS:
+        matching = [observation for observation in observations if observation.get("type") == observation_type]
+        # The local deterministic probe records explicit spans, but it cannot
+        # answer the model-dependent absence and extraction questions covered
+        # by this entry. A future full probe has no such marker.
+        available = bool(matching)
+        if observation_type == "PROBE":
+            available = any(
+                (observation.get("value", {}) or {}).get("method") != "deterministic_explicit_spans"
+                for observation in matching
+            )
+        if available:
+            continue
+        entries.append(
+            {
+                "check_id": "X-COV-01",
+                "status": "skipped",
+                "reason": "UNAVAILABLE_INSTRUMENT",
+                "detail": (
+                    f"{', '.join(checks)} could not be evaluated: "
+                    f"{'they require' if len(checks) > 1 else 'it requires'} a "
+                    f"{observation_type} observation from the {instrument}, which this run did "
+                    "not have. "
+                    f"{'These checks did' if len(checks) > 1 else 'This check did'} not pass; "
+                    f"{'they' if len(checks) > 1 else 'it'} did not run."
+                ),
+                "scope": scope,
+            }
+        )
+
+    crawl_capability = (store.get("capabilities", {}) or {}).get("crawl", {}) or {}
+    if not crawl_capability.get("telemetry_available", False):
+        entries.append(
+            {
+                "check_id": "X-COV-01",
+                "status": "skipped",
+                "reason": "UNAVAILABLE_INSTRUMENT",
+                "detail": (
+                    f"{', '.join(BUDGET_TELEMETRY_CHECKS)} could not be evaluated: it requires "
+                    "crawl budget telemetry that this collection pass does not record. This "
+                    "check did not pass; it did not run."
+                ),
+                "scope": "whether the crawl was cut short by budget rather than by the site's own size",
+            }
+        )
+    return entries
+
+
+def _deduplicate_coverage(coverage: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """One entry per (reason, scope); first occurrence wins."""
+    seen = set()
+    unique = []
+    for entry in coverage:
+        key = (entry.get("reason"), entry.get("scope"))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(entry)
+    return unique
+
+
+def _normalize_proactive_opportunity(item: Dict[str, Any]) -> Dict[str, Any]:
+    """Enrich legacy detector opportunities for the current report contract."""
+    normalized = dict(item)
+    normalized.setdefault("source", str(item.get("check_id") or "detector_opportunity"))
+    normalized.setdefault("evidence", str(item.get("observed_signal") or item.get("opportunity") or ""))
+    normalized.setdefault("why_it_matters", str(item.get("expected_mechanism") or ""))
+    normalized.setdefault("suggested_action", str(item.get("opportunity") or item.get("suggestion") or ""))
+    normalized.setdefault("validation", str(item.get("expected_effect") or "Re-run the audit after applying the change."))
+    normalized.setdefault("confidence", "medium")
+    return normalized
+
+
 def _summarize(findings: List[Dict[str, Any]]) -> Dict[str, int]:
     counts = {tier: 0 for tier in SEVERITY_TIERS}
     for finding in findings:
@@ -200,9 +314,22 @@ def _run_audit(
             }
         )
 
-    proactive_opportunities = _run_detector("audit-orchestrator/proactive", proactive_mod.generate_proactive_opportunities,
-                                           store, prioritized["demoted"], failures=skill_failures, coverage=coverage)
-    proactive_opportunities.extend(detector_result.get("proactive_opportunities", []))
+    coverage.extend(_unavailable_instrument_coverage(store))
+    coverage = _deduplicate_coverage(coverage)
+
+    proactive_opportunities = _run_detector(
+        "audit-orchestrator/proactive",
+        proactive_mod.generate_proactive_opportunities,
+        store,
+        prioritized["demoted"],
+        kept_findings,
+        failures=skill_failures,
+        coverage=coverage,
+    )
+    proactive_opportunities.extend(
+        _normalize_proactive_opportunity(item)
+        for item in detector_result.get("proactive_opportunities", [])
+    )
 
     report: Dict[str, Any] = {
         "site": store["target"]["audited_host"],
@@ -311,8 +438,8 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     options: Dict[str, Any] = {}
     if args.max_pages is not None:
-        if args.max_pages < 1:
-            parser.error("--max-pages must be positive")
+        if not 1 <= args.max_pages <= MAX_REQUESTS_PER_AUDIT:
+            parser.error(f"--max-pages must be between 1 and {MAX_REQUESTS_PER_AUDIT}")
         options["budget"] = {"raw_crawl_max_pages": args.max_pages}
     options["include_evidence"] = args.save_evidence
 
